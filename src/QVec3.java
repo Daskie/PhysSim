@@ -1,12 +1,12 @@
 /**
  * @since 5/17/2016
  */
-public class QVec3 extends QVec {
+public class QVec3 {
 
     public float x, y, z;
 
     public QVec3() {
-        this(0, 0, 0);
+
     }
 
     public QVec3(float x, float y, float z) {
