@@ -73,6 +73,14 @@ public class Main {
     }
 
     public static void main(String[] args) {
+
+        QMatN mat = new QMatN(2, 2, 1, 4, 3, 2);
+        float det = mat.det();
+        QMatN cof = mat.cof();
+        QMatN inv = mat.inv();
+
+        QMatN mat2 = mat.mult(inv);
+
         if (!init()) {
             System.err.println("Initialization failed!");
             System.exit(-1);

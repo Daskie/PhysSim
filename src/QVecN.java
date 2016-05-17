@@ -7,6 +7,10 @@ public class QVecN {
     private float vec[];
 
     public QVecN(int n) {
+        if (n < 1) {
+            throw new IllegalArgumentException("Vector cannot have less than 1 element!");
+        }
+
         this.n = n;
         vec = new float[n];
     }
