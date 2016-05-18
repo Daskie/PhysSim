@@ -275,4 +275,16 @@ public class QMatN {
     public QMatN inv() {
         return adj().div(det());
     }
+
+    public int byteSize() {
+        return width * height * 4;
+    }
+
+    public float get(int ci, int ri) {
+        return mat[ci][ri];
+    }
+
+    public void set(int ci, int ri, float v) {
+        mat[ci][ri] = v;
+    }
 }
