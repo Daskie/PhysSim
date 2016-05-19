@@ -2,6 +2,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
@@ -20,16 +21,17 @@ import static org.lwjgl.opengl.GL33.*;
 public class QMesh {
 
     private static final int COORDS_BYTES = 3 * 4;
-    private static final int COLOR_BYTES = 4 * 4;
+    private static final int COLOR_BYTES = 4;
     private static final int UV_BYTES = 2 * 4;
     private static final int NORM_BYTES = 3 * 4;
-    private static final int VERT_BYTES = COORDS_BYTES + COLOR_BYTES + UV_BYTES + NORM_BYTES;
 
     private static class Meta {
+        static final int META_BYTES = 20;
+
         int nVerts;
         int nIndices;
         byte hasCoords, hasColors, hasUVs, hasNorms;
-        byte hasTransparency, hasTranslucency;
+        byte hasTransparency, hasTranslucency, filler0, filler1;
         int nameLength;
     }
 
@@ -37,82 +39,100 @@ public class QMesh {
 
         Meta meta = new Meta();
         String name = filePath;
-        ByteBuffer coordsData = null;
+        FloatBuffer coordsData = null;
         ByteBuffer colorsData = null;
-        ByteBuffer uvsData = null;
-        ByteBuffer normsData = null;
-        ByteBuffer indicesData = null;
+        FloatBuffer uvsData = null;
+        FloatBuffer normsData = null;
+        IntBuffer indicesData = null;
 
         try {
             RandomAccessFile file = new RandomAccessFile(filePath, "r");
             FileChannel channel = file.getChannel();
 
-            meta.nVerts = file.readInt();
-            meta.nIndices = file.readInt();
-            meta.hasCoords = file.readByte();
-            meta.hasColors = file.readByte();
-            meta.hasUVs = file.readByte();
-            meta.hasNorms = file.readByte();
-            meta.hasTransparency = file.readByte();
-            meta.hasTranslucency = file.readByte();
-            meta.nameLength = file.readInt();
+            ByteBuffer metaByteBuffer = ByteBuffer.allocateDirect(Meta.META_BYTES).order(ByteOrder.LITTLE_ENDIAN);
+            if (channel.read(metaByteBuffer) != Meta.META_BYTES) {
+                throw new IOException("Unexpected number of meta bytes read from qmesh!");
+            }
+            metaByteBuffer.flip();
+
+            meta.nVerts = metaByteBuffer.getInt();
+            meta.nIndices = metaByteBuffer.getInt();
+            meta.hasCoords = metaByteBuffer.get();
+            meta.hasColors = metaByteBuffer.get();
+            meta.hasUVs = metaByteBuffer.get();
+            meta.hasNorms = metaByteBuffer.get();
+            meta.hasTransparency = metaByteBuffer.get();
+            meta.hasTranslucency = metaByteBuffer.get();
+            meta.filler0 = metaByteBuffer.get();
+            meta.filler1 = metaByteBuffer.get();
+            meta.nameLength = metaByteBuffer.getInt();
 
             //verify meta
-            if (meta.nVerts < 1 || meta.nIndices < 1 || meta.hasCoords == 0 || meta.hasColors == 0 || meta.hasUVs == 0 || meta.hasNorms == 0 || meta.nameLength < 0) {
+            if (meta.nVerts < 1 || meta.nIndices < 1 || meta.nameLength < 0) {
                 throw new IOException("Invalid qmesh meta!");
             }
 
             if (meta.nameLength > 0) {
-                ByteBuffer nameBuffer = ByteBuffer.allocateDirect(meta.nameLength);
+                ByteBuffer nameBuffer = ByteBuffer.allocateDirect(meta.nameLength).order(ByteOrder.LITTLE_ENDIAN);
                 if (channel.read(nameBuffer) != meta.nameLength) {
                     throw new IOException("Unexpected number of name bytes read from qmesh!");
                 }
                 nameBuffer.flip();
-                name = new String(nameBuffer.array(), Charset.forName("UTF-8"));
+                byte[] tempBuff = new byte[meta.nameLength];
+                nameBuffer.get(tempBuff);
+                name = new String(tempBuff, Charset.forName("UTF-8"));
             }
+
+            int namePaddBytes = (4 - meta.nameLength % 4) % 4;
+            channel.position(channel.position() + namePaddBytes);
 
             if (meta.hasCoords != 0) {
                 int coordsBytes = meta.nVerts * COORDS_BYTES;
-                coordsData = ByteBuffer.allocateDirect(coordsBytes);
-                if (channel.read(coordsData) != coordsBytes) {
+                ByteBuffer tempCoordsBuff = ByteBuffer.allocateDirect(coordsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                if (channel.read(tempCoordsBuff) != coordsBytes) {
                     throw new IOException("Unexpected number of coords bytes read from qmesh!");
                 }
-                coordsData.flip();
+                tempCoordsBuff.flip();
+                coordsData = tempCoordsBuff.asFloatBuffer();
             }
 
             if (meta.hasColors != 0) {
                 int colorsBytes = meta.nVerts * COLOR_BYTES;
-                colorsData = ByteBuffer.allocateDirect(colorsBytes);
-                if (channel.read(colorsData) != colorsBytes) {
+                ByteBuffer tempColordsBuff = ByteBuffer.allocateDirect(colorsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                if (channel.read(tempColordsBuff) != colorsBytes) {
                     throw new IOException("Unexpected number of colors bytes read from qmesh!");
                 }
-                colorsData.flip();
+                tempColordsBuff.flip();
+                colorsData = tempColordsBuff;
             }
 
             if (meta.hasUVs != 0) {
                 int uvsBytes = meta.nVerts * UV_BYTES;
-                uvsData = ByteBuffer.allocateDirect(uvsBytes);
-                if (channel.read(uvsData) != uvsBytes) {
+                ByteBuffer tempUVsBuffer = ByteBuffer.allocateDirect(uvsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                if (channel.read(tempUVsBuffer) != uvsBytes) {
                     throw new IOException("Unexpected number of uvs bytes read from qmesh!");
                 }
-                uvsData.flip();
+                tempUVsBuffer.flip();
+                uvsData = tempUVsBuffer.asFloatBuffer();
             }
 
             if (meta.hasNorms != 0) {
                 int normsBytes = meta.nVerts * NORM_BYTES;
-                normsData = ByteBuffer.allocateDirect(normsBytes);
-                if (channel.read(normsData) != normsBytes) {
+                ByteBuffer tempNormsBuff = ByteBuffer.allocateDirect(normsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                if (channel.read(tempNormsBuff) != normsBytes) {
                     throw new IOException("Unexpected number of norms bytes read from qmesh!");
                 }
-                normsData.flip();
+                tempNormsBuff.flip();
+                normsData = tempNormsBuff.asFloatBuffer();
             }
 
             int indicesBytes = meta.nIndices * 4;
-            indicesData = ByteBuffer.allocateDirect(indicesBytes);
-            if (channel.read(indicesData) != indicesBytes) {
+            ByteBuffer tempIndicesBuff = ByteBuffer.allocateDirect(indicesBytes).order(ByteOrder.LITTLE_ENDIAN);
+            if (channel.read(tempIndicesBuff) != indicesBytes) {
                 throw new IOException("Unexpected number of indices bytes read from qmesh!");
             }
-            indicesData.flip();
+            tempIndicesBuff.flip();
+            indicesData = tempIndicesBuff.asIntBuffer();
 
             channel.close();
             file.close();
@@ -124,16 +144,29 @@ public class QMesh {
             return null;
         }
 
-        return new QMesh(name, meta.nVerts, coordsData, colorsData, uvsData, normsData, meta.nIndices, indicesData);
+        return new QMesh(
+                name,
+                meta.nVerts,
+                coordsData,
+                colorsData,
+                uvsData,
+                normsData,
+                meta.nIndices,
+                indicesData
+        );
     }
 
     private String name;
     private int nVerts;
-    private ByteBuffer coordsData, colorsData, uvsData, normsData;
+    private FloatBuffer coordsData;
+    private ByteBuffer colorsData;
+    private FloatBuffer uvsData;
+    private FloatBuffer normsData;
     private int nIndices;
-    private ByteBuffer indicesData;
+    private IntBuffer indicesData;
 
-    public QMesh(String name, int nVerts, ByteBuffer coordsData, ByteBuffer colorsData, ByteBuffer uvsData, ByteBuffer normsData, int nIndices, ByteBuffer indicesData) {
+    public QMesh(String name, int nVerts, FloatBuffer coordsData, ByteBuffer colorsData, FloatBuffer uvsData, FloatBuffer normsData, int nIndices, IntBuffer indicesData) {
+        this.name = name;
         this.nVerts = nVerts;
         this.coordsData = coordsData;
         this.colorsData = colorsData;
@@ -143,13 +176,29 @@ public class QMesh {
         this.indicesData = indicesData;
     }
 
+    boolean hasCoords() {
+        return coordsData != null;
+    }
+
+    boolean hasColors() {
+        return colorsData != null;
+    }
+
+    boolean hasUVs() {
+        return uvsData != null;
+    }
+
+    boolean hasNorms() {
+        return normsData != null;
+    }
+
     QVAO buffer(int nInstances, QMat4[] instanceMats) {
 
-        int coordsSize = nVerts * COORDS_BYTES;
-        int colorsSize = nVerts * COLOR_BYTES;
-        int uvsSize = nVerts * UV_BYTES;
-        int normsSize = nVerts * NORM_BYTES;
-        int vertsSize = nVerts * VERT_BYTES;
+        int coordsSize = hasCoords() ? nVerts * COORDS_BYTES : 0;
+        int colorsSize = hasColors() ? nVerts * COLOR_BYTES : 0;
+        int uvsSize = hasUVs() ? nVerts * UV_BYTES : 0;
+        int normsSize = hasNorms() ? nVerts * NORM_BYTES : 0;
+        int vertsSize = coordsSize + colorsSize + uvsSize + normsSize;
         int indicesSize = nIndices * 4;
         int instancesSize = nInstances * 64;
 
@@ -169,92 +218,112 @@ public class QMesh {
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
         glBufferData(GL_ARRAY_BUFFER, vertsSize, GL_STATIC_DRAW);
-        glBufferSubData(GL_ARRAY_BUFFER, coordsOffset, coordsData);
-        glBufferSubData(GL_ARRAY_BUFFER, colorsOffset, colorsData);
-        glBufferSubData(GL_ARRAY_BUFFER, uvsOffset, uvsData);
-        glBufferSubData(GL_ARRAY_BUFFER, normsOffset, normsData);
+        if (hasCoords()) glBufferSubData(GL_ARRAY_BUFFER, coordsOffset, coordsData);
+        if (hasColors()) glBufferSubData(GL_ARRAY_BUFFER, colorsOffset, colorsData);
+        if (hasUVs()) glBufferSubData(GL_ARRAY_BUFFER, uvsOffset, uvsData);
+        if (hasNorms()) glBufferSubData(GL_ARRAY_BUFFER, normsOffset, normsData);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesData, GL_STATIC_DRAW);
 
-        glEnableVertexAttribArray(0);
-        glVertexAttribPointer(
-                0,										// attribute 0. Match the layout in the shader.
-                3,				                        // size
-                GL_FLOAT,					            // type
-                false,								    // normalized?
-                0,										// stride
-                coordsOffset                       		// array buffer offset
-        );
-        glEnableVertexAttribArray(1);
-        glVertexAttribPointer(
-                1,										// attribute 0. Match the layout in the shader.
-                4,				                        // size
-                GL_UNSIGNED_BYTE,					    // type
-                true,								    // normalized?
-                0,										// stride
-                colorsOffset                            // array buffer offset
-        );
-        glEnableVertexAttribArray(2);
-        glVertexAttribPointer(
-                2,										// attribute 0. Match the layout in the shader.
-                2,				                        // size
-                GL_FLOAT,					            // type
-                false,								    // normalized?
-                0,										// stride
-                uvsOffset                       		// array buffer offset
-        );
-        glEnableVertexAttribArray(3);
-        glVertexAttribPointer(
-                3,										// attribute 0. Match the layout in the shader.
-                3,				                        // size
-                GL_FLOAT,					            // type
-                false,								    // normalized?
-                0,										// stride
-                normsOffset                       		// array buffer offset
-        );
-        if (nInstances > 0) {
-            glEnableVertexAttribArray(4);
+        int attribI = 0;
+        if (hasCoords()) {
+            glEnableVertexAttribArray(attribI);
             glVertexAttribPointer(
+                    attribI,                        // attribute 0. Match the layout in the shader.
+                    3,                              // size
+                    GL_FLOAT,                       // type
+                    false,                          // normalized?
+                    0,                              // stride
+                    coordsOffset                    // array buffer offset
+            );
+            ++attribI;
+        }
+        if (hasColors()) {
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
                     4,
+                    GL_UNSIGNED_BYTE,
+                    true,
+                    0,
+                    colorsOffset
+            );
+            ++attribI;
+        }
+        if (hasUVs()) {
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
+                    2,
+                    GL_FLOAT,
+                    false,
+                    0,
+                    uvsOffset
+            );
+            ++attribI;
+        }
+        if (hasNorms()) {
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
+                    3,
+                    GL_FLOAT,
+                    false,
+                    0,
+                    normsOffset
+            );
+            ++attribI;
+        }
+        if (nInstances > 0) {
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
                     4,
                     GL_FLOAT,
                     false,
                     16,
                     instancesOffset
             );
-            glEnableVertexAttribArray(5);
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
+
+            glEnableVertexAttribArray(attribI);
             glVertexAttribPointer(
-                    5,
+                    attribI,
                     4,
                     GL_FLOAT,
                     false,
                     16,
                     instancesOffset + 4
             );
-            glEnableVertexAttribArray(6);
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
+
+            glEnableVertexAttribArray(attribI);
             glVertexAttribPointer(
-                    6,
+                    attribI,
                     4,
                     GL_FLOAT,
                     false,
                     16,
                     instancesOffset + 8
             );
-            glEnableVertexAttribArray(7);
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
+
+            glEnableVertexAttribArray(attribI);
             glVertexAttribPointer(
-                    7,
+                    attribI,
                     4,
                     GL_FLOAT,
                     false,
                     16,
                     instancesOffset + 12
             );
-            glVertexAttribDivisor(4, 1);
-            glVertexAttribDivisor(5, 1);
-            glVertexAttribDivisor(6, 1);
-            glVertexAttribDivisor(7, 1);
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);

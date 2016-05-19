@@ -2,6 +2,10 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
@@ -73,13 +77,6 @@ public class Main {
     }
 
     public static void main(String[] args) {
-
-        QMatN mat = new QMatN(2, 2, 1, 4, 3, 2);
-        float det = mat.det();
-        QMatN cof = mat.cof();
-        QMatN inv = mat.inv();
-
-        QMatN mat2 = mat.mult(inv);
 
         if (!init()) {
             System.err.println("Initialization failed!");
