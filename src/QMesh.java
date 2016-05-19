@@ -19,11 +19,11 @@ import static org.lwjgl.opengl.GL33.*;
  */
 public class QMesh {
 
-    static final int COORDS_BYTES = 3 * 4;
-    static final int COLOR_BYTES = 4 * 4;
-    static final int UV_BYTES = 2 * 4;
-    static final int NORM_BYTES = 3 * 4;
-    static final int VERT_BYTES = COORDS_BYTES + COLOR_BYTES + UV_BYTES + NORM_BYTES;
+    private static final int COORDS_BYTES = 3 * 4;
+    private static final int COLOR_BYTES = 4 * 4;
+    private static final int UV_BYTES = 2 * 4;
+    private static final int NORM_BYTES = 3 * 4;
+    private static final int VERT_BYTES = COORDS_BYTES + COLOR_BYTES + UV_BYTES + NORM_BYTES;
 
     private static class Meta {
         int nVerts;
@@ -59,15 +59,14 @@ public class QMesh {
 
             //verify meta
             if (meta.nVerts < 1 || meta.nIndices < 1 || meta.hasCoords == 0 || meta.hasColors == 0 || meta.hasUVs == 0 || meta.hasNorms == 0 || meta.nameLength < 0) {
-                System.err.println("Invalid qmesh meta!");
-                channel.close();
-                file.close();
-                return null;
+                throw new IOException("Invalid qmesh meta!");
             }
 
             if (meta.nameLength > 0) {
                 ByteBuffer nameBuffer = ByteBuffer.allocateDirect(meta.nameLength);
-                channel.read(nameBuffer);
+                if (channel.read(nameBuffer) != meta.nameLength) {
+                    throw new IOException("Unexpected number of name bytes read from qmesh!");
+                }
                 nameBuffer.flip();
                 name = new String(nameBuffer.array(), Charset.forName("UTF-8"));
             }
@@ -75,38 +74,44 @@ public class QMesh {
             if (meta.hasCoords != 0) {
                 int coordsBytes = meta.nVerts * COORDS_BYTES;
                 coordsData = ByteBuffer.allocateDirect(coordsBytes);
-                channel.read(coordsData);
+                if (channel.read(coordsData) != coordsBytes) {
+                    throw new IOException("Unexpected number of coords bytes read from qmesh!");
+                }
                 coordsData.flip();
-
             }
 
             if (meta.hasColors != 0) {
                 int colorsBytes = meta.nVerts * COLOR_BYTES;
                 colorsData = ByteBuffer.allocateDirect(colorsBytes);
-                channel.read(colorsData);
+                if (channel.read(colorsData) != colorsBytes) {
+                    throw new IOException("Unexpected number of colors bytes read from qmesh!");
+                }
                 colorsData.flip();
-
             }
 
             if (meta.hasUVs != 0) {
                 int uvsBytes = meta.nVerts * UV_BYTES;
                 uvsData = ByteBuffer.allocateDirect(uvsBytes);
-                channel.read(uvsData);
+                if (channel.read(uvsData) != uvsBytes) {
+                    throw new IOException("Unexpected number of uvs bytes read from qmesh!");
+                }
                 uvsData.flip();
-
             }
 
             if (meta.hasNorms != 0) {
                 int normsBytes = meta.nVerts * NORM_BYTES;
                 normsData = ByteBuffer.allocateDirect(normsBytes);
-                channel.read(normsData);
+                if (channel.read(normsData) != normsBytes) {
+                    throw new IOException("Unexpected number of norms bytes read from qmesh!");
+                }
                 normsData.flip();
-
             }
 
             int indicesBytes = meta.nIndices * 4;
             indicesData = ByteBuffer.allocateDirect(indicesBytes);
-            channel.read(indicesData);
+            if (channel.read(indicesData) != indicesBytes) {
+                throw new IOException("Unexpected number of indices bytes read from qmesh!");
+            }
             indicesData.flip();
 
             channel.close();
@@ -140,36 +145,20 @@ public class QMesh {
 
     QVAO buffer(int nInstances, QMat4[] instanceMats) {
 
-        FloatBuffer vertBuffer = createFloatBuffer(nVerts * 12 + nInstances * 16);
-        for (int i = 0; i < nVerts; ++i) {
-            vertBuffer.put(coords[i].x);
-            vertBuffer.put(coords[i].y);
-            vertBuffer.put(coords[i].z);
+        int coordsSize = nVerts * COORDS_BYTES;
+        int colorsSize = nVerts * COLOR_BYTES;
+        int uvsSize = nVerts * UV_BYTES;
+        int normsSize = nVerts * NORM_BYTES;
+        int vertsSize = nVerts * VERT_BYTES;
+        int indicesSize = nIndices * 4;
+        int instancesSize = nInstances * 64;
 
-            vertBuffer.put(colors[i].r);
-            vertBuffer.put(colors[i].g);
-            vertBuffer.put(colors[i].b);
-            vertBuffer.put(colors[i].a);
-
-            vertBuffer.put(uvs[i].u);
-            vertBuffer.put(uvs[i].v);
-
-            vertBuffer.put(norms[i].x);
-            vertBuffer.put(norms[i].y);
-            vertBuffer.put(norms[i].z);
-        }
-        for (int i = 0; i < nInstances; ++i) {
-            for (int ci = 0; ci < 4; ++ci) {
-                for (int ri = 0; ri < 4; ++ri) {
-                    vertBuffer.put(instanceMats[i].get(ci, ri));
-                }
-            }
-        }
-        vertBuffer.flip();
-
-        IntBuffer indexBuffer = createIntBuffer(nIndices);
-        indexBuffer.put(indices);
-        indexBuffer.flip();
+        int coordsOffset = 0;
+        int colorsOffset = coordsOffset + coordsSize;
+        int uvsOffset = colorsOffset + colorsSize;
+        int normsOffset = uvsOffset + uvsSize;
+        int indicesOffset = vertsSize;
+        int instancesOffset = vertsSize + indicesSize;
 
         int vao = glGenVertexArrays();
         int vbo = glGenBuffers();
@@ -178,12 +167,17 @@ public class QMesh {
         glBindVertexArray(vao);
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
-        glBufferData(GL_ARRAY_BUFFER, vertBuffer, GL_STATIC_DRAW);
+
+        glBufferData(GL_ARRAY_BUFFER, vertsSize, GL_STATIC_DRAW);
+        glBufferSubData(GL_ARRAY_BUFFER, coordsOffset, coordsData);
+        glBufferSubData(GL_ARRAY_BUFFER, colorsOffset, colorsData);
+        glBufferSubData(GL_ARRAY_BUFFER, uvsOffset, uvsData);
+        glBufferSubData(GL_ARRAY_BUFFER, normsOffset, normsData);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexBuffer, GL_STATIC_DRAW);
 
-        int offset = 0;
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesData, GL_STATIC_DRAW);
+
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(
                 0,										// attribute 0. Match the layout in the shader.
@@ -191,19 +185,17 @@ public class QMesh {
                 GL_FLOAT,					            // type
                 false,								    // normalized?
                 0,										// stride
-                offset                       				// array buffer offset
+                coordsOffset                       		// array buffer offset
         );
-        offset += nVerts * COORDS_BYTES;
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(
                 1,										// attribute 0. Match the layout in the shader.
                 4,				                        // size
-                GL_FLOAT,					            // type
-                false,								    // normalized?
+                GL_UNSIGNED_BYTE,					    // type
+                true,								    // normalized?
                 0,										// stride
-                offset                                  // array buffer offset
+                colorsOffset                            // array buffer offset
         );
-        offset += nVerts * COLOR_BYTES;
         glEnableVertexAttribArray(2);
         glVertexAttribPointer(
                 2,										// attribute 0. Match the layout in the shader.
@@ -211,9 +203,8 @@ public class QMesh {
                 GL_FLOAT,					            // type
                 false,								    // normalized?
                 0,										// stride
-                offset                       				// array buffer offset
+                uvsOffset                       		// array buffer offset
         );
-        offset += nVerts * UV_BYTES;
         glEnableVertexAttribArray(3);
         glVertexAttribPointer(
                 3,										// attribute 0. Match the layout in the shader.
@@ -221,9 +212,8 @@ public class QMesh {
                 GL_FLOAT,					            // type
                 false,								    // normalized?
                 0,										// stride
-                offset                       			// array buffer offset
+                normsOffset                       		// array buffer offset
         );
-        offset += nVerts * NORM_BYTES;
         if (nInstances > 0) {
             glEnableVertexAttribArray(4);
             glVertexAttribPointer(
@@ -232,9 +222,8 @@ public class QMesh {
                     GL_FLOAT,
                     false,
                     16,
-                    offset
+                    instancesOffset
             );
-            offset += 4;
             glEnableVertexAttribArray(5);
             glVertexAttribPointer(
                     5,
@@ -242,9 +231,8 @@ public class QMesh {
                     GL_FLOAT,
                     false,
                     16,
-                    offset
+                    instancesOffset + 4
             );
-            offset += 4;
             glEnableVertexAttribArray(6);
             glVertexAttribPointer(
                     6,
@@ -252,9 +240,8 @@ public class QMesh {
                     GL_FLOAT,
                     false,
                     16,
-                    offset
+                    instancesOffset + 8
             );
-            offset += 4;
             glEnableVertexAttribArray(7);
             glVertexAttribPointer(
                     7,
@@ -262,9 +249,8 @@ public class QMesh {
                     GL_FLOAT,
                     false,
                     16,
-                    offset
+                    instancesOffset + 12
             );
-            offset += 4;
             glVertexAttribDivisor(4, 1);
             glVertexAttribDivisor(5, 1);
             glVertexAttribDivisor(6, 1);
