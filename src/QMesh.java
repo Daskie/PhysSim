@@ -1,5 +1,11 @@
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 
 import static org.lwjgl.BufferUtils.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -19,36 +25,117 @@ public class QMesh {
     static final int NORM_BYTES = 3 * 4;
     static final int VERT_BYTES = COORDS_BYTES + COLOR_BYTES + UV_BYTES + NORM_BYTES;
 
-    class Coords {
-        public float x, y, z;
+    private static class Meta {
+        int nVerts;
+        int nIndices;
+        byte hasCoords, hasColors, hasUVs, hasNorms;
+        byte hasTransparency, hasTranslucency;
+        int nameLength;
     }
 
-    class Color {
-        public float r, g, b, a;
+    public static QMesh fromFile(String filePath) {
+
+        Meta meta = new Meta();
+        String name = filePath;
+        ByteBuffer coordsData = null;
+        ByteBuffer colorsData = null;
+        ByteBuffer uvsData = null;
+        ByteBuffer normsData = null;
+        ByteBuffer indicesData = null;
+
+        try {
+            RandomAccessFile file = new RandomAccessFile(filePath, "r");
+            FileChannel channel = file.getChannel();
+
+            meta.nVerts = file.readInt();
+            meta.nIndices = file.readInt();
+            meta.hasCoords = file.readByte();
+            meta.hasColors = file.readByte();
+            meta.hasUVs = file.readByte();
+            meta.hasNorms = file.readByte();
+            meta.hasTransparency = file.readByte();
+            meta.hasTranslucency = file.readByte();
+            meta.nameLength = file.readInt();
+
+            //verify meta
+            if (meta.nVerts < 1 || meta.nIndices < 1 || meta.hasCoords == 0 || meta.hasColors == 0 || meta.hasUVs == 0 || meta.hasNorms == 0 || meta.nameLength < 0) {
+                System.err.println("Invalid qmesh meta!");
+                channel.close();
+                file.close();
+                return null;
+            }
+
+            if (meta.nameLength > 0) {
+                ByteBuffer nameBuffer = ByteBuffer.allocateDirect(meta.nameLength);
+                channel.read(nameBuffer);
+                nameBuffer.flip();
+                name = new String(nameBuffer.array(), Charset.forName("UTF-8"));
+            }
+
+            if (meta.hasCoords != 0) {
+                int coordsBytes = meta.nVerts * COORDS_BYTES;
+                coordsData = ByteBuffer.allocateDirect(coordsBytes);
+                channel.read(coordsData);
+                coordsData.flip();
+
+            }
+
+            if (meta.hasColors != 0) {
+                int colorsBytes = meta.nVerts * COLOR_BYTES;
+                colorsData = ByteBuffer.allocateDirect(colorsBytes);
+                channel.read(colorsData);
+                colorsData.flip();
+
+            }
+
+            if (meta.hasUVs != 0) {
+                int uvsBytes = meta.nVerts * UV_BYTES;
+                uvsData = ByteBuffer.allocateDirect(uvsBytes);
+                channel.read(uvsData);
+                uvsData.flip();
+
+            }
+
+            if (meta.hasNorms != 0) {
+                int normsBytes = meta.nVerts * NORM_BYTES;
+                normsData = ByteBuffer.allocateDirect(normsBytes);
+                channel.read(normsData);
+                normsData.flip();
+
+            }
+
+            int indicesBytes = meta.nIndices * 4;
+            indicesData = ByteBuffer.allocateDirect(indicesBytes);
+            channel.read(indicesData);
+            indicesData.flip();
+
+            channel.close();
+            file.close();
+
+        } catch (IOException e) {
+            System.err.println("Failed to read file " + filePath + "!");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+
+        return new QMesh(name, meta.nVerts, coordsData, colorsData, uvsData, normsData, meta.nIndices, indicesData);
     }
 
-    class UV {
-        public float u, v;
-    }
-
-    class Norm {
-        public float x, y, z;
-    }
-
+    private String name;
     private int nVerts;
-    private Coords[] coords;
-    private Color[] colors;
-    private UV[] uvs;
-    private Norm[] norms;
+    private ByteBuffer coordsData, colorsData, uvsData, normsData;
     private int nIndices;
-    private int[] indices;
+    private ByteBuffer indicesData;
 
-    public int nVerts() {
-        return nVerts;
-    }
-
-    public int nIndices() {
-        return nIndices;
+    public QMesh(String name, int nVerts, ByteBuffer coordsData, ByteBuffer colorsData, ByteBuffer uvsData, ByteBuffer normsData, int nIndices, ByteBuffer indicesData) {
+        this.nVerts = nVerts;
+        this.coordsData = coordsData;
+        this.colorsData = colorsData;
+        this.uvsData = uvsData;
+        this.normsData = normsData;
+        this.nIndices = nIndices;
+        this.indicesData = indicesData;
     }
 
     QVAO buffer(int nInstances, QMat4[] instanceMats) {
