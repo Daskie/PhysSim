@@ -10,11 +10,11 @@ import static org.lwjgl.glfw.GLFW.*;
 public class InputHandler {
 
     private Window window;
-    KeyCallback kcb;
-    CursorPosCallback cpc;
-    CursorEnterCallback cec;
-    MouseButtonCallback mbc;
-    ScrollCallback sc;
+    private KeyCallback kcb;
+    private CursorPosCallback cpc;
+    private CursorEnterCallback cec;
+    private MouseButtonCallback mbc;
+    private ScrollCallback sc;
 
     private boolean[] keyState = new boolean[GLFW_KEY_LAST + 1];
     private int mouseX, mouseY;
@@ -24,11 +24,11 @@ public class InputHandler {
     public InputHandler(Window window) {
         this.window = window;
 
-        glfwSetKeyCallback(window.getH(), kcb = new KeyCallback());
-        glfwSetCursorPosCallback(window.getH(), cpc = new CursorPosCallback());
-        glfwSetCursorEnterCallback(window.getH(), cec = new CursorEnterCallback());
-        glfwSetMouseButtonCallback(window.getH(), mbc = new MouseButtonCallback());
-        glfwSetScrollCallback(window.getH(), sc = new ScrollCallback());
+        glfwSetKeyCallback(window.getID(), kcb = new KeyCallback());
+        glfwSetCursorPosCallback(window.getID(), cpc = new CursorPosCallback());
+        glfwSetCursorEnterCallback(window.getID(), cec = new CursorEnterCallback());
+        glfwSetMouseButtonCallback(window.getID(), mbc = new MouseButtonCallback());
+        glfwSetScrollCallback(window.getID(), sc = new ScrollCallback());
     }
 
     public boolean keyState(int key) {

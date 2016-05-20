@@ -6,8 +6,7 @@ import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL30.GL_MAJOR_VERSION;
-import static org.lwjgl.opengl.GL30.GL_MINOR_VERSION;
+import static org.lwjgl.opengl.GL30.*;
 
 public class Main {
 
@@ -65,7 +64,7 @@ public class Main {
     }
 
     private static void tempLoop() {
-        while ( glfwWindowShouldClose(window.getH()) == 0 ) {
+        while ( glfwWindowShouldClose(window.getID()) == 0 ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 
             window.swap();

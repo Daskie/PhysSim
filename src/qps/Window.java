@@ -9,7 +9,7 @@ import static org.lwjgl.glfw.GLFW.*;
  */
 public class Window {
 
-    private long window_h;
+    private long windowID;
     private int width, height;
 
     public Window(int width, int height) {
@@ -18,34 +18,34 @@ public class Window {
 
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        window_h = glfwCreateWindow(width, height, "Hello World!", 0, 0);
-        if (window_h == 0) {
+        windowID = glfwCreateWindow(width, height, "Hello World!", 0, 0);
+        if (windowID == 0) {
             throw new RuntimeException("Failed to create GLFW window!");
         }
 
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-        glfwSetWindowPos(window_h, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
+        glfwSetWindowPos(windowID, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
 
-        glfwMakeContextCurrent(window_h);
+        glfwMakeContextCurrent(windowID);
         //glfwSwapInterval(1); //enable v-sync
-        glfwShowWindow(window_h);
+        glfwShowWindow(windowID);
     }
 
     public void setCurrent() {
-        glfwMakeContextCurrent(window_h);
+        glfwMakeContextCurrent(windowID);
     }
 
     public void swap() {
-        glfwSwapBuffers(window_h);
+        glfwSwapBuffers(windowID);
     }
 
     public void cleanup() {
-        glfwDestroyWindow(window_h);
+        glfwDestroyWindow(windowID);
     }
 
-    public long getH() {
-        return window_h;
+    public long getID() {
+        return windowID;
     }
 
     public int getWidth() {

@@ -13,12 +13,24 @@ public class VAO {
     private int normOffset;
     private int instanceMatsOffset;
 
-    private int vao, vbo, ebo;
+    private int vaoID, vboID, eboID;
 
-    public VAO(int vao, int vbo, int ebo) {
-        this.vao = vao;
-        this.vbo = vbo;
-        this.ebo = ebo;
+    public VAO(int vaoID, int vboID, int eboID) {
+        this.vaoID = vaoID;
+        this.vboID = vboID;
+        this.eboID = eboID;
+    }
+
+    public int vao() {
+        return vaoID;
+    }
+
+    public int vbo() {
+        return vboID;
+    }
+
+    public int ebo() {
+        return eboID;
     }
 
 }
