@@ -1,8 +1,10 @@
+package qps;
+
 /**
  * @since 5/17/2016
  */
 
-public class QVAO {
+public class VAO {
 
     private int size;
     private int coordsOffset;
@@ -13,7 +15,7 @@ public class QVAO {
 
     private int vao, vbo, ebo;
 
-    public QVAO(int vao, int vbo, int ebo) {
+    public VAO(int vao, int vbo, int ebo) {
         this.vao = vao;
         this.vbo = vbo;
         this.ebo = ebo;

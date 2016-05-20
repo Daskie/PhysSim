@@ -1,3 +1,5 @@
+package qps;
+
 /**
  * Column-major ordering
  * x1 x2 x3		00 03 06
@@ -5,16 +7,16 @@
  * z1 z2 z3		02 05 08
  */
 
-public class QMatN {
+public class MatN {
 
     private int width, height;
     public float[][] mat;
 
-    public QMatN(int width, int height) {
+    public MatN(int width, int height) {
         this(width, height, true);
     }
 
-    public QMatN(int width, int height, boolean diagInit) {
+    public MatN(int width, int height, boolean diagInit) {
         if (width < 1 || height < 1) {
             throw new IllegalArgumentException("Matrix cannot have dimensions less than 1!");
         }
@@ -28,7 +30,7 @@ public class QMatN {
         }
     }
 
-    public QMatN(QMatN o) {
+    public MatN(MatN o) {
         this.width = o.width;
         this.height = o.height;
         mat = new float[width][height];
@@ -40,7 +42,7 @@ public class QMatN {
         }
     }
 
-    public QMatN(int width, int height, float... vs) {
+    public MatN(int width, int height, float... vs) {
         if (width < 1 || height < 1) {
             throw new IllegalArgumentException("Matrix cannot have dimensions less than 1!");
         }
@@ -63,8 +65,8 @@ public class QMatN {
         }
     }
 
-    public QMatN add(float v) {
-        QMatN temp = new QMatN(width, height);
+    public MatN add(float v) {
+        MatN temp = new MatN(width, height);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -75,8 +77,8 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN sub(float v) {
-        QMatN temp = new QMatN(width, height);
+    public MatN sub(float v) {
+        MatN temp = new MatN(width, height);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -87,8 +89,8 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN mult(float v) {
-        QMatN temp = new QMatN(width, height);
+    public MatN mult(float v) {
+        MatN temp = new MatN(width, height);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -99,8 +101,8 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN div(float v) {
-        QMatN temp = new QMatN(width, height);
+    public MatN div(float v) {
+        MatN temp = new MatN(width, height);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -111,8 +113,8 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN add(QMatN m) {
-        QMatN temp = new QMatN(width, height);
+    public MatN add(MatN m) {
+        MatN temp = new MatN(width, height);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -123,8 +125,8 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN sub(QMatN m) {
-        QMatN temp = new QMatN(width, height);
+    public MatN sub(MatN m) {
+        MatN temp = new MatN(width, height);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -135,12 +137,12 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN mult(QMatN m) {
+    public MatN mult(MatN m) {
         if (m.height != width) {
             throw new IllegalArgumentException("Cannot multiply two matrices w/ invalid width/height!");
         }
 
-        QMatN temp = new QMatN(width, m.width, false);
+        MatN temp = new MatN(width, m.width, false);
 
         for (int ci = 0; ci < temp.width; ++ci) {
             for (int ri = 0; ri < temp.height; ++ri) {
@@ -167,12 +169,12 @@ public class QMatN {
         }
     }
 
-    public QVecN col(int ci) {
-        return new QVecN(mat[0]);
+    public VecN col(int ci) {
+        return new VecN(mat[0]);
     }
 
-    public QVecN row(int ri) {
-        QVecN temp = new QVecN(width);
+    public VecN row(int ri) {
+        VecN temp = new VecN(width);
 
         for (int ci = 0; ci < ri; ++ci) {
             temp.set(ci, mat[ci][ri]);
@@ -182,8 +184,8 @@ public class QMatN {
     }
 
     //create a submatrix from the given rows and columns
-    public QMatN subMatInc(int[] cols, int[] rows) {
-        QMatN temp = new QMatN(cols.length, rows.length);
+    public MatN subMatInc(int[] cols, int[] rows) {
+        MatN temp = new MatN(cols.length, rows.length);
 
         for (int ci = 0; ci < temp.width; ++ci) {
             for (int ri = 0; ri < temp.height; ++ri) {
@@ -195,8 +197,8 @@ public class QMatN {
     }
 
     //create a submatrix from all but the given row and column
-    public QMatN subMatExc(int col, int row) {
-        QMatN temp = new QMatN(width - 1, height - 1);
+    public MatN subMatExc(int col, int row) {
+        MatN temp = new MatN(width - 1, height - 1);
 
         for (int sci = 0, dci = 0; sci < width; ++sci) {
             if (sci == col) continue;
@@ -237,8 +239,8 @@ public class QMatN {
         return det;
     }
 
-    public QMatN trans() {
-        QMatN temp = new QMatN(height, width);
+    public MatN trans() {
+        MatN temp = new MatN(height, width);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -249,12 +251,12 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN cof() {
+    public MatN cof() {
         if (width != height) {
             throw new IllegalArgumentException("Cannot find cofactor of non-square matrix!");
         }
 
-        QMatN temp = new QMatN(width, height);
+        MatN temp = new MatN(width, height);
 
         for (int ci = 0; ci < width; ++ci) {
             for (int ri = 0; ri < height; ++ri) {
@@ -268,11 +270,11 @@ public class QMatN {
         return temp;
     }
 
-    public QMatN adj() {
+    public MatN adj() {
         return cof().trans();
     }
 
-    public QMatN inv() {
+    public MatN inv() {
         return adj().div(det());
     }
 

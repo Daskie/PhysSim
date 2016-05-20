@@ -1,4 +1,5 @@
-import java.io.FileNotFoundException;
+package qps;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -8,7 +9,6 @@ import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
-import static org.lwjgl.BufferUtils.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -18,7 +18,7 @@ import static org.lwjgl.opengl.GL33.*;
 /**
  * @since 5/17/2016
  */
-public class QMesh {
+public class Mesh {
 
     private static final int COORDS_BYTES = 3 * 4;
     private static final int COLOR_BYTES = 4;
@@ -35,7 +35,7 @@ public class QMesh {
         int nameLength;
     }
 
-    public static QMesh fromFile(String filePath) {
+    public static Mesh fromFile(String filePath) {
 
         Meta meta = new Meta();
         String name = filePath;
@@ -144,7 +144,7 @@ public class QMesh {
             return null;
         }
 
-        return new QMesh(
+        return new Mesh(
                 name,
                 meta.nVerts,
                 coordsData,
@@ -165,7 +165,7 @@ public class QMesh {
     private int nIndices;
     private IntBuffer indicesData;
 
-    public QMesh(String name, int nVerts, FloatBuffer coordsData, ByteBuffer colorsData, FloatBuffer uvsData, FloatBuffer normsData, int nIndices, IntBuffer indicesData) {
+    public Mesh(String name, int nVerts, FloatBuffer coordsData, ByteBuffer colorsData, FloatBuffer uvsData, FloatBuffer normsData, int nIndices, IntBuffer indicesData) {
         this.name = name;
         this.nVerts = nVerts;
         this.coordsData = coordsData;
@@ -192,7 +192,7 @@ public class QMesh {
         return normsData != null;
     }
 
-    QVAO buffer(int nInstances, QMat4[] instanceMats) {
+    VAO buffer(int nInstances, Mat4[] instanceMats) {
 
         int coordsSize = hasCoords() ? nVerts * COORDS_BYTES : 0;
         int colorsSize = hasColors() ? nVerts * COLOR_BYTES : 0;
@@ -330,7 +330,7 @@ public class QMesh {
 
         glBindVertexArray(0);
 
-        return new QVAO(vao, vbo, ebo);
+        return new VAO(vao, vbo, ebo);
     }
 
 }

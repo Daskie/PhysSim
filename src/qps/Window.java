@@ -1,3 +1,5 @@
+package qps;
+
 import org.lwjgl.glfw.GLFWVidMode;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -5,12 +7,12 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * @since 5/16/2016
  */
-public class QWindow {
+public class Window {
 
     private long window_h;
     private int width, height;
 
-    public QWindow(int width, int height) {
+    public Window(int width, int height) {
         this.width = width;
         this.height = height;
 

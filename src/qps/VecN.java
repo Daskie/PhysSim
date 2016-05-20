@@ -1,12 +1,14 @@
+package qps;
+
 /**
  * @since 5/17/2016
  */
-public class QVecN {
+public class VecN {
 
     private int n;
     private float vec[];
 
-    public QVecN(int n) {
+    public VecN(int n) {
         if (n < 1) {
             throw new IllegalArgumentException("Vector cannot have less than 1 element!");
         }
@@ -15,78 +17,78 @@ public class QVecN {
         vec = new float[n];
     }
 
-    public QVecN(QVecN o) {
+    public VecN(VecN o) {
         this(o.n);
         for (int i = 0; i < n; ++i) {
             vec[i] = o.vec[i];
         }
     }
 
-    public QVecN(float... vs) {
+    public VecN(float... vs) {
         this(vs.length);
         for (int i = 0; i < n; ++i) {
             vec[i] = vs[i];
         }
     }
 
-    public QVecN add(float v) {
-        QVecN temp = new QVecN(n);
+    public VecN add(float v) {
+        VecN temp = new VecN(n);
         for (int i = 0; i < n; ++i) {
             temp.vec[i] = vec[i] + v;
         }
         return temp;
     }
 
-    public QVecN sub(float v) {
-        QVecN temp = new QVecN(n);
+    public VecN sub(float v) {
+        VecN temp = new VecN(n);
         for (int i = 0; i < n; ++i) {
             temp.vec[i] = vec[i] - v;
         }
         return temp;
     }
 
-    public QVecN mult(float v) {
-        QVecN temp = new QVecN(n);
+    public VecN mult(float v) {
+        VecN temp = new VecN(n);
         for (int i = 0; i < n; ++i) {
             temp.vec[i] = vec[i] * v;
         }
         return temp;
     }
 
-    public QVecN div(float v) {
-        QVecN temp = new QVecN(n);
+    public VecN div(float v) {
+        VecN temp = new VecN(n);
         for (int i = 0; i < n; ++i) {
             temp.vec[i] = vec[i] / v;
         }
         return temp;
     }
 
-    public QVecN add(QVecN v) {
-        QVecN temp = new QVecN(this);
+    public VecN add(VecN v) {
+        VecN temp = new VecN(this);
         for (int i = 0; i < n && i < v.n; ++i) {
             temp.vec[i] = vec[i] + v.vec[i];
         }
         return temp;
     }
 
-    public QVecN sub(QVecN v) {
-        QVecN temp = new QVecN(this);
+    public VecN sub(VecN v) {
+        VecN temp = new VecN(this);
         for (int i = 0; i < n && i < v.n; ++i) {
             temp.vec[i] = vec[i] - v.vec[i];
         }
         return temp;
     }
 
-    public QVecN mult(QVecN v) {
-        QVecN temp = new QVecN(this);
+    public VecN mult(VecN v) {
+        VecN temp = new VecN(this);
         for (int i = 0; i < n && i < v.n; ++i) {
             temp.vec[i] = vec[i] * v.vec[i];
         }
         return temp;
     }
 
-    public QVecN div(QVecN v) {
-        QVecN temp = new QVecN(this);
+    public VecN div(VecN v) {
+        VecN temp = new VecN(this);
         for (int i = 0; i < n && i < v.n; ++i) {
             temp.vec[i] = vec[i] / v.vec[i];
         }
@@ -105,7 +107,7 @@ public class QVecN {
         return (float)Math.sqrt(mag2());
     }
 
-    public QVecN norm() {
+    public VecN norm() {
         return div(mag());
     }
 
@@ -123,12 +125,12 @@ public class QVecN {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || !o.getClass().equals(getClass()) || n != ((QVecN)o).n) {
+        if (o == null || !o.getClass().equals(getClass()) || n != ((VecN)o).n) {
             return false;
         }
 
         for (int i = 0; i < n; ++i) {
-            if (vec[i] != ((QVecN)o).vec[i]) {
+            if (vec[i] != ((VecN)o).vec[i]) {
                 return false;
             }
         }

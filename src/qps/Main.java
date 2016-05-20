@@ -1,17 +1,16 @@
+package qps;
+
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Main {
 
-    private static QWindow window;
+    private static Window window;
+    private static InputHandler inputHandler;
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -38,8 +37,10 @@ public class Main {
             return false;
         }
 
-        window = new QWindow(1280, 720);
+        window = new Window(1280, 720);
         window.setCurrent();
+
+        inputHandler = new InputHandler(window);
 
         GL.createCapabilities();
 
@@ -69,6 +70,7 @@ public class Main {
     }
 
     private static boolean cleanup() {
+        inputHandler.cleanup();
         window.cleanup();
 
         glfwTerminate();
