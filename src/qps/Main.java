@@ -6,6 +6,8 @@ import org.lwjgl.opengl.GL;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL30.GL_MAJOR_VERSION;
+import static org.lwjgl.opengl.GL30.GL_MINOR_VERSION;
 
 public class Main {
 
@@ -23,12 +25,11 @@ public class Main {
             return false;
         }
 
-
         return true;
     }
 
     private static boolean initLWJGL() {
-        System.out.println("LWJGL version " + Version.getVersion());
+        System.out.println("LWJGL version: " + Version.getVersion());
 
         glfwSetErrorCallback(glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err)));
 
@@ -48,7 +49,12 @@ public class Main {
     }
 
     private static boolean initGL() {
-        glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+        int majVer = glGetInteger(GL_MAJOR_VERSION);
+        int minVer = glGetInteger(GL_MINOR_VERSION);
+        System.out.println("OpenGL Version: " + majVer + "." + minVer);
+
+        glClearColor(0.25f, 0.0f, 0.25f, 1.0f);
+
         int glErr = glGetError();
         if (glErr != GL_NO_ERROR) {
             System.err.println("GL initialization error! " + glErr);
@@ -59,7 +65,6 @@ public class Main {
     }
 
     private static void tempLoop() {
-        glClearColor(0.25f, 0.0f, 0.25f, 1.0f);
         while ( glfwWindowShouldClose(window.getH()) == 0 ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
 
