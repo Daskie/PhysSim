@@ -9,6 +9,10 @@ import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
+import static org.lwjgl.BufferUtils.createByteBuffer;
+import static org.lwjgl.BufferUtils.createFloatBuffer;
+import static org.lwjgl.BufferUtils.createIntBuffer;
+
 /**
  * @since 5/20/2016
  */
@@ -22,6 +26,49 @@ public abstract class MeshLoader {
         byte hasCoords, hasColors, hasUVs, hasNorms;
         byte hasTransparency, hasTranslucency, filler0, filler1;
         int nameLength;
+    }
+
+    public static Mesh simpleSquare() {
+        int nVerts = 4;
+        FloatBuffer coords = createFloatBuffer(nVerts * 3);
+        ByteBuffer colors = createByteBuffer(nVerts * 4);
+        FloatBuffer uvs = createFloatBuffer(nVerts * 2);
+        FloatBuffer norms = createFloatBuffer(nVerts * 3);
+
+        coords.put(0); coords.put(0); coords.put(0);
+        coords.put(1); coords.put(0); coords.put(0);
+        coords.put(1); coords.put(1); coords.put(0);
+        coords.put(0); coords.put(1); coords.put(0);
+        coords.flip();
+
+        byte w = (byte)255;
+        byte b = (byte)0;
+        colors.put(w); colors.put(b); colors.put(b); colors.put(b);
+        colors.put(b); colors.put(w); colors.put(b); colors.put(b);
+        colors.put(b); colors.put(b); colors.put(w); colors.put(b);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(b);
+        colors.flip();
+
+        uvs.put(0.0f); uvs.put(0.0f);
+        uvs.put(1.0f); uvs.put(0.0f);
+        uvs.put(1.0f); uvs.put(1.0f);
+        uvs.put(0.0f); uvs.put(1.0f);
+        uvs.flip();
+
+        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
+        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
+        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
+        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
+        norms.flip();
+
+        int nIndices = 6;
+        IntBuffer indices = createIntBuffer(nIndices);
+
+        indices.put(0); indices.put(1); indices.put(2);
+        indices.put(2); indices.put(3); indices.put(0);
+        indices.flip();
+
+        return new Mesh("SimpleSquare", nVerts, coords, colors, uvs, norms, nIndices, indices);
     }
 
     public static Mesh fromFile(String filePath) {
@@ -77,7 +124,7 @@ public abstract class MeshLoader {
 
             if (meta.hasCoords != 0) {
                 int coordsBytes = meta.nVerts * Mesh.COORDS_BYTES;
-                ByteBuffer tempCoordsBuff = ByteBuffer.allocateDirect(coordsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                ByteBuffer tempCoordsBuff = createByteBuffer(coordsBytes).order(ByteOrder.LITTLE_ENDIAN);
                 if (channel.read(tempCoordsBuff) != coordsBytes) {
                     throw new IOException("Unexpected number of coords bytes read from qmesh!");
                 }
@@ -87,7 +134,7 @@ public abstract class MeshLoader {
 
             if (meta.hasColors != 0) {
                 int colorsBytes = meta.nVerts * Mesh.COLOR_BYTES;
-                ByteBuffer tempColordsBuff = ByteBuffer.allocateDirect(colorsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                ByteBuffer tempColordsBuff = createByteBuffer(colorsBytes).order(ByteOrder.LITTLE_ENDIAN);
                 if (channel.read(tempColordsBuff) != colorsBytes) {
                     throw new IOException("Unexpected number of colors bytes read from qmesh!");
                 }
@@ -97,7 +144,7 @@ public abstract class MeshLoader {
 
             if (meta.hasUVs != 0) {
                 int uvsBytes = meta.nVerts * Mesh.UV_BYTES;
-                ByteBuffer tempUVsBuffer = ByteBuffer.allocateDirect(uvsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                ByteBuffer tempUVsBuffer = createByteBuffer(uvsBytes).order(ByteOrder.LITTLE_ENDIAN);
                 if (channel.read(tempUVsBuffer) != uvsBytes) {
                     throw new IOException("Unexpected number of uvs bytes read from qmesh!");
                 }
@@ -107,7 +154,7 @@ public abstract class MeshLoader {
 
             if (meta.hasNorms != 0) {
                 int normsBytes = meta.nVerts * Mesh.NORM_BYTES;
-                ByteBuffer tempNormsBuff = ByteBuffer.allocateDirect(normsBytes).order(ByteOrder.LITTLE_ENDIAN);
+                ByteBuffer tempNormsBuff = createByteBuffer(normsBytes).order(ByteOrder.LITTLE_ENDIAN);
                 if (channel.read(tempNormsBuff) != normsBytes) {
                     throw new IOException("Unexpected number of norms bytes read from qmesh!");
                 }
@@ -116,7 +163,7 @@ public abstract class MeshLoader {
             }
 
             int indicesBytes = meta.nIndices * 4;
-            ByteBuffer tempIndicesBuff = ByteBuffer.allocateDirect(indicesBytes).order(ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer tempIndicesBuff = createByteBuffer(indicesBytes).order(ByteOrder.LITTLE_ENDIAN);
             if (channel.read(tempIndicesBuff) != indicesBytes) {
                 throw new IOException("Unexpected number of indices bytes read from qmesh!");
             }

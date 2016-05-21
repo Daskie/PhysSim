@@ -1,5 +1,7 @@
 package qps;
 
+import java.nio.FloatBuffer;
+
 /**
  * Column-major ordering
  * x1 x2 x3		00 03 06
@@ -288,5 +290,13 @@ public class MatN {
 
     public void set(int ci, int ri, float v) {
         mat[ci][ri] = v;
+    }
+
+    public void buffer(FloatBuffer buffer) {
+        for (int c = 0; c < width; ++c) {
+            for (int r = 0; r < height; ++r) {
+                buffer.put(mat[c][r]);
+            }
+        }
     }
 }

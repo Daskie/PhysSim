@@ -4,6 +4,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.BufferUtils.createFloatBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -56,6 +57,10 @@ public class Mesh {
         return normsData != null;
     }
 
+    VAO buffer() {
+        return buffer(0, null);
+    }
+
     VAO buffer(int nInstances, Mat4[] instanceMats) {
 
         int coordsSize = hasCoords() ? nVerts * COORDS_BYTES : 0;
@@ -81,11 +86,20 @@ public class Mesh {
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-        glBufferData(GL_ARRAY_BUFFER, vertsSize, GL_STATIC_DRAW);
+        glBufferData(GL_ARRAY_BUFFER, vertsSize + instancesSize, GL_STATIC_DRAW);
         if (hasCoords()) glBufferSubData(GL_ARRAY_BUFFER, coordsOffset, coordsData);
         if (hasColors()) glBufferSubData(GL_ARRAY_BUFFER, colorsOffset, colorsData);
         if (hasUVs()) glBufferSubData(GL_ARRAY_BUFFER, uvsOffset, uvsData);
         if (hasNorms()) glBufferSubData(GL_ARRAY_BUFFER, normsOffset, normsData);
+
+        if (nInstances > 0) {
+            FloatBuffer matData = createFloatBuffer(nInstances * 16);
+            for (Mat4 mat : instanceMats) {
+                mat.buffer(matData);
+            }
+            matData.flip();
+            glBufferSubData(GL_ARRAY_BUFFER, instancesOffset, matData);
+        }
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
@@ -195,6 +209,18 @@ public class Mesh {
         glBindVertexArray(0);
 
         return new VAO(vao, vbo, ebo);
+    }
+
+    int nVerts() {
+        return nVerts;
+    }
+
+    int nIndices() {
+        return nIndices;
+    }
+
+    IntBuffer indices() {
+        return indicesData;
     }
 
 }

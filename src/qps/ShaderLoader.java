@@ -5,6 +5,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -18,18 +19,22 @@ public abstract class ShaderLoader {
     public static String loadShader(String filePath) {
         try {
             RandomAccessFile file = new RandomAccessFile(filePath, "r");
-            FileChannel channel = file.getChannel();
+            byte[] buffer = new byte[(int)file.length()];
+            file.read(buffer);
+            return new String(buffer, Charset.forName("UTF-8"));
+            /*FileChannel channel = file.getChannel();
+            file.
             ByteBuffer buffer = ByteBuffer.allocateDirect((int)file.length());
 
             channel.read(buffer);
             buffer.flip();
 
-            String shaderStr = buffer.asCharBuffer().toString();
+            String shaderStr = new String(buffer., Charset.forName("UTF-8"));
 
             channel.close();
-            file.close();
+            file.close();*/
 
-            return shaderStr;
+            //return shaderStr;
         } catch (IOException e) {
             System.err.println("Failed to read shader file: " + filePath);
             System.err.println(e.getMessage());
