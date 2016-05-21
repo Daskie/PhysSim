@@ -3,19 +3,20 @@ package qps;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import qps.window_listeners.WindowCloseListener;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.*;
 
-public class Main {
+public abstract class Main {
 
     private static Window window;
-    private static InputHandler inputHandler;
     private static ShaderProgram shaderProgram;
     private static Mesh myMesh;
     private static VAO myVAO;
+    private static boolean running;
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -34,6 +35,13 @@ public class Main {
             return false;
         }
 
+        window.windowHandler().addWindowCloseListener(new WindowCloseListener() {
+            @Override
+            public void wantsToClose(WindowHandler handler) {
+                running = false;
+            }
+        });
+
         if (!checkGLErr()) {
             System.err.println("Initialization OpenGL error!");
             return false;
@@ -45,7 +53,7 @@ public class Main {
     private static boolean initLWJGL() {
         System.out.println("LWJGL version: " + Version.getVersion());
 
-        glfwSetErrorCallback(glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err)));
+        glfwSetErrorCallback(GLFWErrorCallback.createPrint(System.err));
 
         if ( glfwInit() != GLFW_TRUE ) {
            System.err.println("Unable to initialize GLFW!");
@@ -54,8 +62,6 @@ public class Main {
 
         window = new Window(1280, 720);
         window.setCurrent();
-
-        inputHandler = new InputHandler(window);
 
         GL.createCapabilities();
 
@@ -101,8 +107,9 @@ public class Main {
 
     private static void tempLoop() {
         int glErr;
+        running = true;
 
-        while ( glfwWindowShouldClose(window.getID()) == 0 ) {
+        while (running) {// glfwWindowShouldClose(window.id()) == 0 ) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
             checkGLErr();
 
@@ -130,7 +137,6 @@ public class Main {
     }
 
     private static boolean cleanup() {
-        inputHandler.cleanup();
         window.cleanup();
 
         glfwTerminate();
