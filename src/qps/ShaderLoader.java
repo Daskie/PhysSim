@@ -22,19 +22,6 @@ public abstract class ShaderLoader {
             byte[] buffer = new byte[(int)file.length()];
             file.read(buffer);
             return new String(buffer, Charset.forName("UTF-8"));
-            /*FileChannel channel = file.getChannel();
-            file.
-            ByteBuffer buffer = ByteBuffer.allocateDirect((int)file.length());
-
-            channel.read(buffer);
-            buffer.flip();
-
-            String shaderStr = new String(buffer., Charset.forName("UTF-8"));
-
-            channel.close();
-            file.close();*/
-
-            //return shaderStr;
         } catch (IOException e) {
             System.err.println("Failed to read shader file: " + filePath);
             System.err.println(e.getMessage());

@@ -85,7 +85,7 @@ public abstract class MeshLoader {
             RandomAccessFile file = new RandomAccessFile(filePath, "r");
             FileChannel channel = file.getChannel();
 
-            ByteBuffer metaByteBuffer = ByteBuffer.allocateDirect(Meta.META_BYTES).order(ByteOrder.LITTLE_ENDIAN);
+            ByteBuffer metaByteBuffer = createByteBuffer(Meta.META_BYTES).order(ByteOrder.LITTLE_ENDIAN);
             if (channel.read(metaByteBuffer) != Meta.META_BYTES) {
                 throw new IOException("Unexpected number of meta bytes read from qmesh!");
             }
@@ -109,7 +109,7 @@ public abstract class MeshLoader {
             }
 
             if (meta.nameLength > 0) {
-                ByteBuffer nameBuffer = ByteBuffer.allocateDirect(meta.nameLength).order(ByteOrder.LITTLE_ENDIAN);
+                ByteBuffer nameBuffer = createByteBuffer(meta.nameLength).order(ByteOrder.LITTLE_ENDIAN);
                 if (channel.read(nameBuffer) != meta.nameLength) {
                     throw new IOException("Unexpected number of name bytes read from qmesh!");
                 }

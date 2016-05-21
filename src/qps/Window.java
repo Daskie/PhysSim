@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.BufferUtils.*;
 
 /**
  * @since 5/16/2016
@@ -47,8 +48,8 @@ public class Window {
 
         //---
 
-        ByteBuffer buffer1 = ByteBuffer.allocate(8);
-        ByteBuffer buffer2 = ByteBuffer.allocate(8);
+        ByteBuffer buffer1 = createByteBuffer(8);
+        ByteBuffer buffer2 = createByteBuffer(8);
 
         glfwGetWindowSize(id, buffer1, buffer2);
         this.width = buffer1.getInt(0);
