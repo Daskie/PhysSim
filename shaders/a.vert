@@ -12,13 +12,16 @@ out V_TO_F {
 	vec3 vertNorm;
 } v_to_f;
 
+uniform mat4 u_modelMat;
+uniform mat4 u_normMat;
+uniform mat4 u_viewMat;
+uniform mat4 u_projMat;
+
 void main(void)
 {
-
-    gl_Position = vec4(in_vertCoords, 1.0f);
-
-	v_to_f.vertCoords = in_vertCoords;
+	gl_Position = u_projMat * u_viewMat * u_modelMat * vec4(in_vertCoords, 1.0f);
 	v_to_f.vertColor = in_vertColor;
 	v_to_f.vertUV = in_vertUV;
-	v_to_f.vertNorm = in_vertNorm;
+	v_to_f.vertNorm = mat3(u_normMat) * in_vertNorm;
+	v_to_f.vertCoords = vec3(u_modelMat * vec4(in_vertCoords, 1.0f));
 }

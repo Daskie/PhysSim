@@ -3,20 +3,23 @@ package qps;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import qps.input_listeners.CursorListener;
+import qps.input_listeners.KeyListener;
 import qps.window_listeners.WindowCloseListener;
+
+import java.io.IOException;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
 public abstract class Main {
 
-    private static Window window;
-    private static ShaderProgram shaderProgram;
-    private static Mesh myMesh;
-    private static VAO myVAO;
     private static boolean running;
+    private static Window window;
+    private static MainProgram mainProgram;
+    private static Scene mainScene;
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -34,15 +37,11 @@ public abstract class Main {
         if (!initScene()) {
             return false;
         }
+        if (!initInput()) {
+            return false;
+        }
 
-        window.windowHandler().addWindowCloseListener(new WindowCloseListener() {
-            @Override
-            public void wantsToClose(WindowHandler handler) {
-                running = false;
-            }
-        });
-
-        if (!checkGLErr()) {
+        if (!Utils.checkGLErr()) {
             System.err.println("Initialization OpenGL error!");
             return false;
         }
@@ -79,7 +78,7 @@ public abstract class Main {
         //glEnable(GL_DEPTH_TEST);
         //glEnable(GL_CULL_FACE);
 
-        if (!checkGLErr()) {
+        if (!Utils.checkGLErr()) {
             System.err.println("OpenGL initialization error!");
             return false;
         }
@@ -88,10 +87,9 @@ public abstract class Main {
     }
 
     private static boolean initShaders() {
-        shaderProgram = new ShaderProgram("shaders/a.vert", null, "shaders/a.frag");
-
-        if (shaderProgram.getID() == 0) {
-            System.err.println("Failed to initialize shaders!");
+        mainProgram = new MainProgram();
+        if (!mainProgram.init()) {
+            System.err.println("Failed to initialize main shader program!");
             return false;
         }
 
@@ -99,39 +97,92 @@ public abstract class Main {
     }
 
     private static boolean initScene() {
-        myMesh = MeshManager.cubeMesh;
-        myVAO = myMesh.buffer();
+        mainScene = new Scene();
+        Mesh cubeMesh = null;
+        Entity cube = new Entity(MeshManager.cubeMesh, MeshManager.cubeMesh.buffer());
+        mainScene.addEntity(cube);
+
+        return true;
+    }
+
+    private static boolean initInput() {
+        window.windowHandler().addWindowCloseListener(new WindowCloseListener() {
+            @Override
+            public void wantsToClose(WindowHandler handler) {
+                running = false;
+            }
+        });
+
+        window.inputHandler().addKeyListener(new KeyListener() {
+            @Override
+            public void keyPressed(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+                switch (key) {
+                    case GLFW_KEY_W: {
+                        mainScene.camera().move(new Vec3(0.0f, 0.01f, 0.0f));
+                        break;
+                    }
+                    case GLFW_KEY_A: {
+                        mainScene.camera().move(new Vec3(-0.01f, 0.0f, 0.0f));
+                        break;
+                    }
+                    case GLFW_KEY_S: {
+                        mainScene.camera().move(new Vec3(0.0f, -0.01f, 0.0f));
+                        break;
+                    }
+                    case GLFW_KEY_D: {
+                        mainScene.camera().move(new Vec3(0.01f, 0.0f, 0.0f));
+                        break;
+                    }
+                }
+            }
+
+            @Override
+            public void keyRepeated(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+
+            }
+
+            @Override
+            public void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+
+            }
+        });
 
         return true;
     }
 
     private static void tempLoop() {
-        int glErr;
         running = true;
 
         while (running) {// glfwWindowShouldClose(window.id()) == 0 ) {
+            update();
+
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
-            checkGLErr();
 
             glfwPollEvents();
 
             draw();
 
-            checkGLErr();
+            Utils.checkGLErr();
         }
+    }
+
+    private static void update() {
+        updateCamera();
+    }
+
+    private static void updateCamera() {
+        Mat4 viewMat = Mat4.translation(mainScene.camera().getLoc().mult(-1.0f));
+        mainProgram.setViewMat(viewMat);
     }
 
     private static void draw() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        checkGLErr();
+        Utils.checkGLErr();
 
-        glUseProgram(shaderProgram.getID());
-        checkGLErr();
+        glUseProgram(mainProgram.id());
+        Utils.checkGLErr();
 
-        glBindVertexArray(myVAO.vao());
-        checkGLErr();
-        glDrawElements(GL_TRIANGLES, myMesh.nIndices(), GL_UNSIGNED_INT, 0);
-        checkGLErr();
+        mainScene.draw();
 
         window.swap();
     }
@@ -140,17 +191,6 @@ public abstract class Main {
         window.cleanup();
 
         glfwTerminate();
-
-        return true;
-    }
-
-    private static boolean checkGLErr() {
-        int glErr = glGetError();
-
-        if (glErr != GL_NO_ERROR) {
-            System.err.println("OpenGL error: " + glErr);
-            return false;
-        }
 
         return true;
     }

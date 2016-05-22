@@ -19,11 +19,11 @@ public class Window {
     private WindowHandler windowHandler;
     private InputHandler inputHandler;
 
-    int width, height;
-    int framebufferWidth, framebufferHeight;
-    int xPos, yPos;
-    boolean iconified;
-    boolean focused;
+    private int width, height;
+    private int framebufferWidth, framebufferHeight;
+    private int xPos, yPos;
+    private boolean iconified;
+    private boolean focused;
 
     private boolean[] keyStates;
     private double mouseX, mouseY;
@@ -220,6 +220,11 @@ public class Window {
         @Override
         public void keyPressed(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
             keyStates[key] = true;
+        }
+
+        @Override
+        public void keyRepeated(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+
         }
 
         @Override

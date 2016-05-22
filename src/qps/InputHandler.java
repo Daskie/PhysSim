@@ -94,14 +94,24 @@ public class InputHandler {
             boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
             boolean alt = (mods & GLFW_MOD_ALT) != 0;
 
-            if (action != GLFW_RELEASE) {
-                for (KeyListener listener : keyListeners) {
-                    listener.keyPressed(key, shift, ctrl, alt, InputHandler.this);
+            switch (action) {
+                case GLFW_PRESS: {
+                    for (KeyListener listener : keyListeners) {
+                        listener.keyPressed(key, shift, ctrl, alt, InputHandler.this);
+                    }
+                    break;
                 }
-            }
-            else {
-                for (KeyListener listener : keyListeners) {
-                    listener.keyReleased(key, shift, ctrl, alt, InputHandler.this);
+                case GLFW_REPEAT: {
+                    for (KeyListener listener : keyListeners) {
+                        listener.keyRepeated(key, shift, ctrl, alt, InputHandler.this);
+                    }
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    for (KeyListener listener : keyListeners) {
+                        listener.keyReleased(key, shift, ctrl, alt, InputHandler.this);
+                    }
+                    break;
                 }
             }
         }

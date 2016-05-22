@@ -57,11 +57,12 @@ public class Mesh {
         return normsData != null;
     }
 
-    VAO buffer() {
-        return buffer(0, null);
+    public VAO buffer() {
+        return buffer(null);
     }
 
-    VAO buffer(int nInstances, Mat4[] instanceMats) {
+    public VAO buffer(Mat4[] instanceMats) {
+        boolean instanced = instanceMats != null && instanceMats.length > 0;
 
         int coordsSize = hasCoords() ? nVerts * COORDS_BYTES : 0;
         int colorsSize = hasColors() ? nVerts * COLOR_BYTES : 0;
@@ -69,7 +70,7 @@ public class Mesh {
         int normsSize = hasNorms() ? nVerts * NORM_BYTES : 0;
         int vertsSize = coordsSize + colorsSize + uvsSize + normsSize;
         int indicesSize = nIndices * 4;
-        int instancesSize = nInstances * 64;
+        int instancesSize = instanced ? instanceMats.length * 64 : 0;
 
         int coordsOffset = 0;
         int colorsOffset = coordsOffset + coordsSize;
@@ -92,8 +93,8 @@ public class Mesh {
         if (hasUVs()) glBufferSubData(GL_ARRAY_BUFFER, uvsOffset, uvsData);
         if (hasNorms()) glBufferSubData(GL_ARRAY_BUFFER, normsOffset, normsData);
 
-        if (nInstances > 0) {
-            FloatBuffer matData = createFloatBuffer(nInstances * 16);
+        if (instanced) {
+            FloatBuffer matData = createFloatBuffer(instanceMats.length * 16);
             for (Mat4 mat : instanceMats) {
                 mat.buffer(matData);
             }
@@ -154,7 +155,7 @@ public class Mesh {
             );
             ++attribI;
         }
-        if (nInstances > 0) {
+        if (instanced) {
             glEnableVertexAttribArray(attribI);
             glVertexAttribPointer(
                     attribI,

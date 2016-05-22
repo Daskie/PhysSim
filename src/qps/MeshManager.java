@@ -1,5 +1,7 @@
 package qps;
 
+import java.io.IOException;
+
 /**
  * @since 5/20/2016
  */
@@ -9,13 +11,15 @@ public abstract class MeshManager {
     public static Mesh squareMesh;
 
     public static boolean initMeshes() {
-        cubeMesh = MeshLoader.fromFile("meshes/cube.qmesh");
-        squareMesh = MeshLoader.simpleSquare();
-
-        if (cubeMesh == null || squareMesh == null) {
-            System.err.println("Failed to initialize meshes!");
+        try {
+            cubeMesh = MeshLoader.fromFile("meshes/cube.qmesh");
+        } catch (IOException e) {
+            System.err.println("Failed to initialize cube mesh!");
+            e.printStackTrace();
             return false;
         }
+
+        squareMesh = MeshLoader.simpleSquare();
 
         return true;
     }

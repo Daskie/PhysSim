@@ -67,6 +67,16 @@ public class MatN {
         }
     }
 
+    public MatN(int width, int height, MatN o) {
+        this(width, height);
+
+        for (int c = 0; c < width && c < o.width; ++c) {
+            for (int r = 0; r < height && r < o.height; ++r) {
+                mat[c][r] = o.mat[c][r];
+            }
+        }
+    }
+
     public MatN add(float v) {
         MatN temp = new MatN(width, height);
 
