@@ -19,5 +19,16 @@ public abstract class Utils {
         return true;
     }
 
+    public static int clamp(int val, int min, int max) {
+        return val < min ? min : val > max ? max : val;
+    }
+
+    public static float clamp(float val, float min, float max) {
+        return val < min ? min : val > max ? max : val;
+    }
+
+    public static double clamp(double val, double min, double max) {
+        return val < min ? min : val > max ? max : val;
+    }
 
 }

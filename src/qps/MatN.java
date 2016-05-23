@@ -18,7 +18,7 @@ public class MatN {
         this(width, height, true);
     }
 
-    public MatN(int width, int height, boolean diagInit) {
+    public MatN(int width, int height, boolean initDiag) {
         if (width < 1 || height < 1) {
             throw new IllegalArgumentException("Matrix cannot have dimensions less than 1!");
         }
@@ -27,7 +27,7 @@ public class MatN {
         this.height = height;
         mat = new float[width][height];
 
-        if (diagInit) {
+        if (initDiag) {
             setDiag(1);
         }
     }
@@ -308,5 +308,29 @@ public class MatN {
                 buffer.put(mat[c][r]);
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || !o.getClass().equals(this.getClass())) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+
+        if (((MatN)o).width != width || ((MatN)o).height != height) {
+            return false;
+        }
+
+        for (int c = 0; c < width; ++c) {
+            for (int r = 0; r < height; ++r) {
+                if (((MatN)o).mat[c][r] != mat[c][r]) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }

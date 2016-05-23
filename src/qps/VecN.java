@@ -125,7 +125,14 @@ public class VecN {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || !o.getClass().equals(getClass()) || n != ((VecN)o).n) {
+        if (o == null || !o.getClass().equals(getClass())) {
+            return false;
+        }
+        if (o == this) {
+            return true;
+        }
+
+        if (n != ((VecN)o).n) {
             return false;
         }
 
