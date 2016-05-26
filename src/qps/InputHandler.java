@@ -97,13 +97,13 @@ public class InputHandler {
             switch (action) {
                 case GLFW_PRESS: {
                     for (KeyListener listener : keyListeners) {
-                        listener.keyPressed(key, shift, ctrl, alt, InputHandler.this);
+                        listener.keyPressed(key, false, shift, ctrl, alt, InputHandler.this);
                     }
                     break;
                 }
                 case GLFW_REPEAT: {
                     for (KeyListener listener : keyListeners) {
-                        listener.keyRepeated(key, shift, ctrl, alt, InputHandler.this);
+                        listener.keyPressed(key, true, shift, ctrl, alt, InputHandler.this);
                     }
                     break;
                 }
@@ -131,11 +131,15 @@ public class InputHandler {
     }
 
     private class CursorPosCallback extends GLFWCursorPosCallback {
+        private double lastX = 0.0, lastY = 0.0;
         @Override
         public void invoke(long windowID, double x, double y) {
             for (CursorListener listener : cursorListeners) {
-                listener.cursorMoved(x, y, InputHandler.this);
+                listener.cursorMoved(x, y, x - lastX, y - lastY, InputHandler.this);
             }
+
+            lastX = x;
+            lastY = y;
         }
     }
 

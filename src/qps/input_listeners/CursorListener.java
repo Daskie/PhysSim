@@ -7,6 +7,6 @@ import qps.InputHandler;
  */
 public interface CursorListener {
 
-    void cursorMoved(double x, double y, InputHandler handler);
+    void cursorMoved(double x, double y, double dx, double dy, InputHandler handler);
 
 }

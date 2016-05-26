@@ -115,4 +115,5 @@ public class Quaternion {
                 2.0f * (xz + wy), 2.0f * (yz - wx), 1.0f - 2.0f * (xx + yy)
         );
     }
+
 }

@@ -7,8 +7,6 @@ import qps.input_listeners.CursorListener;
 import qps.input_listeners.KeyListener;
 import qps.window_listeners.WindowCloseListener;
 
-import java.io.IOException;
-
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
@@ -114,36 +112,51 @@ public abstract class Main {
         });
 
         window.inputHandler().addKeyListener(new KeyListener() {
+            static final float CAM_SPEED = 0.1f;
+
             @Override
-            public void keyPressed(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+            public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
                 switch (key) {
                     case GLFW_KEY_W: {
-                        mainScene.camera().move(new Vec3(0.0f, 0.01f, 0.0f));
+                        mainScene.camera().translate(mainScene.camera().forward().mult(CAM_SPEED));
                         break;
                     }
                     case GLFW_KEY_A: {
-                        mainScene.camera().move(new Vec3(-0.01f, 0.0f, 0.0f));
+                        mainScene.camera().translate(mainScene.camera().right().mult(-CAM_SPEED));
                         break;
                     }
                     case GLFW_KEY_S: {
-                        mainScene.camera().move(new Vec3(0.0f, -0.01f, 0.0f));
+                        mainScene.camera().translate(mainScene.camera().forward().mult(-CAM_SPEED));
                         break;
                     }
                     case GLFW_KEY_D: {
-                        mainScene.camera().move(new Vec3(0.01f, 0.0f, 0.0f));
+                        mainScene.camera().translate(mainScene.camera().right().mult(CAM_SPEED));
+                        break;
+                    }
+                    case GLFW_KEY_SPACE: {
+                        mainScene.camera().translate(Vec3.POSZ.mult(CAM_SPEED));
+                        break;
+                    }
+                    case GLFW_KEY_LEFT_SHIFT: {
+                        mainScene.camera().translate(Vec3.NEGZ.mult(CAM_SPEED));
                         break;
                     }
                 }
             }
 
             @Override
-            public void keyRepeated(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
-
-            }
-
-            @Override
             public void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
 
+            }
+        });
+
+        window.inputHandler().addCursorListener(new CursorListener() {
+            private static final float CAMERA_THETA_PER_PIXEL = 0.01f;
+
+            @Override
+            public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
+                mainScene.camera().yaw(CAMERA_THETA_PER_PIXEL * (float)-dx);
+                mainScene.camera().pitch(CAMERA_THETA_PER_PIXEL * (float)-dy);
             }
         });
 
@@ -156,8 +169,6 @@ public abstract class Main {
         while (running) {// glfwWindowShouldClose(window.id()) == 0 ) {
             update();
 
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); // clear the framebuffer
-
             glfwPollEvents();
 
             draw();
@@ -168,11 +179,16 @@ public abstract class Main {
 
     private static void update() {
         updateCamera();
+        updateUniforms();
     }
 
     private static void updateCamera() {
-        Mat4 viewMat = Mat4.translation(mainScene.camera().getLoc().mult(-1.0f));
-        mainProgram.setViewMat(viewMat);
+    }
+
+    private static void updateUniforms() {
+        Camera camera = mainScene.camera();
+        mainProgram.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
+        mainProgram.setProjMat(Mat4.perspective((float)Math.toRadians(90), (float)window.width() / window.height(), 0.1f, 100.0f));
     }
 
     private static void draw() {

@@ -5,6 +5,13 @@ package qps;
  */
 public class Vec3 {
 
+    public static final Vec3 POSX = new Vec3(1.0f, 0.0f, 0.0f);
+    public static final Vec3 POSY = new Vec3(0.0f, 1.0f, 0.0f);
+    public static final Vec3 POSZ = new Vec3(0.0f, 0.0f, 1.0f);
+    public static final Vec3 NEGX = new Vec3(-1.0f, 0.0f, 0.0f);
+    public static final Vec3 NEGY = new Vec3(0.0f, -1.0f, 0.0f);
+    public static final Vec3 NEGZ = new Vec3(0.0f, 0.0f, -1.0f);
+
     public float x, y, z;
 
     public Vec3() {

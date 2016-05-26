@@ -25,6 +25,13 @@ public class Mat2 extends MatN {
         super(2, 2, o);
     }
 
+    public Vec2 mult(Vec2 v) {
+        return new Vec2(
+                v.x * mat[0][0] + v.y * mat[1][0],
+                v.x * mat[0][1] + v.y * mat[1][1]
+        );
+    }
+
     public static Mat2 rotation(float theta) {
         float s = (float)Math.sin(theta);
         float c = (float)Math.cos(theta);

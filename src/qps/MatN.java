@@ -167,6 +167,24 @@ public class MatN {
         return temp;
     }
 
+    public VecN mult(VecN v) {
+        if (v.n() != width) {
+            throw new IllegalArgumentException("Cannot multiply a vector and matrix with invalid length/width!");
+        }
+
+        VecN temp = new VecN(height);
+
+        for (int ri = 0; ri < height; ++ri) {
+            float dot = 0;
+            for (int ci = 0; ci < width; ++ci) {
+                dot += mat[ci][ri] * v.get(ci);
+            }
+            temp.set(ri, dot);
+        }
+
+        return temp;
+    }
+
     public void fill(float v) {
         for (int ci = 0; ci < width; ++ci) {
             for (int r = 0; r < height; ++r) {

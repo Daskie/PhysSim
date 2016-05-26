@@ -25,6 +25,14 @@ public class Mat3 extends MatN {
         super(3, 3, o);
     }
 
+    public Vec3 mult(Vec3 v) {
+        return new Vec3(
+                v.x * mat[0][0] + v.y * mat[1][0] + v.z * mat[2][0],
+                v.x * mat[0][1] + v.y * mat[1][1] + v.z * mat[2][1],
+                v.x * mat[0][2] + v.y * mat[1][2] + v.z * mat[2][2]
+        );
+    }
+
     public static Mat3 rotation(float theta, Vec3 axis) {
         if (axis.mag2() == 0) { //can't rotate around 0 length vector
             return new Mat3();

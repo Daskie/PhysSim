@@ -31,4 +31,17 @@ public abstract class Utils {
         return val < min ? min : val > max ? max : val;
     }
 
+    public static Vec3 sphericalToCartesian(float r, float theta, float phi) {
+        float sinTheta = (float)Math.sin(theta);
+        float cosTheta = (float)Math.cos(theta);
+        float sinPhi = (float)Math.sin(phi);
+        float cosPhi = (float)Math.cos(phi);
+
+        return new Vec3(
+                r * sinPhi * cosTheta,
+                r * sinPhi * sinTheta,
+                r * cosPhi
+        );
+    }
+
 }

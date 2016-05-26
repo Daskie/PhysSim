@@ -197,7 +197,7 @@ public class Window {
         }
 
         @Override
-        public void cursorMoved(double x, double y, InputHandler handler) {
+        public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
             mouseX = x;
             mouseY = y;
         }
@@ -218,13 +218,8 @@ public class Window {
         }
 
         @Override
-        public void keyPressed(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+        public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
             keyStates[key] = true;
-        }
-
-        @Override
-        public void keyRepeated(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
-
         }
 
         @Override
