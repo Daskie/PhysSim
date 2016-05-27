@@ -5,7 +5,13 @@ package qps;
  */
 public class Entity {
 
+    public static final Vec3 DEFAULT_LOC = new Vec3();
+    public static final Vec3 DEFAULT_FORWARD = Vec3.POSY;
+    public static final Vec3 DEFAULT_UP = Vec3.POSZ;
+
     protected Vec3 loc;
+    protected Vec3 baseForward;
+    protected Vec3 baseUp;
     protected Vec3 forward;
     protected Vec3 up;
     private Mesh mesh;
@@ -15,7 +21,11 @@ public class Entity {
         this.mesh = mesh;
         this.vao = vao;
 
-        this.loc = new Vec3();
+        loc = DEFAULT_LOC;
+        baseForward = DEFAULT_FORWARD;
+        baseUp = DEFAULT_UP;
+        forward = baseForward;
+        up = baseUp;
     }
 
     public Vec3 getLoc() {
@@ -42,6 +52,16 @@ public class Entity {
         return forward.cross(up);
     }
 
+    public void orient(Entity o) {
+        forward = new Vec3(o.forward);
+        up = new Vec3(o.up);
+    }
+
+    public void orient(Vec3 forward, Vec3 up) {
+        this.forward = forward;
+        this.up = up;
+    }
+
     public void rotate(Quaternion q) {
         forward = q.rotate(forward);
         up = q.rotate(up);
@@ -50,6 +70,32 @@ public class Entity {
     public void rotate(Mat3 mat) {
         forward = mat.mult(forward);
         up = mat.mult(up);
+    }
+
+    public void rotateAbs(Quaternion q) {
+        forward = q.rotate(baseForward);
+        up = q.rotate(baseUp);
+    }
+
+    public void rotateAbs(Mat3 mat) {
+        forward = mat.mult(baseForward);
+        up = mat.mult(baseUp);
+    }
+
+    public Mat3 alignToBaseMat() {
+        return Mat3.align(forward, up, baseForward, baseUp);
+    }
+
+    public Quaternion alignToBaseQuat() {
+        return Quaternion.align(forward, up, baseForward, baseUp);
+    }
+
+    public Mat3 alignFromBaseMat() {
+        return Mat3.align(baseForward, baseUp, forward, up);
+    }
+
+    public Quaternion alignFromBaseQuat() {
+        return Quaternion.align(baseForward, baseUp, forward, up);
     }
 
     public boolean isCorporeal() {

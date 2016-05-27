@@ -98,6 +98,21 @@ public class Quaternion {
         );
     }
 
+    public static Quaternion align(Vec3 v1, Vec3 v2) {
+        v1 = v1.norm();
+        v2 = v2.norm();
+
+        Vec3 axis = v1.cross(v2);
+        float theta = (float)Math.acos(v1.dot(v2));
+
+        return angleAxis(theta, axis);
+    }
+
+    public static Quaternion align(Vec3 forward1, Vec3 up1, Vec3 forward2, Vec3 up2) {
+        Quaternion q = align(forward1, forward2);
+        return align(q.rotate(up1), up2).mult(q);
+    }
+
     public Mat3 toRotMat() {
         float wx = w * v.x;
         float wy = w * v.y;

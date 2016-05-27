@@ -1,9 +1,17 @@
 package qps;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
+import static org.lwjgl.BufferUtils.createByteBuffer;
+import static org.lwjgl.BufferUtils.createFloatBuffer;
+import static org.lwjgl.opengl.GL20.*;
+
 /**
  * @since 5/20/2016
  */
 public class ShaderProgram {
+
 
     protected String vertFilePath, geomFilePath, fragFilePath;
     protected int id;
@@ -27,6 +35,49 @@ public class ShaderProgram {
 
     public int id() {
         return id;
+    }
+
+    protected void setUniform(int u_id, float v) {
+        glUseProgram(id);
+        glUniform1f(u_id, v);
+    }
+
+    protected void setUniform(int u_id, Vec2 v) {
+        glUseProgram(id);
+        glUniform2f(u_id, v.x, v.y);
+    }
+
+    protected void setUniform(int u_id, Vec3 v) {
+        glUseProgram(id);
+        glUniform3f(u_id, v.x, v.y, v.z);
+    }
+
+    protected void setUniform(int u_id, Vec4 v) {
+        glUseProgram(id);
+        glUniform4f(u_id, v.x, v.y, v.z, v.w);
+    }
+
+    private FloatBuffer matBuffer = createFloatBuffer(16); //enough to store up to a mat4
+
+    protected void setUniform(int u_id, Mat2 mat) {
+        glUseProgram(id);
+        mat.buffer(matBuffer);
+        matBuffer.flip();
+        glUniformMatrix2fv(u_id, false, matBuffer);
+    }
+
+    protected void setUniform(int u_id, Mat3 mat) {
+        glUseProgram(id);
+        mat.buffer(matBuffer);
+        matBuffer.flip();
+        glUniformMatrix3fv(u_id, false, matBuffer);
+    }
+
+    protected void setUniform(int u_id, Mat4 mat) {
+        glUseProgram(id);
+        mat.buffer(matBuffer);
+        matBuffer.flip();
+        glUniformMatrix4fv(u_id, false, matBuffer);
     }
 
 }

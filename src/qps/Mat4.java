@@ -13,6 +13,10 @@ public class Mat4 extends MatN {
         super(4, 4, vs);
     }
 
+    public Mat4(MatN o) {
+        super(4, 4, o);
+    }
+
     public Vec4 mult(Vec4 v) {
         return new Vec4(
                 v.x * mat[0][0] + v.y * mat[1][0] + v.z * mat[2][0] + v.w * mat[3][0],

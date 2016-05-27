@@ -18,6 +18,7 @@ public abstract class Main {
     private static Window window;
     private static MainProgram mainProgram;
     private static Scene mainScene;
+    private static Entity cube;
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -73,8 +74,8 @@ public abstract class Main {
         glClearColor(0.25f, 0.0f, 0.25f, 1.0f);
         glViewport(0, 0, window.width(), window.height());
 
-        //glEnable(GL_DEPTH_TEST);
-        //glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
 
         if (!Utils.checkGLErr()) {
             System.err.println("OpenGL initialization error!");
@@ -97,7 +98,7 @@ public abstract class Main {
     private static boolean initScene() {
         mainScene = new Scene();
         Mesh cubeMesh = null;
-        Entity cube = new Entity(MeshManager.cubeMesh, MeshManager.cubeMesh.buffer());
+        cube = new Entity(MeshManager.cubeMesh, MeshManager.cubeMesh.buffer());
         mainScene.addEntity(cube);
 
         return true;
@@ -112,35 +113,10 @@ public abstract class Main {
         });
 
         window.inputHandler().addKeyListener(new KeyListener() {
-            static final float CAM_SPEED = 0.1f;
-
             @Override
             public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
                 switch (key) {
-                    case GLFW_KEY_W: {
-                        mainScene.camera().translate(mainScene.camera().forward().mult(CAM_SPEED));
-                        break;
-                    }
-                    case GLFW_KEY_A: {
-                        mainScene.camera().translate(mainScene.camera().right().mult(-CAM_SPEED));
-                        break;
-                    }
-                    case GLFW_KEY_S: {
-                        mainScene.camera().translate(mainScene.camera().forward().mult(-CAM_SPEED));
-                        break;
-                    }
-                    case GLFW_KEY_D: {
-                        mainScene.camera().translate(mainScene.camera().right().mult(CAM_SPEED));
-                        break;
-                    }
-                    case GLFW_KEY_SPACE: {
-                        mainScene.camera().translate(Vec3.POSZ.mult(CAM_SPEED));
-                        break;
-                    }
-                    case GLFW_KEY_LEFT_SHIFT: {
-                        mainScene.camera().translate(Vec3.NEGZ.mult(CAM_SPEED));
-                        break;
-                    }
+
                 }
             }
 
@@ -155,38 +131,54 @@ public abstract class Main {
 
             @Override
             public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
-                mainScene.camera().yaw(CAMERA_THETA_PER_PIXEL * (float)-dx);
-                mainScene.camera().pitch(CAMERA_THETA_PER_PIXEL * (float)-dy);
+                if (dx <= 10) {
+                    mainScene.camera().yaw(CAMERA_THETA_PER_PIXEL * (float) -dx);
+                }
+                if (dy <= 10) {
+                    mainScene.camera().pitch(CAMERA_THETA_PER_PIXEL * (float) -dy);
+                }
             }
         });
 
         return true;
     }
 
-    private static void tempLoop() {
-        running = true;
+    private static void update(int t, int  dt) {
+        updateCamera(t, dt);
+        updateScene(t, dt);
+        updateUniforms(t, dt);
+    }
 
-        while (running) {// glfwWindowShouldClose(window.id()) == 0 ) {
-            update();
-
-            glfwPollEvents();
-
-            draw();
-
-            Utils.checkGLErr();
+    private static final float CAM_SPEED = 0.1f;
+    private static void updateCamera(int t, int dt) {
+        Camera camera = mainScene.camera();
+        if (window.keyState(GLFW_KEY_W)) {
+            mainScene.camera().translate(mainScene.camera().forward().mult(CAM_SPEED));
+        }
+        if (window.keyState(GLFW_KEY_A)) {
+            mainScene.camera().translate(mainScene.camera().right().mult(-CAM_SPEED));
+        }
+        if (window.keyState(GLFW_KEY_S)) {
+            mainScene.camera().translate(mainScene.camera().forward().mult(-CAM_SPEED));
+        }
+        if (window.keyState(GLFW_KEY_D)) {
+            mainScene.camera().translate(mainScene.camera().right().mult(CAM_SPEED));
+        }
+        if (window.keyState(GLFW_KEY_SPACE)) {
+            mainScene.camera().translate(Vec3.POSZ.mult(CAM_SPEED));
+        }
+        if (window.keyState(GLFW_KEY_LEFT_SHIFT)) {
+            mainScene.camera().translate(Vec3.NEGZ.mult(CAM_SPEED));
         }
     }
 
-    private static void update() {
-        updateCamera();
-        updateUniforms();
+    private static void updateScene(int t, int dt) {
+        cube.rotateAbs(Quaternion.angleAxis(t / 1000.0f, cube.getUp()));
     }
 
-    private static void updateCamera() {
-    }
-
-    private static void updateUniforms() {
+    private static void updateUniforms(int t, int dt) {
         Camera camera = mainScene.camera();
+        mainProgram.setModelMat(new Mat4(cube.alignFromBaseMat()));
         mainProgram.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
         mainProgram.setProjMat(Mat4.perspective((float)Math.toRadians(90), (float)window.width() / window.height(), 0.1f, 100.0f));
     }
@@ -218,7 +210,22 @@ public abstract class Main {
             System.exit(-1);
         }
 
-        tempLoop();
+        running = true;
+
+        long orig = System.currentTimeMillis(), then = orig, now;
+        while (running) {// glfwWindowShouldClose(window.id()) == 0 ) {
+            now = System.currentTimeMillis();
+
+            update((int)(now - orig), (int)(now - then));
+
+            glfwPollEvents();
+
+            draw();
+
+            Utils.checkGLErr();
+
+            then = now;
+        }
 
         if (!cleanup()) {
             System.err.println("Cleanup failed!");
