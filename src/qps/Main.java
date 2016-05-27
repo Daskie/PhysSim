@@ -18,7 +18,7 @@ public abstract class Main {
     private static Window window;
     private static MainProgram mainProgram;
     private static Scene mainScene;
-    private static Entity cube;
+    private static Entity sphere;
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -98,8 +98,8 @@ public abstract class Main {
     private static boolean initScene() {
         mainScene = new Scene();
         Mesh cubeMesh = null;
-        cube = new Entity(MeshManager.cubeMesh, MeshManager.cubeMesh.buffer());
-        mainScene.addEntity(cube);
+        sphere = new Entity(MeshManager.sphereMesh, MeshManager.sphereMesh.buffer());
+        mainScene.addEntity(sphere);
 
         return true;
     }
@@ -173,12 +173,13 @@ public abstract class Main {
     }
 
     private static void updateScene(int t, int dt) {
-        cube.rotateAbs(Quaternion.angleAxis(t / 1000.0f, cube.getUp()));
+        sphere.rotateAbs(Quaternion.angleAxis(t / 1000.0f, sphere.getUp()));
     }
 
     private static void updateUniforms(int t, int dt) {
         Camera camera = mainScene.camera();
-        mainProgram.setModelMat(new Mat4(cube.alignFromBaseMat()));
+        mainProgram.setCamLoc(camera.loc());
+        mainProgram.setModelMat(new Mat4(sphere.alignFromBaseMat()));
         mainProgram.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
         mainProgram.setProjMat(Mat4.perspective((float)Math.toRadians(90), (float)window.width() / window.height(), 0.1f, 100.0f));
     }

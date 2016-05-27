@@ -58,7 +58,6 @@ public class MainProgram extends ShaderProgram {
         setAmbientCol(DEFAULT_AMBIENT_COL);
         setDiffuseCol(DEFAULT_DIFFUSE_COL);
         setSpecularCol(DEFAULT_SPECULAR_COL);
-
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to set initial uniform values for main shader program!");
             return false;
