@@ -10,22 +10,17 @@ public abstract class MeshManager {
     public static Mesh squareMesh;
     public static Mesh cubeMesh;
     public static Mesh sphereMesh;
+    public static Mesh arrowMesh;
 
     public static boolean initMeshes() {
         squareMesh = MeshLoader.simpleSquare();
 
         try {
             cubeMesh = MeshLoader.fromFile("meshes/cube.qmesh");
-        } catch (IOException e) {
-            System.err.println("Failed to initialize cube mesh!");
-            e.printStackTrace();
-            return false;
-        }
-
-        try {
             sphereMesh = MeshLoader.fromFile("meshes/sphere8.qmesh");
+            arrowMesh = MeshLoader.fromFile("meshes/arrow16.qmesh");
         } catch (IOException e) {
-            System.err.println("Failed to initialize sphere mesh!");
+            System.err.println("Failed to initialize meshes!");
             e.printStackTrace();
             return false;
         }

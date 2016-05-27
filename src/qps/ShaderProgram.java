@@ -80,4 +80,24 @@ public class ShaderProgram {
         glUniformMatrix4fv(u_id, false, matBuffer);
     }
 
+    protected void setUniform(int u_id, int x) {
+        glUseProgram(id);
+        glUniform1i(u_id, x);
+    }
+
+    protected void setUniform(int u_id, int x, int y) {
+        glUseProgram(id);
+        glUniform2i(u_id, x, y);
+    }
+
+    protected void setUniform(int u_id, int x, int y, int z) {
+        glUseProgram(id);
+        glUniform3i(u_id, x, y, z);
+    }
+
+    protected void setUniform(int u_id, int x, int y, int z, int w) {
+        glUseProgram(id);
+        glUniform4i(u_id, x, y, z, w);
+    }
+
 }

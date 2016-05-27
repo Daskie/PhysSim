@@ -18,12 +18,15 @@ public class Entity {
     private VAO vao;
 
     public Entity(Mesh mesh, VAO vao) {
+        this(mesh, vao, DEFAULT_FORWARD, DEFAULT_UP);
+    }
+    public Entity(Mesh mesh, VAO vao, Vec3 baseForward, Vec3 baseUp) {
         this.mesh = mesh;
         this.vao = vao;
 
         loc = DEFAULT_LOC;
-        baseForward = DEFAULT_FORWARD;
-        baseUp = DEFAULT_UP;
+        this.baseForward = baseForward;
+        this.baseUp = baseUp;
         forward = baseForward;
         up = baseUp;
     }

@@ -11,14 +11,16 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 public abstract class Main {
 
     private static boolean running;
     private static Window window;
     private static MainProgram mainProgram;
+    private static FieldProgram fieldProgram;
     private static Scene mainScene;
-    private static Entity sphere;
+    private static Entity arrow;
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -91,15 +93,19 @@ public abstract class Main {
             System.err.println("Failed to initialize main shader program!");
             return false;
         }
+        fieldProgram = new FieldProgram();
+        if (!fieldProgram.init()) {
+            System.err.println("Failed to initialize field shader program!");
+            return false;
+        }
 
         return true;
     }
 
     private static boolean initScene() {
         mainScene = new Scene();
-        Mesh cubeMesh = null;
-        sphere = new Entity(MeshManager.sphereMesh, MeshManager.sphereMesh.buffer());
-        mainScene.addEntity(sphere);
+        arrow = new Entity(MeshManager.arrowMesh, MeshManager.arrowMesh.buffer(), Vec3.POSZ, Vec3.NEGY);
+        mainScene.addEntity(arrow);
 
         return true;
     }
@@ -173,25 +179,37 @@ public abstract class Main {
     }
 
     private static void updateScene(int t, int dt) {
-        sphere.rotateAbs(Quaternion.angleAxis(t / 1000.0f, sphere.getUp()));
+        arrow.rotateAbs(Quaternion.angleAxis(t / 1000.0f, arrow.getUp()));
     }
 
     private static void updateUniforms(int t, int dt) {
         Camera camera = mainScene.camera();
         mainProgram.setCamLoc(camera.loc());
-        mainProgram.setModelMat(new Mat4(sphere.alignFromBaseMat()));
+        mainProgram.setModelMat(new Mat4(arrow.alignFromBaseMat()));
         mainProgram.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
         mainProgram.setProjMat(Mat4.perspective((float)Math.toRadians(90), (float)window.width() / window.height(), 0.1f, 100.0f));
+
+        fieldProgram.setCamLoc(camera.loc());
+        fieldProgram.setModelMat(new Mat4(arrow.alignFromBaseMat().mult(Mat3.scale(0.25f))));
+        fieldProgram.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
+        fieldProgram.setProjMat(Mat4.perspective((float)Math.toRadians(90), (float)window.width() / window.height(), 0.1f, 100.0f));
     }
 
     private static void draw() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         Utils.checkGLErr();
 
-        glUseProgram(mainProgram.id());
-        Utils.checkGLErr();
+        //glUseProgram(mainProgram.id());
+        //Utils.checkGLErr();
 
-        mainScene.draw();
+        //mainScene.draw();
+
+        glUseProgram(fieldProgram.id());
+
+        glBindVertexArray(arrow.vao().vao());
+        Utils.checkGLErr();
+        glDrawElementsInstanced(GL_TRIANGLES, arrow.mesh().nIndices(), GL_UNSIGNED_INT, 0, 25 * 13 * 7);
+        Utils.checkGLErr();
 
         window.swap();
     }

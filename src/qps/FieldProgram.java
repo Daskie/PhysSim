@@ -1,14 +1,14 @@
 package qps;
 
-import java.nio.FloatBuffer;
-
-import static org.lwjgl.BufferUtils.createFloatBuffer;
-import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 
 /**
- * @since 5/21/2016
+ * @since 5/27/2016
  */
-public class MainProgram extends ShaderProgram {
+public class FieldProgram extends ShaderProgram {
+
+    public static final Vec3 DEFAULT_FIELD_LOC = new Vec3();
+    public static final Vec3 DEFAULT_FIELD_SIZE = new Vec3(24.0f, 12.0f, 6.0f);
 
     private static final Vec3 DEFAULT_CAM_LOC = new Vec3();
     private static final Vec3 DEFAULT_LIGHT_DIR = new Vec3(-1.0f, -1.0f, -1.0f);
@@ -25,9 +25,13 @@ public class MainProgram extends ShaderProgram {
     private int u_ambientCol;
     private int u_diffuseCol;
     private int u_specularCol;
+    private int u_fieldLoc;
+    private int u_fieldSize;
+    private int u_fieldCount;
 
-    public MainProgram() {
-        super("shaders/a.vert", null, "shaders/a.frag");
+
+    public FieldProgram() {
+        super("shaders/field.vert", null, "shaders/a.frag");
     }
 
     @Override
@@ -43,6 +47,9 @@ public class MainProgram extends ShaderProgram {
         u_ambientCol = glGetUniformLocation(id, "u_ambientCol");
         u_diffuseCol = glGetUniformLocation(id, "u_diffuseCol");
         u_specularCol = glGetUniformLocation(id, "u_specularCol");
+        u_fieldLoc = glGetUniformLocation(id, "u_fieldLoc");
+        u_fieldSize = glGetUniformLocation(id, "u_fieldSize");
+        u_fieldCount = glGetUniformLocation(id, "u_fieldCount");
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to get uniform locations for main shader program!");
             return false;
@@ -56,6 +63,9 @@ public class MainProgram extends ShaderProgram {
         setAmbientCol(DEFAULT_AMBIENT_COL);
         setDiffuseCol(DEFAULT_DIFFUSE_COL);
         setSpecularCol(DEFAULT_SPECULAR_COL);
+        setFieldLoc(DEFAULT_FIELD_LOC);
+        setFieldSize(DEFAULT_FIELD_SIZE);
+        setFieldCount((int)DEFAULT_FIELD_SIZE.x + 1, (int)DEFAULT_FIELD_SIZE.y + 1, (int)DEFAULT_FIELD_SIZE.z + 1);
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to set initial uniform values for main shader program!");
             return false;
@@ -95,6 +105,18 @@ public class MainProgram extends ShaderProgram {
 
     public void setSpecularCol(Vec3 specularCol) {
         setUniform(u_specularCol, specularCol);
+    }
+
+    public void setFieldLoc(Vec3 loc) {
+        setUniform(u_fieldLoc, loc);
+    }
+
+    public void setFieldSize(Vec3 size) {
+        setUniform(u_fieldSize, size);
+    }
+
+    public void setFieldCount(int x, int y, int z) {
+        setUniform(u_fieldCount, x, y, z);
     }
 
 }

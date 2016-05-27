@@ -66,4 +66,20 @@ public class Mat3 extends MatN {
         return new Mat3(align(m.mult(up1), up2).mult(m));
     }
 
+    public static Mat3 scale(float v) {
+        return scale(v, v, v);
+    }
+
+    public static Mat3 scale(Vec3 v) {
+        return scale(v.x, v.y, v.z);
+    }
+
+    public static Mat3 scale(float x, float y, float z) {
+        return new Mat3(
+                x, 0.0f, 0.0f,
+                0.0f, y, 0.0f,
+                0.0f, 0.0f, z
+        );
+    }
+
 }
