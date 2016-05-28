@@ -137,7 +137,7 @@ public class VAO {
                     4,
                     GL_FLOAT,
                     false,
-                    16,
+                    64,
                     instancesOffset
             );
             glVertexAttribDivisor(attribI, 1);
@@ -149,8 +149,8 @@ public class VAO {
                     4,
                     GL_FLOAT,
                     false,
-                    16,
-                    instancesOffset + 4
+                    64,
+                    instancesOffset + 16
             );
             glVertexAttribDivisor(attribI, 1);
             ++attribI;
@@ -161,8 +161,8 @@ public class VAO {
                     4,
                     GL_FLOAT,
                     false,
-                    16,
-                    instancesOffset + 8
+                    64,
+                    instancesOffset + 32
             );
             glVertexAttribDivisor(attribI, 1);
             ++attribI;
@@ -173,8 +173,8 @@ public class VAO {
                     4,
                     GL_FLOAT,
                     false,
-                    16,
-                    instancesOffset + 12
+                    64,
+                    instancesOffset + 48
             );
             glVertexAttribDivisor(attribI, 1);
             ++attribI;
@@ -190,6 +190,7 @@ public class VAO {
     }
 
     void bufferInstanceMats(Mat4[] mats, int ii, int n) {
+        glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
         instanceMatsBuffer.clear();
@@ -203,6 +204,7 @@ public class VAO {
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+        glBindVertexArray(0);
     }
 
     public int vao() {

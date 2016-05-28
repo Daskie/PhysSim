@@ -25,7 +25,11 @@ public abstract class MainScene {
         program = new MainProgram();
         program.init();
         spheres = new ArrayList<ChargedSphere>(MAX_SPHERES);
-        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, GL_DYNAMIC_DRAW);
+        Mat4[] mats = new Mat4[MAX_SPHERES];
+        for (int i = 0; i < mats.length; ++i) {
+            mats[i] = new Mat4();
+        }
+        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, mats, GL_DYNAMIC_DRAW);
 
         return true;
     }
@@ -41,7 +45,7 @@ public abstract class MainScene {
 
     public static void addSphere(ChargedSphere sphere) {
         spheres.add(sphere);
-        spheresVAO.bufferInstanceMat(new Mat4(sphere.alignFromBaseMat()), spheres.size() - 1);
+        spheresVAO.bufferInstanceMat(new Mat4(sphere.modelMat()), spheres.size() - 1);
     }
 
 }

@@ -105,6 +105,9 @@ public abstract class Main {
     private static boolean initScene() {
         MainScene.init();
         MainScene.addSphere(new ChargedSphere());
+        ChargedSphere s2 = new ChargedSphere();
+        s2.setLoc(new Vec3(5.0f, 0.0f, 0.0f));
+        MainScene.addSphere(s2);
 
         return true;
     }

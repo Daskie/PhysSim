@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL31.glUniformBlockBinding;
 public class MainProgram extends ShaderProgram {
 
     public MainProgram() {
-        super("shaders/a.vert", null, "shaders/a.frag");
+        super("shaders/i.vert", null, "shaders/a.frag");
     }
 
     @Override

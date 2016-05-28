@@ -96,4 +96,8 @@ public class Entity {
         return Quaternion.align(baseForward, baseUp, forward, up);
     }
 
+    public Mat4 modelMat() {
+        return new Mat4(Mat4.translation(loc).mult(new Mat4(alignFromBaseMat())));
+    }
+
 }
