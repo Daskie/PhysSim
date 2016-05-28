@@ -4,6 +4,7 @@ layout (location = 0) in vec3 in_vertCoords;
 layout (location = 1) in vec4 in_vertColor;
 layout (location = 2) in vec2 in_vertUV;
 layout (location = 3) in vec3 in_vertNorm;
+layout (location = 4) in mat4 in_instanceMat; //5, 6, 7
 
 out V_TO_F {
 	vec3 vertCoords;

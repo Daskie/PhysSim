@@ -21,14 +21,7 @@ public class Scene {
     }
 
     public void draw() {
-        for (Entity entity : entities) {
-            if (entity.isCorporeal()) {
-                glBindVertexArray(entity.vao().vao());
-                Utils.checkGLErr();
-                glDrawElements(GL_TRIANGLES, entity.mesh().nIndices(), GL_UNSIGNED_INT, 0);
-                Utils.checkGLErr();
-            }
-        }
+
     }
 
     public void addEntity(Entity entity) {

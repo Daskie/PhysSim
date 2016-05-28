@@ -14,16 +14,11 @@ public class Entity {
     protected Vec3 baseUp;
     protected Vec3 forward;
     protected Vec3 up;
-    private Mesh mesh;
-    private VAO vao;
 
-    public Entity(Mesh mesh, VAO vao) {
-        this(mesh, vao, DEFAULT_FORWARD, DEFAULT_UP);
+    public Entity() {
+        this(DEFAULT_FORWARD, DEFAULT_UP);
     }
-    public Entity(Mesh mesh, VAO vao, Vec3 baseForward, Vec3 baseUp) {
-        this.mesh = mesh;
-        this.vao = vao;
-
+    public Entity(Vec3 baseForward, Vec3 baseUp) {
         loc = DEFAULT_LOC;
         this.baseForward = baseForward;
         this.baseUp = baseUp;
@@ -99,22 +94,6 @@ public class Entity {
 
     public Quaternion alignFromBaseQuat() {
         return Quaternion.align(baseForward, baseUp, forward, up);
-    }
-
-    public boolean isCorporeal() {
-        return mesh != null;
-    }
-
-    public boolean isBuffered() {
-        return vao != null;
-    }
-
-    public Mesh mesh() {
-        return mesh;
-    }
-
-    public VAO vao() {
-        return vao;
     }
 
 }

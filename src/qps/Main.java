@@ -9,6 +9,7 @@ import qps.window_listeners.WindowCloseListener;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
@@ -17,10 +18,8 @@ public abstract class Main {
 
     private static boolean running;
     private static Window window;
-    private static MainProgram mainProgram;
     private static FieldProgram fieldProgram;
-    private static Scene mainScene;
-    private static Entity arrow;
+    private static Camera camera = new Camera();
 
     private static float nearFrust = 0.1f;
     private static float farFrust = 100.0f;
@@ -94,11 +93,6 @@ public abstract class Main {
     }
 
     private static boolean initShaders() {
-        mainProgram = new MainProgram();
-        if (!mainProgram.init()) {
-            System.err.println("Failed to initialize main shader program!");
-            return false;
-        }
         fieldProgram = new FieldProgram();
         if (!fieldProgram.init()) {
             System.err.println("Failed to initialize field shader program!");
@@ -109,9 +103,8 @@ public abstract class Main {
     }
 
     private static boolean initScene() {
-        mainScene = new Scene();
-        arrow = new Entity(MeshManager.arrowMesh, MeshManager.arrowMesh.buffer(), Vec3.POSZ, Vec3.NEGY);
-        mainScene.addEntity(arrow);
+        MainScene.init();
+        MainScene.addSphere(new ChargedSphere());
 
         return true;
     }
@@ -144,10 +137,10 @@ public abstract class Main {
             @Override
             public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
                 if (dx <= 10) {
-                    mainScene.camera().yaw(CAMERA_THETA_PER_PIXEL * (float) -dx);
+                    camera.yaw(CAMERA_THETA_PER_PIXEL * (float) -dx);
                 }
                 if (dy <= 10) {
-                    mainScene.camera().pitch(CAMERA_THETA_PER_PIXEL * (float) -dy);
+                    camera.pitch(CAMERA_THETA_PER_PIXEL * (float) -dy);
                 }
             }
         });
@@ -161,9 +154,9 @@ public abstract class Main {
             return false;
         }
 
-        UniformGlobals.ViewGlobals.camLoc = mainScene.camera().loc();
-        UniformGlobals.ViewGlobals.camForward = mainScene.camera().forward();
-        UniformGlobals.ViewGlobals.camUp = mainScene.camera().up();
+        UniformGlobals.ViewGlobals.camLoc = camera.loc();
+        UniformGlobals.ViewGlobals.camForward = camera.forward();
+        UniformGlobals.ViewGlobals.camUp = camera.up();
         UniformGlobals.ViewGlobals.nearFrust = nearFrust;
         UniformGlobals.ViewGlobals.farFrust = farFrust;
         UniformGlobals.ViewGlobals.fov = fov;
@@ -196,38 +189,36 @@ public abstract class Main {
 
     private static final float CAM_SPEED = 0.1f;
     private static void updateCamera(int t, int dt) {
-        Camera camera = mainScene.camera();
         if (window.keyState(GLFW_KEY_W)) {
-            mainScene.camera().translate(mainScene.camera().forward().mult(CAM_SPEED));
+            camera.translate(camera.forward().mult(CAM_SPEED));
         }
         if (window.keyState(GLFW_KEY_A)) {
-            mainScene.camera().translate(mainScene.camera().right().mult(-CAM_SPEED));
+            camera.translate(camera.right().mult(-CAM_SPEED));
         }
         if (window.keyState(GLFW_KEY_S)) {
-            mainScene.camera().translate(mainScene.camera().forward().mult(-CAM_SPEED));
+            camera.translate(camera.forward().mult(-CAM_SPEED));
         }
         if (window.keyState(GLFW_KEY_D)) {
-            mainScene.camera().translate(mainScene.camera().right().mult(CAM_SPEED));
+            camera.translate(camera.right().mult(CAM_SPEED));
         }
         if (window.keyState(GLFW_KEY_SPACE)) {
-            mainScene.camera().translate(Vec3.POSZ.mult(CAM_SPEED));
+            camera.translate(Vec3.POSZ.mult(CAM_SPEED));
         }
         if (window.keyState(GLFW_KEY_LEFT_SHIFT)) {
-            mainScene.camera().translate(Vec3.NEGZ.mult(CAM_SPEED));
+            camera.translate(Vec3.NEGZ.mult(CAM_SPEED));
         }
     }
 
     private static void updateScene(int t, int dt) {
-        arrow.rotateAbs(Quaternion.angleAxis(t / 1000.0f, arrow.getUp()));
+        //arrow.rotateAbs(Quaternion.angleAxis(t / 1000.0f, arrow.getUp()));
     }
 
     private static void updateUniforms(int t, int dt) {
-        Camera camera = mainScene.camera();
-        Mat4 modelMat = new Mat4(arrow.alignFromBaseMat());
+        //Mat4 modelMat = new Mat4(arrow.alignFromBaseMat());
 
         UniformGlobals.ViewGlobals.camLoc = camera.loc();
-        UniformGlobals.TransformGlobals.modelMat = modelMat;
-        UniformGlobals.TransformGlobals.normMat = new Mat4((new Mat3(modelMat)).inv().trans());
+        //UniformGlobals.TransformGlobals.modelMat = modelMat;
+        //UniformGlobals.TransformGlobals.normMat = new Mat4((new Mat3(modelMat)).inv().trans());
         UniformGlobals.TransformGlobals.viewMat = Mat4.view(camera.loc(), camera.forward(), camera.up());
         UniformGlobals.TransformGlobals.projMat = Mat4.perspective(fov, (float)window.width() / window.height(), 0.1f, 100.0f);
 
@@ -243,17 +234,14 @@ public abstract class Main {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         Utils.checkGLErr();
 
-        //glUseProgram(mainProgram.id());
+        MainScene.draw();
+
+        //glUseProgram(fieldProgram.id());
+
+        //glBindVertexArray(arrow.vao().vao());
         //Utils.checkGLErr();
-
-        //mainScene.draw();
-
-        glUseProgram(fieldProgram.id());
-
-        glBindVertexArray(arrow.vao().vao());
-        Utils.checkGLErr();
-        glDrawElementsInstanced(GL_TRIANGLES, arrow.mesh().nIndices(), GL_UNSIGNED_INT, 0, 25 * 13 * 7);
-        Utils.checkGLErr();
+        //glDrawElementsInstanced(GL_TRIANGLES, arrow.mesh().nIndices(), GL_UNSIGNED_INT, 0, 25 * 13 * 7);
+        //Utils.checkGLErr();
 
         window.swap();
     }

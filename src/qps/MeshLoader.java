@@ -30,15 +30,15 @@ public abstract class MeshLoader {
 
     public static Mesh simpleSquare() {
         int nVerts = 4;
-        FloatBuffer coords = createFloatBuffer(nVerts * 3);
-        ByteBuffer colors = createByteBuffer(nVerts * 4);
-        FloatBuffer uvs = createFloatBuffer(nVerts * 2);
-        FloatBuffer norms = createFloatBuffer(nVerts * 3);
+        ByteBuffer coords = createByteBuffer(nVerts * Mesh.COORDS_BYTES);
+        ByteBuffer colors = createByteBuffer(nVerts * Mesh.COLOR_BYTES);
+        ByteBuffer uvs = createByteBuffer(nVerts * Mesh.UV_BYTES);
+        ByteBuffer norms = createByteBuffer(nVerts * Mesh.NORM_BYTES);
 
-        coords.put(0); coords.put(0); coords.put(0);
-        coords.put(1); coords.put(0); coords.put(0);
-        coords.put(1); coords.put(1); coords.put(0);
-        coords.put(0); coords.put(1); coords.put(0);
+        coords.putFloat(0); coords.putFloat(0); coords.putFloat(0);
+        coords.putFloat(1); coords.putFloat(0); coords.putFloat(0);
+        coords.putFloat(1); coords.putFloat(1); coords.putFloat(0);
+        coords.putFloat(0); coords.putFloat(1); coords.putFloat(0);
         coords.flip();
 
         byte w = (byte)255;
@@ -49,23 +49,23 @@ public abstract class MeshLoader {
         colors.put(w); colors.put(w); colors.put(w); colors.put(b);
         colors.flip();
 
-        uvs.put(0.0f); uvs.put(0.0f);
-        uvs.put(1.0f); uvs.put(0.0f);
-        uvs.put(1.0f); uvs.put(1.0f);
-        uvs.put(0.0f); uvs.put(1.0f);
+        uvs.putFloat(0.0f); uvs.putFloat(0.0f);
+        uvs.putFloat(1.0f); uvs.putFloat(0.0f);
+        uvs.putFloat(1.0f); uvs.putFloat(1.0f);
+        uvs.putFloat(0.0f); uvs.putFloat(1.0f);
         uvs.flip();
 
-        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
-        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
-        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
-        norms.put(0.0f); norms.put(0.0f); norms.put(1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
         norms.flip();
 
         int nIndices = 6;
-        IntBuffer indices = createIntBuffer(nIndices);
+        ByteBuffer indices = createByteBuffer(nIndices * 4);
 
-        indices.put(0); indices.put(1); indices.put(2);
-        indices.put(2); indices.put(3); indices.put(0);
+        indices.putInt(0); indices.putInt(1); indices.putInt(2);
+        indices.putInt(2); indices.putInt(3); indices.putInt(0);
         indices.flip();
 
         return new Mesh("SimpleSquare", nVerts, coords, colors, uvs, norms, nIndices, indices);
@@ -75,11 +75,11 @@ public abstract class MeshLoader {
 
         Meta meta = new Meta();
         String name = filePath;
-        FloatBuffer coordsData = null;
+        ByteBuffer coordsData = null;
         ByteBuffer colorsData = null;
-        FloatBuffer uvsData = null;
-        FloatBuffer normsData = null;
-        IntBuffer indicesData = null;
+        ByteBuffer uvsData = null;
+        ByteBuffer normsData = null;
+        ByteBuffer indicesData = null;
 
         RandomAccessFile file = new RandomAccessFile(filePath, "r");
         FileChannel channel = file.getChannel();
@@ -123,51 +123,46 @@ public abstract class MeshLoader {
 
         if (meta.hasCoords != 0) {
             int coordsBytes = meta.nVerts * Mesh.COORDS_BYTES;
-            ByteBuffer tempCoordsBuff = createByteBuffer(coordsBytes).order(ByteOrder.LITTLE_ENDIAN);
-            if (channel.read(tempCoordsBuff) != coordsBytes) {
+            coordsData = createByteBuffer(coordsBytes).order(ByteOrder.LITTLE_ENDIAN);
+            if (channel.read(coordsData) != coordsBytes) {
                 throw new IOException("Unexpected number of coords bytes read from qmesh!");
             }
-            tempCoordsBuff.flip();
-            coordsData = tempCoordsBuff.asFloatBuffer();
+            coordsData.flip();
         }
 
         if (meta.hasColors != 0) {
             int colorsBytes = meta.nVerts * Mesh.COLOR_BYTES;
-            ByteBuffer tempColordsBuff = createByteBuffer(colorsBytes).order(ByteOrder.LITTLE_ENDIAN);
-            if (channel.read(tempColordsBuff) != colorsBytes) {
+            colorsData = createByteBuffer(colorsBytes).order(ByteOrder.LITTLE_ENDIAN);
+            if (channel.read(colorsData) != colorsBytes) {
                 throw new IOException("Unexpected number of colors bytes read from qmesh!");
             }
-            tempColordsBuff.flip();
-            colorsData = tempColordsBuff;
+            colorsData.flip();
         }
 
         if (meta.hasUVs != 0) {
             int uvsBytes = meta.nVerts * Mesh.UV_BYTES;
-            ByteBuffer tempUVsBuffer = createByteBuffer(uvsBytes).order(ByteOrder.LITTLE_ENDIAN);
-            if (channel.read(tempUVsBuffer) != uvsBytes) {
+            uvsData = createByteBuffer(uvsBytes).order(ByteOrder.LITTLE_ENDIAN);
+            if (channel.read(uvsData) != uvsBytes) {
                 throw new IOException("Unexpected number of uvs bytes read from qmesh!");
             }
-            tempUVsBuffer.flip();
-            uvsData = tempUVsBuffer.asFloatBuffer();
+            uvsData.flip();
         }
 
         if (meta.hasNorms != 0) {
             int normsBytes = meta.nVerts * Mesh.NORM_BYTES;
-            ByteBuffer tempNormsBuff = createByteBuffer(normsBytes).order(ByteOrder.LITTLE_ENDIAN);
-            if (channel.read(tempNormsBuff) != normsBytes) {
+            normsData = createByteBuffer(normsBytes).order(ByteOrder.LITTLE_ENDIAN);
+            if (channel.read(normsData) != normsBytes) {
                 throw new IOException("Unexpected number of norms bytes read from qmesh!");
             }
-            tempNormsBuff.flip();
-            normsData = tempNormsBuff.asFloatBuffer();
+            normsData.flip();
         }
 
         int indicesBytes = meta.nIndices * 4;
-        ByteBuffer tempIndicesBuff = createByteBuffer(indicesBytes).order(ByteOrder.LITTLE_ENDIAN);
-        if (channel.read(tempIndicesBuff) != indicesBytes) {
+        indicesData = createByteBuffer(indicesBytes).order(ByteOrder.LITTLE_ENDIAN);
+        if (channel.read(indicesData) != indicesBytes) {
             throw new IOException("Unexpected number of indices bytes read from qmesh!");
         }
-        tempIndicesBuff.flip();
-        indicesData = tempIndicesBuff.asIntBuffer();
+        indicesData.flip();
 
         channel.close();
         file.close();
