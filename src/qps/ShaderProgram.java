@@ -37,6 +37,26 @@ public class ShaderProgram {
         return id;
     }
 
+    protected void setUniform(int u_id, int x) {
+        glUseProgram(id);
+        glUniform1i(u_id, x);
+    }
+
+    protected void setUniform(int u_id, int x, int y) {
+        glUseProgram(id);
+        glUniform2i(u_id, x, y);
+    }
+
+    protected void setUniform(int u_id, int x, int y, int z) {
+        glUseProgram(id);
+        glUniform3i(u_id, x, y, z);
+    }
+
+    protected void setUniform(int u_id, int x, int y, int z, int w) {
+        glUseProgram(id);
+        glUniform4i(u_id, x, y, z, w);
+    }
+
     protected void setUniform(int u_id, float v) {
         glUseProgram(id);
         glUniform1f(u_id, v);
@@ -78,26 +98,6 @@ public class ShaderProgram {
         mat.buffer(matBuffer);
         matBuffer.flip();
         glUniformMatrix4fv(u_id, false, matBuffer);
-    }
-
-    protected void setUniform(int u_id, int x) {
-        glUseProgram(id);
-        glUniform1i(u_id, x);
-    }
-
-    protected void setUniform(int u_id, int x, int y) {
-        glUseProgram(id);
-        glUniform2i(u_id, x, y);
-    }
-
-    protected void setUniform(int u_id, int x, int y, int z) {
-        glUseProgram(id);
-        glUniform3i(u_id, x, y, z);
-    }
-
-    protected void setUniform(int u_id, int x, int y, int z, int w) {
-        glUseProgram(id);
-        glUniform4i(u_id, x, y, z, w);
     }
 
 }

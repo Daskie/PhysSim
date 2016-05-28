@@ -1,5 +1,7 @@
 package qps;
 
+import java.nio.FloatBuffer;
+
 /**
  * @since 5/17/2016
  */
@@ -121,6 +123,12 @@ public class VecN {
 
     public void set(int i, float v) {
         vec[i] = v;
+    }
+
+    public void buffer(FloatBuffer buffer) {
+        for (int i = 0; i < n; ++i) {
+            buffer.put(vec[i]);
+        }
     }
 
     @Override

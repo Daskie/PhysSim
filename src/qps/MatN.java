@@ -1,5 +1,6 @@
 package qps;
 
+import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 
 /**
@@ -318,6 +319,14 @@ public class MatN {
 
     public void set(int ci, int ri, float v) {
         mat[ci][ri] = v;
+    }
+
+    public void buffer(ByteBuffer buffer) {
+        for (int c = 0; c < width; ++c) {
+            for (int r = 0; r < height; ++r) {
+                buffer.putFloat(mat[c][r]);
+            }
+        }
     }
 
     public void buffer(FloatBuffer buffer) {

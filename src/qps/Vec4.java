@@ -1,5 +1,8 @@
 package qps;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
 /**
  * @since 5/17/2016
  */
@@ -72,6 +75,20 @@ public class Vec4 {
 
     public Vec4 norm() {
         return div(mag());
+    }
+
+    public void buffer(ByteBuffer buffer) {
+        buffer.putFloat(x);
+        buffer.putFloat(y);
+        buffer.putFloat(z);
+        buffer.putFloat(w);
+    }
+
+    public void buffer(FloatBuffer buffer) {
+        buffer.put(x);
+        buffer.put(y);
+        buffer.put(z);
+        buffer.put(w);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package qps;
 
+import java.nio.ByteBuffer;
+import java.nio.FloatBuffer;
+
 /**
  * @since 5/17/2016
  */
@@ -90,6 +93,18 @@ public class Vec3 {
 
     public float angle(Vec3 v) {
         return (float)Math.acos(norm().dot(v.norm()));
+    }
+
+    public void buffer(ByteBuffer buffer) {
+        buffer.putFloat(x);
+        buffer.putFloat(y);
+        buffer.putFloat(z);
+    }
+
+    public void buffer(FloatBuffer buffer) {
+        buffer.put(x);
+        buffer.put(y);
+        buffer.put(z);
     }
 
     @Override
