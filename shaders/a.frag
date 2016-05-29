@@ -38,14 +38,18 @@ void main(void) {
 	vec3 viewDir = normalize(view_camLoc - v_to_f.vertCoords);
 	vec3 halfway = normalize(lightDir + viewDir);
 
-	vec3 ambientCol = light_color * light_ambience;
+    vec3 ambientCol = v_to_f.vertColor.rgb;
+    vec3 diffuseCol = v_to_f.vertColor.rgb;
+    vec3 specularCol = v_to_f.vertColor.rgb;
 
-	vec3 diffuseCol = light_color * max(dot(lightDir, norm), 0.0f);
+	ambientCol *= light_color * light_ambience;
+
+	diffuseCol *= light_color * max(dot(lightDir, norm), 0.0f);
 
 	float specularIntensity = 0.5f;
 	int shininess = 32;
-	vec3 specularCol = light_color * pow(max(dot(norm, halfway), 0.0f), shininess) * specularIntensity;
+	specularCol *= light_color * pow(max(dot(norm, halfway), 0.0f), shininess) * specularIntensity;
 
-	out_color = v_to_f.vertColor;
-	out_color.rgb *= (ambientCol + diffuseCol + specularCol) * light_strength;
+	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
+	out_color.a = v_to_f.vertColor.a;
 }

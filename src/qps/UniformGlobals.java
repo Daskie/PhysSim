@@ -27,7 +27,7 @@ public abstract class UniformGlobals {
         public static float fov;        //48
 
         public static final int SIZE = 48;
-        public static final int BINDING = 1;
+        public static final int BINDING = 0;
 
         public static void buffer() {
             viewGroup.data.clear();
