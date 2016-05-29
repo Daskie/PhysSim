@@ -16,6 +16,7 @@ public class MapProgram extends ShaderProgram {
     public boolean init() {
         if (!super.init()) return false;
 
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Transform"), UniformGlobals.TransformGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "ChargeCounts"), UniformGlobals.ChargeCountsGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "SphereCharges"), UniformGlobals.SphereChargesGlobals.BINDING);
         if (!Utils.checkGLErr()) {

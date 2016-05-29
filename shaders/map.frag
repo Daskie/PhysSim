@@ -35,5 +35,4 @@ void main(void) {
     }
 
 	out_color = vec4(clamp(eField, 0.0f, 1.0f), 0.0f, clamp(-eField, 0.0f, 1.0f), 1.0f);
-	out_color = vec4(1, 1, 1, 1);
 }

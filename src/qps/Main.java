@@ -221,7 +221,7 @@ public abstract class Main {
 
         UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
         UniformGlobals.TransformGlobals.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
-        UniformGlobals.TransformGlobals.setProjMat(Mat4.perspective(fov, (float)window.width() / window.height(), 0.1f, 100.0f));
+        UniformGlobals.TransformGlobals.setProjMat(Mat4.perspective(fov, (float)window.width() / window.height(), nearFrust, farFrust));
     }
 
     private static void draw() {
