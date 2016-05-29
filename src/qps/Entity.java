@@ -16,10 +16,13 @@ public class Entity {
     protected Vec3 up;
 
     public Entity() {
-        this(DEFAULT_FORWARD, DEFAULT_UP);
+        this(DEFAULT_LOC, DEFAULT_FORWARD, DEFAULT_UP);
     }
-    public Entity(Vec3 baseForward, Vec3 baseUp) {
-        loc = DEFAULT_LOC;
+    public Entity(Vec3 loc) {
+        this(loc, DEFAULT_FORWARD, DEFAULT_UP);
+    }
+    public Entity(Vec3 loc, Vec3 baseForward, Vec3 baseUp) {
+        this.loc = loc;
         this.baseForward = baseForward;
         this.baseUp = baseUp;
         forward = baseForward;

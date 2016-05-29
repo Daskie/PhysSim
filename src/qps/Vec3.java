@@ -101,10 +101,10 @@ public class Vec3 {
         buffer.putFloat(z);
     }
 
-    public void buffer(FloatBuffer buffer) {
-        buffer.put(x);
-        buffer.put(y);
-        buffer.put(z);
+    public void buffer(ByteBuffer buffer, int i) {
+        buffer.putFloat(i, x);
+        buffer.putFloat(i + 4, y);
+        buffer.putFloat(i + 8, z);
     }
 
     @Override

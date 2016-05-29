@@ -28,7 +28,7 @@ public class FieldScene {
         program.init();
 
         fieldLoc = new Vec3();
-        fieldSize = new Vec3(10.0f, 10.0f, 10.0f);
+        fieldSize = new Vec3(11.0f, 11.0f, 11.0f);
         fieldDensity = 1.0f;
 
         program.setFieldLoc(fieldLoc);
@@ -41,6 +41,10 @@ public class FieldScene {
         arrowVAO = new VAO(MeshManager.arrowMesh, 0, null, GL_STATIC_DRAW);
 
         return true;
+    }
+
+    public static void update(int t, int dt) {
+
     }
 
     public static void draw() {

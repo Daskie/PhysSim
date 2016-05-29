@@ -9,8 +9,6 @@ import qps.window_listeners.WindowCloseListener;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
@@ -36,19 +34,19 @@ public abstract class Main {
         if (!initOpenGL()) {
             return false;
         }
+        if (!MeshManager.initMeshes()) {
+            return false;
+        }
         if (!initShaders()) {
             return false;
         }
-        if (!MeshManager.initMeshes()) {
+        if (!initUniformGlobals()) {
             return false;
         }
         if (!initScene()) {
             return false;
         }
         if (!initInput()) {
-            return false;
-        }
-        if (!initUniforms()) {
             return false;
         }
 
@@ -102,9 +100,45 @@ public abstract class Main {
         return true;
     }
 
+    private static boolean initUniformGlobals() {
+        if (!UniformGlobals.init()) {
+            System.err.println("Failed to initialize uniform globals!");
+            return false;
+        }
+
+        UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
+        UniformGlobals.ViewGlobals.setCamForward(camera.forward());
+        UniformGlobals.ViewGlobals.setCamUp(camera.up());
+        UniformGlobals.ViewGlobals.setNearFrust(nearFrust);
+        UniformGlobals.ViewGlobals.setFarFrust(farFrust);
+        UniformGlobals.ViewGlobals.setFov(fov);
+
+        UniformGlobals.TransformGlobals.setModelMat(new Mat4());
+        UniformGlobals.TransformGlobals.setNormMat(new Mat4());
+        UniformGlobals.TransformGlobals.setViewMat(new Mat4());
+        UniformGlobals.TransformGlobals.setProjMat(new Mat4());
+
+        UniformGlobals.LightGlobals.setDir(lightDir);
+        UniformGlobals.LightGlobals.setStrength(lightStrength);
+        UniformGlobals.LightGlobals.setColor(lightColor);
+        UniformGlobals.LightGlobals.setAmbience(lightAmbience);
+
+        UniformGlobals.ChargeCountsGlobals.setSphereCount(0);
+
+        UniformGlobals.buffer();
+
+        if (!Utils.checkGLErr()) {
+            System.err.println("failed to buffer initial uniform globals!");
+            return false;
+        }
+
+        return true;
+    }
+
     private static boolean initScene() {
         MainScene.init();
-        MainScene.addSphere(new ChargedSphere());
+        MainScene.addSphere(new ChargedSphere(1.0f, new Vec3(1.0f, 0.0f, 0.0f)));
+        MainScene.addSphere(new ChargedSphere(-1.0f, new Vec3(-1.0f, 0.0f, 0.0f)));
 
         FieldScene.init();
 
@@ -150,43 +184,14 @@ public abstract class Main {
         return true;
     }
 
-    private static boolean initUniforms() {
-        if (!UniformGlobals.init()) {
-            System.err.println("Failed to initialize uniform globals!");
-            return false;
-        }
-
-        UniformGlobals.ViewGlobals.camLoc = camera.loc();
-        UniformGlobals.ViewGlobals.camForward = camera.forward();
-        UniformGlobals.ViewGlobals.camUp = camera.up();
-        UniformGlobals.ViewGlobals.nearFrust = nearFrust;
-        UniformGlobals.ViewGlobals.farFrust = farFrust;
-        UniformGlobals.ViewGlobals.fov = fov;
-
-        UniformGlobals.TransformGlobals.modelMat = new Mat4();
-        UniformGlobals.TransformGlobals.normMat = new Mat4();
-        UniformGlobals.TransformGlobals.viewMat = new Mat4();
-        UniformGlobals.TransformGlobals.projMat = new Mat4();
-
-        UniformGlobals.LightGlobals.dir = lightDir;
-        UniformGlobals.LightGlobals.strength = lightStrength;
-        UniformGlobals.LightGlobals.color = lightColor;
-        UniformGlobals.LightGlobals.ambience = lightAmbience;
-
-        UniformGlobals.buffer();
-
-        if (!Utils.checkGLErr()) {
-            System.err.println("failed to buffer initial uniform globals!");
-            return false;
-        }
-
-        return true;
-    }
-
     private static void update(int t, int  dt) {
         updateCamera(t, dt);
-        updateScene(t, dt);
-        updateUniforms(t, dt);
+
+        MainScene.update(t, dt);
+
+        FieldScene.update(t, dt);
+
+        UniformGlobals.buffer();
     }
 
     private static final float CAM_SPEED = 0.1f;
@@ -209,27 +214,10 @@ public abstract class Main {
         if (window.keyState(GLFW_KEY_LEFT_SHIFT)) {
             camera.translate(Vec3.NEGZ.mult(CAM_SPEED));
         }
-    }
 
-    private static void updateScene(int t, int dt) {
-        //arrow.rotateAbs(Quaternion.angleAxis(t / 1000.0f, arrow.getUp()));
-    }
-
-    private static void updateUniforms(int t, int dt) {
-        //Mat4 modelMat = new Mat4(arrow.alignFromBaseMat());
-
-        UniformGlobals.ViewGlobals.camLoc = camera.loc();
-        //UniformGlobals.TransformGlobals.modelMat = modelMat;
-        //UniformGlobals.TransformGlobals.normMat = new Mat4((new Mat3(modelMat)).inv().trans());
-        UniformGlobals.TransformGlobals.viewMat = Mat4.view(camera.loc(), camera.forward(), camera.up());
-        UniformGlobals.TransformGlobals.projMat = Mat4.perspective(fov, (float)window.width() / window.height(), 0.1f, 100.0f);
-
-        //fieldProgram.setCamLoc(camera.loc());
-        //fieldProgram.setModelMat(new Mat4(arrow.alignFromBaseMat().mult(Mat3.scale(0.25f))));
-        //fieldProgram.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
-        //fieldProgram.setProjMat(Mat4.perspective((float)Math.toRadians(90), (float)window.width() / window.height(), 0.1f, 100.0f));
-
-        UniformGlobals.buffer();
+        UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
+        UniformGlobals.TransformGlobals.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
+        UniformGlobals.TransformGlobals.setProjMat(Mat4.perspective(fov, (float)window.width() / window.height(), 0.1f, 100.0f));
     }
 
     private static void draw() {

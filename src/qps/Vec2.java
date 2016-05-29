@@ -88,9 +88,9 @@ public class Vec2 {
         buffer.putFloat(y);
     }
 
-    public void buffer(FloatBuffer buffer) {
-        buffer.put(x);
-        buffer.put(y);
+    public void buffer(ByteBuffer buffer, int i) {
+        buffer.putFloat(i, x);
+        buffer.putFloat(i + 4, y);
     }
 
     @Override

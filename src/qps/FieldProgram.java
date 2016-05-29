@@ -25,6 +25,8 @@ public class FieldProgram extends ShaderProgram {
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "View"), UniformGlobals.ViewGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Transform"), UniformGlobals.TransformGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Light"), UniformGlobals.LightGlobals.BINDING);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "ChargeCounts"), UniformGlobals.ChargeCountsGlobals.BINDING);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "SphereCharges"), UniformGlobals.SphereChargesGlobals.BINDING);
         u_fieldLoc = glGetUniformLocation(id, "u_fieldLoc");
         u_fieldSize = glGetUniformLocation(id, "u_fieldSize");
         u_fieldCount = glGetUniformLocation(id, "u_fieldCount");

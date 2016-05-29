@@ -14,6 +14,8 @@ public abstract class Scene {
 
     public abstract boolean init();
 
+    public abstract void update(int t, int dt);
+
     public abstract void draw();
 
 }

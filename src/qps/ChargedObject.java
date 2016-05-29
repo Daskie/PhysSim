@@ -5,13 +5,29 @@ package qps;
  */
 public class ChargedObject extends Entity {
 
-    protected double charge;
+    protected float charge;
+
+    public ChargedObject(float charge) {
+        this.charge = charge;
+    }
+
+    public ChargedObject(float charge, Vec3 loc) {
+        super(loc);
+
+        this.charge = charge;
+    }
+
+    public ChargedObject(float charge, Vec3 loc, Vec3 forward, Vec3 up) {
+        super(loc, forward, up);
+
+        this.charge = charge;
+    }
 
     double getCharge() {
         return charge;
     }
 
-    void setCharge(double charge) {
+    void setCharge(float charge) {
         this.charge = charge;
     }
 

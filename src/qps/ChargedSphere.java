@@ -5,6 +5,11 @@ package qps;
  */
 public class ChargedSphere extends ChargedObject {
 
+    public ChargedSphere(float charge) {
+        super(charge);
+    }
 
-
+    public ChargedSphere(float charge, Vec3 loc) {
+        super(charge, loc);
+    }
 }

@@ -84,11 +84,11 @@ public class Vec4 {
         buffer.putFloat(w);
     }
 
-    public void buffer(FloatBuffer buffer) {
-        buffer.put(x);
-        buffer.put(y);
-        buffer.put(z);
-        buffer.put(w);
+    public void buffer(ByteBuffer buffer, int i) {
+        buffer.putFloat(i, x);
+        buffer.putFloat(i + 4, y);
+        buffer.putFloat(i + 8, z);
+        buffer.putFloat(i + 12, w);
     }
 
     @Override

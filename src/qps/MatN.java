@@ -329,10 +329,11 @@ public class MatN {
         }
     }
 
-    public void buffer(FloatBuffer buffer) {
+    public void buffer(ByteBuffer buffer, int i) {
         for (int c = 0; c < width; ++c) {
             for (int r = 0; r < height; ++r) {
-                buffer.put(mat[c][r]);
+                buffer.putFloat(i, mat[c][r]);
+                i += 4;
             }
         }
     }
