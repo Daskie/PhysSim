@@ -13,7 +13,7 @@ public abstract class MeshManager {
     public static Mesh arrowMesh;
 
     public static boolean initMeshes() {
-        squareMesh = MeshLoader.simpleSquare();
+        squareMesh = MeshLoader.square();
 
         try {
             cubeMesh = MeshLoader.fromFile("meshes/cube.qmesh");

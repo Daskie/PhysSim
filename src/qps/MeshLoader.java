@@ -28,17 +28,17 @@ public abstract class MeshLoader {
         int nameLength;
     }
 
-    public static Mesh simpleSquare() {
+    public static Mesh square() {
         int nVerts = 4;
         ByteBuffer coords = createByteBuffer(nVerts * Mesh.COORDS_BYTES);
         ByteBuffer colors = createByteBuffer(nVerts * Mesh.COLOR_BYTES);
         ByteBuffer uvs = createByteBuffer(nVerts * Mesh.UV_BYTES);
         ByteBuffer norms = createByteBuffer(nVerts * Mesh.NORM_BYTES);
 
-        coords.putFloat(0); coords.putFloat(0); coords.putFloat(0);
-        coords.putFloat(1); coords.putFloat(0); coords.putFloat(0);
-        coords.putFloat(1); coords.putFloat(1); coords.putFloat(0);
-        coords.putFloat(0); coords.putFloat(1); coords.putFloat(0);
+        coords.putFloat(-0.5f); coords.putFloat(-0.5f); coords.putFloat(0);
+        coords.putFloat(0.5f); coords.putFloat(-0.5f); coords.putFloat(0);
+        coords.putFloat(0.5f); coords.putFloat(0.5f); coords.putFloat(0);
+        coords.putFloat(-0.5f); coords.putFloat(0.5f); coords.putFloat(0);
         coords.flip();
 
         byte w = (byte)255;

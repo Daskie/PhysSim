@@ -44,4 +44,28 @@ public abstract class Utils {
         );
     }
 
+    public static <T extends Comparable<T>> T min(T... ts) {
+        T min = ts[0];
+
+        for (int i = 1; i < ts.length; ++i) {
+            if (ts[i].compareTo(min) < 0) {
+                min = ts[i];
+            }
+        }
+
+        return min;
+    }
+
+    public static <T extends Comparable<T>> T max(T... ts) {
+        T max = ts[0];
+
+        for (int i = 1; i < ts.length; ++i) {
+            if (ts[i].compareTo(max) > 0) {
+                max = ts[i];
+            }
+        }
+
+        return max;
+    }
+
 }

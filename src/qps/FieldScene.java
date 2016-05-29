@@ -49,13 +49,14 @@ public class FieldScene {
 
     public static void draw() {
         glUseProgram(program.id());
-
         glBindVertexArray(arrowVAO.vao());
 
+        UniformGlobals.TransformGlobals.setModelMat(new Mat4());
+        UniformGlobals.TransformGlobals.setNormMat(new Mat4());
+        UniformGlobals.buffer();
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0, xCount * yCount * zCount);
 
         glBindVertexArray(0);
-
         glUseProgram(0);
     }
 

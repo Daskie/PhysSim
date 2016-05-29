@@ -39,6 +39,9 @@ public abstract class MainScene {
         glUseProgram(program.id());
         glBindVertexArray(spheresVAO.vao());
 
+        UniformGlobals.TransformGlobals.setModelMat(new Mat4());
+        UniformGlobals.TransformGlobals.setNormMat(new Mat4());
+        UniformGlobals.buffer();
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0, spheres.size());
 
         glBindVertexArray(0);
@@ -47,7 +50,7 @@ public abstract class MainScene {
 
     public static void addSphere(ChargedSphere sphere) {
         spheres.add(sphere);
-        spheresVAO.bufferInstanceMat(new Mat4(sphere.modelMat()), spheres.size() - 1);
+        spheresVAO.bufferInstanceMat(spheres.size() - 1, new Mat4(sphere.modelMat()));
         UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size());
         UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), (float)sphere.getCharge());
     }

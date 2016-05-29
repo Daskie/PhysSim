@@ -10,8 +10,7 @@ import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 /**
@@ -35,7 +34,7 @@ public class VAO {
 
     private int vao, vbo, ebo;
 
-    private ByteBuffer instanceMatsBuffer;
+    private ByteBuffer buffer;
 
     public VAO(Mesh mesh, int nInstances, Mat4[] instanceMats, int usage) {
         coordsSize = mesh.hasCoords() ? mesh.nVerts() * Mesh.COORDS_BYTES : 0;
@@ -45,6 +44,8 @@ public class VAO {
         vertsSize = coordsSize + colorsSize + uvsSize + normsSize;
         indicesSize = mesh.nIndices() * 4;
         instancesSize = nInstances * 64;
+
+        buffer = createByteBuffer(Utils.max(coordsSize, instancesSize));
 
         coordsOffset = 0;
         colorsOffset = coordsOffset + coordsSize;
@@ -67,13 +68,12 @@ public class VAO {
         if (normsSize > 0) glBufferSubData(GL_ARRAY_BUFFER, normsOffset, mesh.normsData());
 
         if (instancesSize > 0) {
-            instanceMatsBuffer = createByteBuffer(instancesSize);
             if (instanceMats != null) {
                 for (Mat4 mat : instanceMats) {
-                    mat.buffer(instanceMatsBuffer);
+                    mat.buffer(buffer);
                 }
-                instanceMatsBuffer.flip();
-                glBufferSubData(GL_ARRAY_BUFFER, instancesOffset, instanceMatsBuffer);
+                buffer.flip();
+                glBufferSubData(GL_ARRAY_BUFFER, instancesOffset, buffer);
             }
         }
 
@@ -185,26 +185,42 @@ public class VAO {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    void bufferInstanceMat(Mat4 mat, int i) {
-        bufferInstanceMats(new Mat4[]{ mat }, i, 1);
-    }
+    void bufferCoords(int i, int n, Vec3[] coords) {
+        buffer.clear();
 
-    void bufferInstanceMats(Mat4[] mats, int ii, int n) {
-        glBindVertexArray(vao);
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-        instanceMatsBuffer.clear();
-        for (int i = 0; i < n; ++i) {
-            mats[i].buffer(instanceMatsBuffer);
+        glMapBufferRange(GL_ARRAY_BUFFER, instancesOffset + i * Mesh.COORDS_BYTES, n * Mesh.COORDS_BYTES, GL_MAP_WRITE_BIT, buffer);
+        for (int j = 0; j < n; ++j) {
+            coords[j].buffer(buffer);
         }
-        instanceMatsBuffer.flip();
-        glBufferSubData(GL_ARRAY_BUFFER, instancesOffset + ii * 64, n * 64, instanceMatsBuffer);
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        if (!Utils.checkGLErr()) {
+            System.err.println("Failed to buffer coords!");
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    void bufferInstanceMat(int i, Mat4 mat) {
+        bufferInstanceMats(i, 1, new Mat4[]{ mat });
+    }
+
+    void bufferInstanceMats(int i, int n, Mat4[] mats) {
+        buffer.clear();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        glMapBufferRange(GL_ARRAY_BUFFER, instancesOffset + i * 64, n * 64, GL_MAP_WRITE_BIT, buffer);
+        for (int j = 0; j < n; ++j) {
+            mats[j].buffer(buffer);
+        }
+        glUnmapBuffer(GL_ARRAY_BUFFER);
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to buffer instance mats!");
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-        glBindVertexArray(0);
     }
 
     public int vao() {

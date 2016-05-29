@@ -142,6 +142,8 @@ public abstract class Main {
 
         FieldScene.init();
 
+        MapScene.init();
+
         return true;
     }
 
@@ -191,6 +193,8 @@ public abstract class Main {
 
         FieldScene.update(t, dt);
 
+        MapScene.update(t, dt);
+
         UniformGlobals.buffer();
     }
 
@@ -226,7 +230,9 @@ public abstract class Main {
 
         MainScene.draw();
 
-        FieldScene.draw();
+        //FieldScene.draw();
+
+        MapScene.draw();
 
         window.swap();
     }
