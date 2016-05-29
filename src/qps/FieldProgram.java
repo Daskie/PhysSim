@@ -9,9 +9,6 @@ import static org.lwjgl.opengl.GL31.glUniformBlockBinding;
  */
 public class FieldProgram extends ShaderProgram {
 
-    public static final Vec3 DEFAULT_FIELD_LOC = new Vec3();
-    public static final Vec3 DEFAULT_FIELD_SIZE = new Vec3(24.0f, 12.0f, 6.0f);
-
     private int u_fieldLoc;
     private int u_fieldSize;
     private int u_fieldCount;
@@ -36,14 +33,6 @@ public class FieldProgram extends ShaderProgram {
             return false;
         }
 
-        setFieldLoc(DEFAULT_FIELD_LOC);
-        setFieldSize(DEFAULT_FIELD_SIZE);
-        setFieldCount((int)DEFAULT_FIELD_SIZE.x + 1, (int)DEFAULT_FIELD_SIZE.y + 1, (int)DEFAULT_FIELD_SIZE.z + 1);
-        if (!Utils.checkGLErr()) {
-            System.err.println("Failed to set initial uniform values for field shader program!");
-            return false;
-        }
-
         return true;
     }
 
@@ -55,8 +44,8 @@ public class FieldProgram extends ShaderProgram {
         setUniform(u_fieldSize, size);
     }
 
-    public void setFieldCount(int x, int y, int z) {
-        setUniform(u_fieldCount, x, y, z);
+    public void setFieldCount(int xCount, int yCount, int zCount) {
+        setUniform(u_fieldCount, xCount, yCount, zCount);
     }
 
 }

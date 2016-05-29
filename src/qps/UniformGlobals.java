@@ -40,7 +40,9 @@ public abstract class UniformGlobals {
             viewGroup.data.flip();
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+
             glBufferSubData(GL_UNIFORM_BUFFER, viewGroup.offset, SIZE, viewGroup.data);
+
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
     }
@@ -63,7 +65,9 @@ public abstract class UniformGlobals {
             transformGroup.data.flip();
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+
             glBufferSubData(GL_UNIFORM_BUFFER, transformGroup.offset, SIZE, transformGroup.data);
+
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
     }
@@ -86,7 +90,9 @@ public abstract class UniformGlobals {
             lightGroup.data.flip();
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+
             glBufferSubData(GL_UNIFORM_BUFFER, lightGroup.offset, SIZE, lightGroup.data);
+
             glBindBuffer(GL_UNIFORM_BUFFER, 0);
         }
     }
@@ -117,12 +123,14 @@ public abstract class UniformGlobals {
 
         ubo = glGenBuffers();
         glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+
         glBufferData(GL_UNIFORM_BUFFER, offset, GL_DYNAMIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize uniform buffer!");
             return false;
         }
+
+        glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
         glBindBufferRange(GL_UNIFORM_BUFFER, ViewGlobals.BINDING, ubo, viewGroup.offset, ViewGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, TransformGlobals.BINDING, ubo, transformGroup.offset, TransformGlobals.SIZE);

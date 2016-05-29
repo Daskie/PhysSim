@@ -10,30 +10,10 @@ import static org.lwjgl.opengl.GL30.glBindVertexArray;
 /**
  * @since 5/21/2016
  */
-public class Scene {
+public abstract class Scene {
 
-    private ArrayList<Entity> entities;
-    private Camera camera;
+    public abstract boolean init();
 
-    public Scene() {
-        entities = new ArrayList<Entity>();
-        camera = new Camera();
-    }
-
-    public void draw() {
-
-    }
-
-    public void addEntity(Entity entity) {
-        entities.add(entity);
-    }
-
-    public void removeEntity(Entity entity) {
-        entities.remove(entity);
-    }
-
-    public Camera camera() {
-        return camera;
-    }
+    public abstract void draw();
 
 }

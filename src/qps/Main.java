@@ -105,9 +105,8 @@ public abstract class Main {
     private static boolean initScene() {
         MainScene.init();
         MainScene.addSphere(new ChargedSphere());
-        ChargedSphere s2 = new ChargedSphere();
-        s2.setLoc(new Vec3(5.0f, 0.0f, 0.0f));
-        MainScene.addSphere(s2);
+
+        FieldScene.init();
 
         return true;
     }
@@ -239,12 +238,7 @@ public abstract class Main {
 
         MainScene.draw();
 
-        //glUseProgram(fieldProgram.id());
-
-        //glBindVertexArray(arrow.vao().vao());
-        //Utils.checkGLErr();
-        //glDrawElementsInstanced(GL_TRIANGLES, arrow.mesh().nIndices(), GL_UNSIGNED_INT, 0, 25 * 13 * 7);
-        //Utils.checkGLErr();
+        FieldScene.draw();
 
         window.swap();
     }

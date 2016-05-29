@@ -25,11 +25,7 @@ public abstract class MainScene {
         program = new MainProgram();
         program.init();
         spheres = new ArrayList<ChargedSphere>(MAX_SPHERES);
-        Mat4[] mats = new Mat4[MAX_SPHERES];
-        for (int i = 0; i < mats.length; ++i) {
-            mats[i] = new Mat4();
-        }
-        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, mats, GL_DYNAMIC_DRAW);
+        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, GL_DYNAMIC_DRAW);
 
         return true;
     }
@@ -38,7 +34,10 @@ public abstract class MainScene {
         glUseProgram(program.id());
 
         glBindVertexArray(spheresVAO.vao());
+
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0, spheres.size());
+
+        glBindVertexArray(0);
 
         glUseProgram(0);
     }

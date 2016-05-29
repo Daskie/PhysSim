@@ -39,65 +39,98 @@ public class ShaderProgram {
 
     protected void setUniform(int u_id, int x) {
         glUseProgram(id);
+
         glUniform1i(u_id, x);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, int x, int y) {
         glUseProgram(id);
+
         glUniform2i(u_id, x, y);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, int x, int y, int z) {
         glUseProgram(id);
+
         glUniform3i(u_id, x, y, z);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, int x, int y, int z, int w) {
         glUseProgram(id);
+
         glUniform4i(u_id, x, y, z, w);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, float v) {
         glUseProgram(id);
+
         glUniform1f(u_id, v);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, Vec2 v) {
         glUseProgram(id);
+
         glUniform2f(u_id, v.x, v.y);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, Vec3 v) {
         glUseProgram(id);
+
         glUniform3f(u_id, v.x, v.y, v.z);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, Vec4 v) {
         glUseProgram(id);
+
         glUniform4f(u_id, v.x, v.y, v.z, v.w);
+
+        glUseProgram(0);
     }
 
     private FloatBuffer matBuffer = createFloatBuffer(16); //enough to store up to a mat4
 
     protected void setUniform(int u_id, Mat2 mat) {
         glUseProgram(id);
+
         mat.buffer(matBuffer);
         matBuffer.flip();
         glUniformMatrix2fv(u_id, false, matBuffer);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, Mat3 mat) {
         glUseProgram(id);
+
         mat.buffer(matBuffer);
         matBuffer.flip();
         glUniformMatrix3fv(u_id, false, matBuffer);
+
+        glUseProgram(0);
     }
 
     protected void setUniform(int u_id, Mat4 mat) {
         glUseProgram(id);
+
         mat.buffer(matBuffer);
         matBuffer.flip();
         glUniformMatrix4fv(u_id, false, matBuffer);
+
+        glUseProgram(0);
     }
 
 }
