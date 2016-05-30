@@ -58,7 +58,7 @@ public class FrameBuffer {
         TextureFormat dstf = new TextureFormat(false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE);
 
         ByteBuffer cb0 = createByteBuffer(16);
-        cb0.putInt(Math.round(clearColor.x * 255)).putInt(Math.round(clearColor.y * 255)).putInt(Math.round(clearColor.z * 255)).putInt(Math.round(clearColor.w * 255));
+        cb0.putFloat(clearColor.x).putFloat(clearColor.y).putFloat(clearColor.z).putFloat(clearColor.w);
         cb0.flip();
         ByteBuffer cb1 = createByteBuffer(16);
         cb1.putInt(clearIdentity).putInt(clearIdentity).putInt(clearIdentity).putInt(clearIdentity);
@@ -227,12 +227,14 @@ public class FrameBuffer {
     //assumes the framebuffer is currently bound
     public void clear() {
         for (int i = 0; i < attachmentFormat.nColorAttachments; ++i) {
+            glDrawBuffer(GL_COLOR_ATTACHMENT0 + i);
             switch (attachmentFormat.colorEssentialDataTypes[i]) {
-                case FLOAT: glClearBufferfv(GL_COLOR, i, clearFormat.colorValues[i]); break;
-                case INT: glClearBufferiv(GL_COLOR, i, clearFormat.colorValues[i]); break;
-                case UINT: glClearBufferuiv(GL_COLOR, i, clearFormat.colorValues[i]); break;
+                case FLOAT: glClearBufferfv(GL_COLOR, 0, clearFormat.colorValues[i]); break;
+                case INT: glClearBufferiv(GL_COLOR, 0, clearFormat.colorValues[i]); break;
+                case UINT: glClearBufferuiv(GL_COLOR, 0, clearFormat.colorValues[i]); break;
             }
         }
+        glDrawBuffer(GL_COLOR_ATTACHMENT0);
         glClearBufferfi(GL_DEPTH_STENCIL, 0, clearFormat.depthValue, clearFormat.stencilValue);
     }
 

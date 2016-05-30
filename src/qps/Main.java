@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 public abstract class Main {
 
-    private static final Vec4 CLEAR_COLOR = new Vec4(0.5f, 0.0f, 0.5f, 1.0f);
+    private static final Vec4 CLEAR_COLOR = new Vec4(0.25f, 0.0f, 0.25f, 1.0f);
     private static final int NO_IDENTITY = -1;
     private static final float CAM_SPEED = 0.1f;
 
@@ -153,7 +153,7 @@ public abstract class Main {
 
         UniformGlobals.ChargeCountsGlobals.setSphereCount(0);
 
-        UniformGlobals.IDGlobals.setID(7);
+        UniformGlobals.IDGlobals.setID(NO_IDENTITY);
 
         UniformGlobals.buffer();
 
@@ -262,6 +262,8 @@ public abstract class Main {
     private static void draw() {
         glBindFramebuffer(GL_FRAMEBUFFER, fb.id());
         fb.clear();
+
+        glDrawBuffers(attachmentsBuffer);
 
         MainScene.draw();
 
