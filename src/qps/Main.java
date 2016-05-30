@@ -27,6 +27,8 @@ public abstract class Main {
     private static Vec3 lightColor = new Vec3(1.0f, 1.0f, 1.0f);
     private static float lightAmbience = 0.1f;
 
+    private static FrameBuffer fb;
+
     private static boolean init() {
         if (!initLWJGL()) {
             return false;
@@ -144,6 +146,10 @@ public abstract class Main {
 
         MapScene.init();
 
+        FBScene.init();
+        fb = new FrameBuffer(window.width(), window.height(), 1, true, true, false, false, false, false);
+        FBScene.setTex(fb.colorBuffer(0));
+
         return true;
     }
 
@@ -195,6 +201,8 @@ public abstract class Main {
 
         MapScene.update(t, dt);
 
+        FBScene.update(t, dt);
+
         UniformGlobals.buffer();
     }
 
@@ -225,14 +233,24 @@ public abstract class Main {
     }
 
     private static void draw() {
+        glBindFramebuffer(GL_FRAMEBUFFER, fb.id());
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        Utils.checkGLErr();
 
         MainScene.draw();
+        Utils.checkGLErr();
 
         //FieldScene.draw();
+        //Utils.checkGLErr();
 
         MapScene.draw();
+        Utils.checkGLErr();
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+        FBScene.draw();
+        Utils.checkGLErr();
 
         window.swap();
     }
@@ -246,7 +264,6 @@ public abstract class Main {
     }
 
     public static void main(String[] args) {
-
         if (!init()) {
             System.err.println("Initialization failed!");
             System.exit(-1);

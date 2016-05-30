@@ -29,8 +29,8 @@ void main(void)
 {
     vec3 coords = vec3(in_instanceMat * transform_modelMat * vec4(in_vertCoords, 1.0f));
 	gl_Position = transform_projMat * transform_viewMat * vec4(coords, 1.0f);
+	v_to_f.vertCoords = coords;
 	v_to_f.vertColor = in_vertColor;
 	v_to_f.vertUV = in_vertUV;
 	v_to_f.vertNorm = mat3(transform_normMat) * in_vertNorm;
-	v_to_f.vertCoords = coords;
 }

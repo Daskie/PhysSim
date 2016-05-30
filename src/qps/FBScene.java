@@ -1,0 +1,55 @@
+package qps;
+
+import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
+import static org.lwjgl.opengl.GL20.glUseProgram;
+import static org.lwjgl.opengl.GL30.glBindVertexArray;
+import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
+
+/**
+ * @since 5/29/2016
+ */
+public abstract class FBScene {
+
+    private static FBProgram program;
+    private static VAO squareVAO;
+
+    private static int texID;
+
+    public static boolean init() {
+        program = new FBProgram();
+        program.init();
+
+        texID = 0;
+
+        squareVAO = new VAO(MeshManager.squareMesh, 0, null, GL_STATIC_DRAW);
+
+        return true;
+    }
+
+    public static void update(int t, int dt) {
+
+    }
+
+    public static void draw() {
+        glUseProgram(program.id());
+        glBindVertexArray(squareVAO.vao());
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texID);
+
+        glDrawElements(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
+        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glBindVertexArray(0);
+        glUseProgram(0);
+    }
+
+    public static void setTex(int texID) {
+        FBScene.texID = texID;
+    }
+
+}

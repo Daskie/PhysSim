@@ -35,10 +35,10 @@ public abstract class MeshLoader {
         ByteBuffer uvs = createByteBuffer(nVerts * Mesh.UV_BYTES);
         ByteBuffer norms = createByteBuffer(nVerts * Mesh.NORM_BYTES);
 
-        coords.putFloat(-0.5f); coords.putFloat(-0.5f); coords.putFloat(0);
-        coords.putFloat(0.5f); coords.putFloat(-0.5f); coords.putFloat(0);
-        coords.putFloat(0.5f); coords.putFloat(0.5f); coords.putFloat(0);
-        coords.putFloat(-0.5f); coords.putFloat(0.5f); coords.putFloat(0);
+        coords.putFloat(-1.0f); coords.putFloat(-1.0f); coords.putFloat(0.0f);
+        coords.putFloat(1.0f); coords.putFloat(-1.0f); coords.putFloat(0.0f);
+        coords.putFloat(1.0f); coords.putFloat(1.0f); coords.putFloat(0.0f);
+        coords.putFloat(-1.0f); coords.putFloat(1.0f); coords.putFloat(0.0f);
         coords.flip();
 
         byte w = (byte)255;
