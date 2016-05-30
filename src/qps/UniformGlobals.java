@@ -55,8 +55,6 @@ public abstract class UniformGlobals {
         public static void setFarFrust(float farFrust) { ViewGlobals.farFrust = farFrust; needsBuffered = true; }
         public static void setCamUp(Vec3 camUp) { ViewGlobals.camUp = camUp; needsBuffered = true; }
         public static void setFov(float fov) { ViewGlobals.fov = fov; needsBuffered = true; }
-
-        public static boolean needsBuffered() { return needsBuffered; }
     }
 
     public static class TransformGlobals {
@@ -89,8 +87,6 @@ public abstract class UniformGlobals {
         public static void setNormMat(Mat4 normMat) { TransformGlobals.normMat = normMat; needsBuffered = true; }
         public static void setViewMat(Mat4 viewMat) { TransformGlobals.viewMat = viewMat; needsBuffered = true; }
         public static void setProjMat(Mat4 projMat) { TransformGlobals.projMat = projMat; needsBuffered = true; }
-
-        public static boolean needsBuffered() { return needsBuffered; }
     }
 
     public static class LightGlobals {
@@ -123,8 +119,6 @@ public abstract class UniformGlobals {
         public static void setStrength(float strength) { LightGlobals.strength = strength; needsBuffered = true; }
         public static void setColor(Vec3 color) { LightGlobals.color = color; needsBuffered = true; }
         public static void setAmbience(float ambience) { LightGlobals.ambience = ambience; needsBuffered = true; }
-
-        public static boolean needsBuffered() { return needsBuffered; }
     }
 
     public static class ChargeCountsGlobals {
@@ -148,8 +142,6 @@ public abstract class UniformGlobals {
         }
 
         public static void setSphereCount(int sphereCount) { ChargeCountsGlobals.sphereCount = sphereCount; needsBuffered = true; }
-
-        public static boolean needsBuffered() { return needsBuffered; }
     }
 
     public static class SphereChargesGlobals {
@@ -172,8 +164,29 @@ public abstract class UniformGlobals {
 
             needsBuffered = true;
         }
+    }
 
-        public static boolean needsBuffered() { return needsBuffered; }
+    public static class IDGlobals {
+        private static int id;      //4
+
+        public static final int SIZE = 4;
+        public static final int BINDING = nextBinding();
+
+        static boolean needsBuffered;
+
+        public static void buffer() {
+            idGroup.data.clear();
+            idGroup.data.putInt(id);
+            idGroup.data.flip();
+
+            glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+            glBufferSubData(GL_UNIFORM_BUFFER, idGroup.offset, SIZE, idGroup.data);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            needsBuffered = false;
+        }
+
+        public static void setID(int id) { IDGlobals.id = id; needsBuffered = true; }
     }
 
     private static class UniformGroup {
@@ -186,7 +199,7 @@ public abstract class UniformGlobals {
         }
     }
 
-    private static UniformGroup viewGroup, transformGroup, lightGroup, chargeCountsGroup, sphereChargesGroup;
+    private static UniformGroup viewGroup, transformGroup, lightGroup, chargeCountsGroup, sphereChargesGroup, idGroup;
     private static int ubo;
 
     public static boolean init()  {
@@ -203,6 +216,8 @@ public abstract class UniformGlobals {
         offset += (int)Math.ceil((float) ChargeCountsGlobals.SIZE / alignSize) * alignSize;
         sphereChargesGroup = new UniformGroup(offset, SphereChargesGlobals.SIZE);
         offset += (int)Math.ceil((float)SphereChargesGlobals.SIZE / alignSize) * alignSize;
+        idGroup = new UniformGroup(offset, IDGlobals.SIZE);
+        offset += (int)Math.ceil((float)IDGlobals.SIZE / alignSize) * alignSize;
 
         ubo = glGenBuffers();
         glBindBuffer(GL_UNIFORM_BUFFER, ubo);
@@ -220,6 +235,7 @@ public abstract class UniformGlobals {
         glBindBufferRange(GL_UNIFORM_BUFFER, LightGlobals.BINDING, ubo, lightGroup.offset, LightGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, ChargeCountsGlobals.BINDING, ubo, chargeCountsGroup.offset, ChargeCountsGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, SphereChargesGlobals.BINDING, ubo, sphereChargesGroup.offset, SphereChargesGlobals.SIZE);
+        glBindBufferRange(GL_UNIFORM_BUFFER, IDGlobals.BINDING, ubo, idGroup.offset, IDGlobals.SIZE);
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize uniform buffer ranges!");
             return false;
@@ -229,11 +245,12 @@ public abstract class UniformGlobals {
     }
 
     static void buffer() {
-        if (ViewGlobals.needsBuffered()) ViewGlobals.buffer();
-        if (TransformGlobals.needsBuffered()) TransformGlobals.buffer();
-        if (LightGlobals.needsBuffered()) LightGlobals.buffer();
-        if (ChargeCountsGlobals.needsBuffered()) ChargeCountsGlobals.buffer();
-        if (SphereChargesGlobals.needsBuffered()) SphereChargesGlobals.buffer();
+        if (ViewGlobals.needsBuffered) ViewGlobals.buffer();
+        if (TransformGlobals.needsBuffered) TransformGlobals.buffer();
+        if (LightGlobals.needsBuffered) LightGlobals.buffer();
+        if (ChargeCountsGlobals.needsBuffered) ChargeCountsGlobals.buffer();
+        if (SphereChargesGlobals.needsBuffered) SphereChargesGlobals.buffer();
+        if (IDGlobals.needsBuffered) IDGlobals.buffer();
     }
 
     static void bufferForce() {
@@ -242,6 +259,7 @@ public abstract class UniformGlobals {
         LightGlobals.buffer();
         ChargeCountsGlobals.buffer();
         SphereChargesGlobals.buffer();
+        IDGlobals.buffer();
     }
 
 }

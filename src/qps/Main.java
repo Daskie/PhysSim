@@ -7,18 +7,31 @@ import qps.input_listeners.CursorListener;
 import qps.input_listeners.KeyListener;
 import qps.window_listeners.WindowCloseListener;
 
+import java.nio.IntBuffer;
+import java.util.ArrayList;
+
+import static org.lwjgl.BufferUtils.createIntBuffer;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL20.glDrawBuffers;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 public abstract class Main {
 
+    private static final Vec4 CLEAR_COLOR = new Vec4(0.5f, 0.0f, 0.5f, 1.0f);
+    private static final int NO_IDENTITY = -1;
+    private static final float CAM_SPEED = 0.1f;
+
     private static boolean running;
     private static Window window;
     private static FieldProgram fieldProgram;
     private static Camera camera = new Camera();
+    private static ArrayList<IdentityListener> identities = new ArrayList<IdentityListener>();
+    private static int currentIdentity = NO_IDENTITY;
+
+    private static IntBuffer attachmentsBuffer;
+    private static IntBuffer identityBuffer;
 
     private static float nearFrust = 0.1f;
     private static float farFrust = 100.0f;
@@ -29,6 +42,12 @@ public abstract class Main {
     private static float lightAmbience = 0.1f;
 
     private static FrameBuffer fb;
+
+    private static int registerIdentity(IdentityListener identityListener) {
+        identities.add(identityListener);
+        return identities.size() - 1;
+    }
+
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -52,6 +71,12 @@ public abstract class Main {
         if (!initInput()) {
             return false;
         }
+
+        attachmentsBuffer = createIntBuffer(2);
+        attachmentsBuffer.put(0, GL_COLOR_ATTACHMENT0);
+        attachmentsBuffer.put(1, GL_COLOR_ATTACHMENT1);
+
+        identityBuffer = createIntBuffer(1);
 
         return true;
     }
@@ -79,7 +104,7 @@ public abstract class Main {
         int minVer = glGetInteger(GL_MINOR_VERSION);
         System.out.println("OpenGL Version: " + majVer + "." + minVer);
 
-        glClearColor(0.25f, 0.0f, 0.25f, 1.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glViewport(0, 0, window.width(), window.height());
 
         glEnable(GL_DEPTH_TEST);
@@ -128,6 +153,8 @@ public abstract class Main {
 
         UniformGlobals.ChargeCountsGlobals.setSphereCount(0);
 
+        UniformGlobals.IDGlobals.setID(7);
+
         UniformGlobals.buffer();
 
         if (!Utils.checkGLErr()) {
@@ -148,7 +175,7 @@ public abstract class Main {
         MapScene.init();
 
         FBScene.init();
-        fb = FrameBuffer.createFrameBuffer(window.width(), window.height(), FrameBuffer.Profile.Tne_R);
+        fb = FrameBuffer.createMainIdentity(window.width(), window.height(), CLEAR_COLOR, NO_IDENTITY);
         FBScene.setTex(fb.colorBuffer(0));
 
         return true;
@@ -207,7 +234,6 @@ public abstract class Main {
         UniformGlobals.buffer();
     }
 
-    private static final float CAM_SPEED = 0.1f;
     private static void updateCamera(int t, int dt) {
         if (window.keyState(GLFW_KEY_W)) {
             camera.translate(camera.forward().mult(CAM_SPEED));
@@ -235,25 +261,46 @@ public abstract class Main {
 
     private static void draw() {
         glBindFramebuffer(GL_FRAMEBUFFER, fb.id());
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        fb.clear();
 
         MainScene.draw();
-        Utils.checkGLErr();
+
+        glDrawBuffers(GL_COLOR_ATTACHMENT0);
 
         //FieldScene.draw();
-        //Utils.checkGLErr();
 
         MapScene.draw();
-        Utils.checkGLErr();
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
         FBScene.draw();
-        Utils.checkGLErr();
 
         window.swap();
+    }
+
+    private static void identify() {
+        glBindFramebuffer(GL_FRAMEBUFFER, fb.id());
+        glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+        glReadPixels((int)window.mouseX(), (int)window.mouseY(), 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, identityBuffer);
+        int oldIdentity = currentIdentity;
+        currentIdentity = identityBuffer.get(0);
+        if (currentIdentity != oldIdentity) {
+            if (oldIdentity != NO_IDENTITY) {
+                identities.get(oldIdentity).lost();
+            }
+            if (currentIdentity != NO_IDENTITY) {
+                identities.get(currentIdentity).gained();
+            }
+        }
+        if (currentIdentity != NO_IDENTITY) {
+            identities.get(currentIdentity).has();
+        }
+
+        glReadBuffer(GL_COLOR_ATTACHMENT0);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     private static boolean cleanup() {
@@ -274,17 +321,16 @@ public abstract class Main {
 
         long orig = System.currentTimeMillis(), then = orig, now;
         while (running) {// glfwWindowShouldClose(window.id()) == 0 ) {
-            now = System.currentTimeMillis();
-
-            update((int)(now - orig), (int)(now - then));
 
             glfwPollEvents();
 
+            now = System.currentTimeMillis();
+            update((int)(now - orig), (int)(now - then));
+            then = now;
+
             draw();
 
-            Utils.checkGLErr();
-
-            then = now;
+            identify();
         }
 
         if (!cleanup()) {

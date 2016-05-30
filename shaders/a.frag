@@ -7,7 +7,8 @@ in V_TO_F {
 	vec3 vertNorm;
 } v_to_f;
 
-out vec4 out_color;
+layout (location = 0) out vec4 out_color;
+layout (location = 1) out uint out_id;
 
 layout (std140) uniform View {
     vec3 view_camLoc;
@@ -25,11 +26,9 @@ layout (std140) uniform Light {
     float light_ambience;
 };
 
-/*uniform vec3 u_camLoc;
-uniform vec3 u_lightDir;
-uniform vec3 u_ambientCol;
-uniform vec3 u_diffuseCol;
-uniform vec3 u_specularCol;*/
+layout (std140) uniform ID {
+    uint id_id;
+};
 
 void main(void) {
     vec3 norm = normalize(v_to_f.vertNorm);
@@ -52,4 +51,6 @@ void main(void) {
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
 	out_color.a = v_to_f.vertColor.a;
+
+	out_id = id_id;
 }
