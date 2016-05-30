@@ -9,6 +9,7 @@ import qps.window_listeners.WindowCloseListener;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
@@ -147,7 +148,7 @@ public abstract class Main {
         MapScene.init();
 
         FBScene.init();
-        fb = new FrameBuffer(window.width(), window.height(), 1, true, true, false, false, false, false);
+        fb = FrameBuffer.createFrameBuffer(window.width(), window.height(), FrameBuffer.Profile.Tne_R);
         FBScene.setTex(fb.colorBuffer(0));
 
         return true;
