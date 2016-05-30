@@ -38,7 +38,7 @@ public class FieldScene {
         zCount = Math.round(fieldSize.z * fieldDensity);
         program.setFieldCount(xCount, yCount, zCount);
 
-        arrowVAO = new VAO(MeshManager.arrowMesh, 0, null, GL_STATIC_DRAW);
+        arrowVAO = new VAO(MeshManager.arrowMesh, 0, null, null, GL_STATIC_DRAW);
 
         return true;
     }

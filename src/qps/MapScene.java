@@ -22,7 +22,7 @@ public class MapScene {
         program = new MapProgram();
         program.init();
 
-        planeVAO = new VAO(MeshManager.squareMesh, 0, null, GL_STREAM_DRAW);
+        planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, GL_STREAM_DRAW);
 
         plane = new Vec4();
         modelMat = new Mat4(Mat3.scale(10.0f));

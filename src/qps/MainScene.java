@@ -1,6 +1,7 @@
 package qps;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -26,7 +27,7 @@ public abstract class MainScene {
         program = new MainProgram();
         program.init();
         spheres = new ArrayList<ChargedSphere>(MAX_SPHERES);
-        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, GL_STREAM_DRAW);
+        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, null, GL_STREAM_DRAW);
 
         return true;
     }
@@ -50,9 +51,35 @@ public abstract class MainScene {
 
     public static void addSphere(ChargedSphere sphere) {
         spheres.add(sphere);
+        int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1));
         spheresVAO.bufferInstanceMat(spheres.size() - 1, new Mat4(sphere.modelMat()));
+        spheresVAO.bufferInstanceID(spheres.size() - 1, id);
         UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size());
         UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), (float)sphere.getCharge());
+    }
+
+    private static class SphereIdentityListener implements IdentityListener {
+
+        public int sphereIndex;
+
+        public SphereIdentityListener(int sphereIndex) {
+            this.sphereIndex = sphereIndex;
+        }
+
+        @Override
+        public void gained() {
+
+        }
+
+        @Override
+        public void has() {
+
+        }
+
+        @Override
+        public void lost() {
+
+        }
     }
 
 }

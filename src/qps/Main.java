@@ -43,7 +43,7 @@ public abstract class Main {
 
     private static FrameBuffer fb;
 
-    private static int registerIdentity(IdentityListener identityListener) {
+    public static int registerIdentity(IdentityListener identityListener) {
         identities.add(identityListener);
         return identities.size() - 1;
     }
@@ -286,7 +286,9 @@ public abstract class Main {
         glBindFramebuffer(GL_FRAMEBUFFER, fb.id());
         glReadBuffer(GL_COLOR_ATTACHMENT1);
 
-        glReadPixels((int)window.mouseX(), (int)window.mouseY(), 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, identityBuffer);
+        //glReadPixels((int)window.mouseX(), (int)window.mouseY(), 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, identityBuffer);
+        glReadPixels(Math.round(fb.width() / 2.0f), Math.round(fb.height() / 2.0f), 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, identityBuffer);
+
         int oldIdentity = currentIdentity;
         currentIdentity = identityBuffer.get(0);
         if (currentIdentity != oldIdentity) {
