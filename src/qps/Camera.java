@@ -5,6 +5,8 @@ package qps;
  */
 public class Camera {
 
+    private static final float MIN_CAM_DISTANCE = 1.0f;
+
     private Vec3 tetherLoc;
     private float camDistance;
     private float camRange;
@@ -14,20 +16,20 @@ public class Camera {
 
     public Camera() {
         tetherLoc = new Vec3();
-        camDistance = 0.0f;
+        camDistance = 10.0f;
         camRange = Float.POSITIVE_INFINITY;
         tetherRange = Float.POSITIVE_INFINITY;
-        theta = 0.0f;
-        phi = 0.0f;
+        theta = -(float)Math.PI / 2.0f;
+        phi = (float)Math.PI / 4.0f;
     }
 
-    public Camera(Vec3 tetherLoc, float camRange, float tetherRange) {
+    public Camera(Vec3 tetherLoc, float camDistance, float camRange, float tetherRange) {
         this.tetherLoc = tetherLoc;
-        camDistance = 0.0f;
+        this.camDistance = Utils.max(camDistance, MIN_CAM_DISTANCE);
         this.camRange = camRange;
         this.tetherRange = tetherRange;
-        theta = 0.0f;
-        phi = 0.0f;
+        theta = -(float)Math.PI / 2.0f;
+        phi = (float)Math.PI / 4.0f;
     }
 
     void translate(Vec3 delta) {
@@ -47,7 +49,7 @@ public class Camera {
     }
 
     void move(float delta) {
-        camDistance = Utils.max(Utils.min(camDistance + delta, camRange), 0.0f);
+        camDistance = Utils.max(Utils.min(camDistance + delta, camRange), MIN_CAM_DISTANCE);
     }
 
     public Vec3 loc() {
@@ -66,5 +68,8 @@ public class Camera {
         return Utils.sphericalToCartesian(1.0f, theta + (float)Math.PI / 2, (float)Math.PI / 2.0f);
     }
 
+    public float distance() {
+        return camDistance;
+    }
 
 }
