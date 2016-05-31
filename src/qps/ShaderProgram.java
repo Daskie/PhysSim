@@ -92,7 +92,7 @@ public class ShaderProgram {
 
         mat.buffer(matBuffer);
         matBuffer.flip();
-        glUniformMatrix2fv(u_id, 16, false, matBuffer);
+        glUniformMatrix2fv(u_id, 1, false, matBuffer);
 
         glUseProgram(0);
     }
@@ -102,7 +102,7 @@ public class ShaderProgram {
 
         mat.buffer(matBuffer);
         matBuffer.flip();
-        glUniformMatrix3fv(u_id, 36, false, matBuffer);
+        glUniformMatrix3fv(u_id, 1, false, matBuffer);
 
         glUseProgram(0);
     }
@@ -112,7 +112,7 @@ public class ShaderProgram {
 
         mat.buffer(matBuffer);
         matBuffer.flip();
-        glUniformMatrix4fv(u_id, 64, false, matBuffer);
+        glUniformMatrix4fv(u_id, 1, false, matBuffer);
 
         glUseProgram(0);
     }

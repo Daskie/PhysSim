@@ -16,7 +16,8 @@ public class MapProgram extends ShaderProgram {
     public boolean init() {
         if (!super.init()) return false;
 
-        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Transform"), UniformGlobals.TransformGlobals.BINDING);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Camera"), UniformGlobals.CameraGlobals.BINDING);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Model"), UniformGlobals.ModelGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "ChargeCounts"), UniformGlobals.ChargeCountsGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "SphereCharges"), UniformGlobals.SphereChargesGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "EThreshold"), UniformGlobals.EThresholdGlobals.BINDING);

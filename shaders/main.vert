@@ -17,21 +17,24 @@ out V_TO_F {
 	flat int instanceID;
 } v_to_f;
 
-layout (std140) uniform Transform {
-    mat4 transform_modelMat;
-    mat4 transform_normMat;
-    mat4 transform_viewMat;
-    mat4 transform_projMat;
+layout (std140) uniform Camera {
+    mat4 camera_viewMat;
+    mat4 camera_projMat;
+};
+
+layout (std140) uniform Model {
+    mat4 model_modelMat;
+    mat4 model_normMat;
 };
 
 void main(void)
 {
-    vec3 coords = vec3(in_instanceMat * transform_modelMat * vec4(in_vertCoords, 1.0f));
-	gl_Position = transform_projMat * transform_viewMat * vec4(coords, 1.0f);
+    vec3 coords = vec3(in_instanceMat * model_modelMat * vec4(in_vertCoords, 1.0f));
+	gl_Position = camera_projMat * camera_viewMat * vec4(coords, 1.0f);
 	v_to_f.vertCoords = coords;
 	v_to_f.vertColor = vec4(max(sign(in_instanceCharge), 0.0f), 0.0f, max(sign(-in_instanceCharge), 0.0f), 1.0f);
 	v_to_f.vertUV = in_vertUV;
-	v_to_f.vertNorm = mat3(transform_normMat) * in_vertNorm;
+	v_to_f.vertNorm = mat3(model_normMat) * in_vertNorm;
 	v_to_f.instanceCharge = in_instanceCharge;
 	v_to_f.instanceID = in_instanceID;
 }

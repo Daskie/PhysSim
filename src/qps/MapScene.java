@@ -10,7 +10,7 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 /**
  * @since 5/28/2016
  */
-public class MapScene {
+public abstract class MapScene {
 
     private static MapProgram program;
     private static VAO planeVAO;
@@ -40,9 +40,8 @@ public class MapScene {
 
         glDisable(GL_CULL_FACE);
 
-        UniformGlobals.TransformGlobals.setModelMat(modelMat);
-        //UniformGlobals.TransformGlobals.setNormMat(new Mat4());
-        UniformGlobals.TransformGlobals.buffer();
+        UniformGlobals.ModelGlobals.setModelMat(modelMat);
+        UniformGlobals.ModelGlobals.buffer();
         glDrawElements(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         glEnable(GL_CULL_FACE);

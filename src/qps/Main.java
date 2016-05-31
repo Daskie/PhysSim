@@ -142,17 +142,18 @@ public abstract class Main {
             return false;
         }
 
+        UniformGlobals.CameraGlobals.setViewMat(new Mat4());
+        UniformGlobals.CameraGlobals.setProjMat(new Mat4());
+
+        UniformGlobals.ModelGlobals.setModelMat(new Mat4());
+        UniformGlobals.ModelGlobals.setNormMat(new Mat4());
+
         UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
         UniformGlobals.ViewGlobals.setCamForward(camera.forward());
         UniformGlobals.ViewGlobals.setCamUp(camera.up());
         UniformGlobals.ViewGlobals.setNearFrust(nearFrust);
         UniformGlobals.ViewGlobals.setFarFrust(farFrust);
         UniformGlobals.ViewGlobals.setFov(fov);
-
-        UniformGlobals.TransformGlobals.setModelMat(new Mat4());
-        UniformGlobals.TransformGlobals.setNormMat(new Mat4());
-        UniformGlobals.TransformGlobals.setViewMat(new Mat4());
-        UniformGlobals.TransformGlobals.setProjMat(new Mat4());
 
         UniformGlobals.LightGlobals.setDir(lightDir);
         UniformGlobals.LightGlobals.setStrength(lightStrength);
@@ -181,9 +182,11 @@ public abstract class Main {
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
 
-        FieldScene.init();
+        //FieldScene.init();
 
         MapScene.init();
+
+        CardinalScene.init();
 
         FBScene.init();
         fb = FrameBuffer.createMainIdentity(window.width(), window.height(), CLEAR_COLOR, NO_IDENTITY);
@@ -250,34 +253,17 @@ public abstract class Main {
 
         MapScene.update(t, dt);
 
+        CardinalScene.update(t, dt);
+
         FBScene.update(t, dt);
 
         UniformGlobals.buffer();
     }
 
     private static void updateCamera(int t, int dt) {
-        if (window.keyState(GLFW_KEY_W)) {
-            camera.translate(camera.forward().mult(CAM_ANGULAR_SPEED));
-        }
-        if (window.keyState(GLFW_KEY_A)) {
-            camera.translate(camera.right().mult(-CAM_ANGULAR_SPEED));
-        }
-        if (window.keyState(GLFW_KEY_S)) {
-            camera.translate(camera.forward().mult(-CAM_ANGULAR_SPEED));
-        }
-        if (window.keyState(GLFW_KEY_D)) {
-            camera.translate(camera.right().mult(CAM_ANGULAR_SPEED));
-        }
-        if (window.keyState(GLFW_KEY_SPACE)) {
-            camera.translate(Vec3.POSZ.mult(CAM_ANGULAR_SPEED));
-        }
-        if (window.keyState(GLFW_KEY_LEFT_SHIFT)) {
-            camera.translate(Vec3.NEGZ.mult(CAM_ANGULAR_SPEED));
-        }
-
         UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
-        UniformGlobals.TransformGlobals.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
-        UniformGlobals.TransformGlobals.setProjMat(Mat4.perspective(fov, (float)window.width() / window.height(), nearFrust, farFrust));
+        UniformGlobals.CameraGlobals.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
+        UniformGlobals.CameraGlobals.setProjMat(Mat4.perspective(fov, (float)window.width() / window.height(), nearFrust, farFrust));
     }
 
     private static void draw() {
@@ -293,6 +279,10 @@ public abstract class Main {
         //FieldScene.draw();
 
         MapScene.draw();
+
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        CardinalScene.draw();
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 

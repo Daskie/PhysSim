@@ -17,11 +17,14 @@ struct ChargeObject { //needs to be 140 aligned
     float charge;
 };
 
-layout (std140) uniform Transform {
-    mat4 transform_modelMat;
-    mat4 transform_normMat;
-    mat4 transform_viewMat;
-    mat4 transform_projMat;
+layout (std140) uniform Camera {
+    mat4 camera_viewMat;
+    mat4 camera_projMat;
+};
+
+layout (std140) uniform Model {
+    mat4 model_modelMat;
+    mat4 model_normMat;
 };
 
 layout (std140) uniform ChargeCounts {
@@ -56,9 +59,9 @@ void main(void)
         eField += sphereCharges_spheres[i].charge / dist2(coords, sphereCharges_spheres[i].loc);
     }
 
-	gl_Position = transform_projMat * transform_viewMat * vec4(coords, 1.0f);
+	gl_Position = camera_projMat * camera_viewMat * vec4(coords, 1.0f);
 	v_to_f.vertCoords = coords;
 	v_to_f.vertColor = vec4(clamp(eField, 0.0f, 1.0f), 0.0f, clamp(-eField, 0.0f, 1.0f), 1.0f);
 	v_to_f.vertUV = in_vertUV;
-	v_to_f.vertNorm = mat3(transform_normMat) * in_vertNorm;
+	v_to_f.vertNorm = mat3(model_normMat) * in_vertNorm;
 }

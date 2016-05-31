@@ -40,8 +40,8 @@ public abstract class MainScene {
         glUseProgram(program.id());
         glBindVertexArray(spheresVAO.vao());
 
-        UniformGlobals.TransformGlobals.setModelMat(new Mat4());
-        UniformGlobals.TransformGlobals.setNormMat(new Mat4());
+        UniformGlobals.ModelGlobals.setModelMat(new Mat4());
+        UniformGlobals.ModelGlobals.setNormMat(new Mat4());
         UniformGlobals.buffer();
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0, spheres.size());
 

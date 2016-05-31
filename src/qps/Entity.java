@@ -100,7 +100,7 @@ public class Entity {
     }
 
     public Mat4 modelMat() {
-        return new Mat4(Mat4.translation(loc).mult(new Mat4(alignFromBaseMat())));
+        return new Mat4(Mat4.translate(loc).mult(new Mat4(alignFromBaseMat())));
     }
 
 }

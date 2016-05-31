@@ -19,6 +19,58 @@ public abstract class UniformGlobals {
         return bindings++;
     }
 
+    public static class CameraGlobals {
+        private static Mat4 viewMat;     //64
+        private static Mat4 projMat;     //128
+
+        public static final int SIZE = 128;
+        public static final int BINDING = nextBinding();
+
+        private static boolean needsBuffered;
+
+        public static void buffer() {
+            cameraGroup.data.clear();
+            viewMat.buffer(cameraGroup.data);
+            projMat.buffer(cameraGroup.data);
+            cameraGroup.data.flip();
+
+            glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+            glBufferSubData(GL_UNIFORM_BUFFER, cameraGroup.offset, SIZE, cameraGroup.data);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            needsBuffered = false;
+        }
+
+        public static void setViewMat(Mat4 viewMat) { CameraGlobals.viewMat = viewMat; needsBuffered = true; }
+        public static void setProjMat(Mat4 projMat) { CameraGlobals.projMat = projMat; needsBuffered = true; }
+    }
+
+    public static class ModelGlobals {
+        private static Mat4 modelMat;    //64
+        private static Mat4 normMat;     //128
+
+        public static final int SIZE = 128;
+        public static final int BINDING = nextBinding();
+
+        private static boolean needsBuffered;
+
+        public static void buffer() {
+            modelGroup.data.clear();
+            modelMat.buffer(modelGroup.data);
+            normMat.buffer(modelGroup.data);
+            modelGroup.data.flip();
+
+            glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+            glBufferSubData(GL_UNIFORM_BUFFER, modelGroup.offset, SIZE, modelGroup.data);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            needsBuffered = false;
+        }
+
+        public static void setModelMat(Mat4 modelMat) { ModelGlobals.modelMat = modelMat; needsBuffered = true; }
+        public static void setNormMat(Mat4 normMat) { ModelGlobals.normMat = normMat; needsBuffered = true; }
+    }
+
     public static class ViewGlobals {
         private static Vec3 camLoc;      //12
         private static float nearFrust;  //16
@@ -55,38 +107,6 @@ public abstract class UniformGlobals {
         public static void setFarFrust(float farFrust) { ViewGlobals.farFrust = farFrust; needsBuffered = true; }
         public static void setCamUp(Vec3 camUp) { ViewGlobals.camUp = camUp; needsBuffered = true; }
         public static void setFov(float fov) { ViewGlobals.fov = fov; needsBuffered = true; }
-    }
-
-    public static class TransformGlobals {
-        private static Mat4 modelMat;    //64
-        private static Mat4 normMat;     //128
-        private static Mat4 viewMat;     //192
-        private static Mat4 projMat;     //256
-
-        public static final int SIZE = 256;
-        public static final int BINDING = nextBinding();
-
-        private static boolean needsBuffered;
-
-        public static void buffer() {
-            transformGroup.data.clear();
-            modelMat.buffer(transformGroup.data);
-            normMat.buffer(transformGroup.data);
-            viewMat.buffer(transformGroup.data);
-            projMat.buffer(transformGroup.data);
-            transformGroup.data.flip();
-
-            glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-            glBufferSubData(GL_UNIFORM_BUFFER, transformGroup.offset, SIZE, transformGroup.data);
-            glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-            needsBuffered = false;
-        }
-
-        public static void setModelMat(Mat4 modelMat) { TransformGlobals.modelMat = modelMat; needsBuffered = true; }
-        public static void setNormMat(Mat4 normMat) { TransformGlobals.normMat = normMat; needsBuffered = true; }
-        public static void setViewMat(Mat4 viewMat) { TransformGlobals.viewMat = viewMat; needsBuffered = true; }
-        public static void setProjMat(Mat4 projMat) { TransformGlobals.projMat = projMat; needsBuffered = true; }
     }
 
     public static class LightGlobals {
@@ -221,17 +241,19 @@ public abstract class UniformGlobals {
         }
     }
 
-    private static UniformGroup viewGroup, transformGroup, lightGroup, chargeCountsGroup, sphereChargesGroup, eThresholdGroup, idGroup;
+    private static UniformGroup cameraGroup, modelGroup, viewGroup, lightGroup, chargeCountsGroup, sphereChargesGroup, eThresholdGroup, idGroup;
     private static int ubo;
 
     public static boolean init()  {
         int alignSize = glGetInteger(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
         int offset = 0;
+        cameraGroup = new UniformGroup(offset, CameraGlobals.SIZE);
+        offset += (int)Math.ceil((float)CameraGlobals.SIZE / alignSize) * alignSize;
+        modelGroup = new UniformGroup(offset, ModelGlobals.SIZE);
+        offset += (int)Math.ceil((float)ModelGlobals.SIZE / alignSize) * alignSize;
         viewGroup = new UniformGroup(offset, ViewGlobals.SIZE);
         offset += (int)Math.ceil((float)ViewGlobals.SIZE / alignSize) * alignSize;
-        transformGroup = new UniformGroup(offset, TransformGlobals.SIZE);
-        offset += (int)Math.ceil((float)TransformGlobals.SIZE / alignSize) * alignSize;
         lightGroup = new UniformGroup(offset, LightGlobals.SIZE);
         offset += (int)Math.ceil((float)LightGlobals.SIZE / alignSize) * alignSize;
         chargeCountsGroup = new UniformGroup(offset, ChargeCountsGlobals.SIZE);
@@ -254,8 +276,9 @@ public abstract class UniformGlobals {
 
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+        glBindBufferRange(GL_UNIFORM_BUFFER, CameraGlobals.BINDING, ubo, cameraGroup.offset, CameraGlobals.SIZE);
+        glBindBufferRange(GL_UNIFORM_BUFFER, ModelGlobals.BINDING, ubo, modelGroup.offset, ModelGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, ViewGlobals.BINDING, ubo, viewGroup.offset, ViewGlobals.SIZE);
-        glBindBufferRange(GL_UNIFORM_BUFFER, TransformGlobals.BINDING, ubo, transformGroup.offset, TransformGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, LightGlobals.BINDING, ubo, lightGroup.offset, LightGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, ChargeCountsGlobals.BINDING, ubo, chargeCountsGroup.offset, ChargeCountsGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, SphereChargesGlobals.BINDING, ubo, sphereChargesGroup.offset, SphereChargesGlobals.SIZE);
@@ -270,8 +293,9 @@ public abstract class UniformGlobals {
     }
 
     static void buffer() {
+        if (CameraGlobals.needsBuffered) CameraGlobals.buffer();
+        if (ModelGlobals.needsBuffered) ModelGlobals.buffer();
         if (ViewGlobals.needsBuffered) ViewGlobals.buffer();
-        if (TransformGlobals.needsBuffered) TransformGlobals.buffer();
         if (LightGlobals.needsBuffered) LightGlobals.buffer();
         if (ChargeCountsGlobals.needsBuffered) ChargeCountsGlobals.buffer();
         if (SphereChargesGlobals.needsBuffered) SphereChargesGlobals.buffer();
@@ -280,8 +304,9 @@ public abstract class UniformGlobals {
     }
 
     static void bufferForce() {
+        CameraGlobals.buffer();
+        ModelGlobals.buffer();
         ViewGlobals.buffer();
-        TransformGlobals.buffer();
         LightGlobals.buffer();
         ChargeCountsGlobals.buffer();
         SphereChargesGlobals.buffer();

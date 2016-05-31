@@ -26,7 +26,7 @@ public class Mat4 extends MatN {
         );
     }
 
-    public static Mat4 translation(Vec3 delta) {
+    public static Mat4 translate(Vec3 delta) {
         Mat4 mat = new Mat4();
         mat.mat[3][0] = delta.x;
         mat.mat[3][1] = delta.y;
