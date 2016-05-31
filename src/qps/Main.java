@@ -220,7 +220,9 @@ public abstract class Main {
             @Override
             public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
                 if (window.mouseButtonState(0)) {
-                    camera.translate((new Vec3((float)dx, (float)dy, 0.0f)).mult(CAM_LATERAL_SPEED));
+                    Vec3 vec = (new Vec3((float)dx, (float)-dy, 0.0f)).mult(CAM_LATERAL_SPEED);
+                    Mat3 mapMat = Mat3.mapFrom(camera.right(), camera.up(), camera.forward());
+                    camera.translate(mapMat.mult(vec).mult(-1.0f));
                 }
                 if (window.mouseButtonState(1)) {
                     camera.yaw(CAMERA_THETA_PER_PIXEL * (float) -dx);

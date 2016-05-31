@@ -25,7 +25,7 @@ public class MapScene {
         planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, GL_STREAM_DRAW);
 
         plane = new Vec4();
-        modelMat = new Mat4(Mat3.scale(10.0f));
+        modelMat = new Mat4(Mat3.scale(1000.0f));
 
         return true;
     }
@@ -41,7 +41,7 @@ public class MapScene {
         glDisable(GL_CULL_FACE);
 
         UniformGlobals.TransformGlobals.setModelMat(modelMat);
-        UniformGlobals.TransformGlobals.setNormMat(new Mat4());
+        //UniformGlobals.TransformGlobals.setNormMat(new Mat4());
         UniformGlobals.TransformGlobals.buffer();
         glDrawElements(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0);
 

@@ -82,4 +82,34 @@ public class Mat3 extends MatN {
         );
     }
 
+    public static Mat3 map(Vec3 x1, Vec3 y1, Vec3 z1, Vec3 x2, Vec3 y2, Vec3 z2) {
+        Mat3 A = new Mat3(
+                x1.x, x1.y, x1.z,
+                y1.x, y1.y, y1.z,
+                z1.z, z1.y, z1.z
+        );
+        Mat3 B = new Mat3(
+                x2.x, x2.y, x2.z,
+                y2.x, y2.y, y2.z,
+                z2.x, z2.y, z2.z
+        );
+
+        return new Mat3(B.trans().mult(A));
+    }
+
+    public static Mat3 mapTo(Vec3 x, Vec3 y, Vec3 z) {
+        return new Mat3(new Mat3(
+                x.x, x.y, x.z,
+                y.x, y.y, y.z,
+                z.x, z.y, z.z
+        ).trans());
+    }
+
+    public static Mat3 mapFrom(Vec3 x, Vec3 y, Vec3 z) {
+        return new Mat3(x.x, x.y, x.z,
+                y.x, y.y, y.z,
+                z.x, z.y, z.z
+        );
+    }
+
 }
