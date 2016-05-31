@@ -20,8 +20,9 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 public abstract class Main {
 
+    public static final int NO_IDENTITY = -1;
+
     private static final Vec4 CLEAR_COLOR = new Vec4(0.9f, 0.9f, 0.9f, 1.0f);
-    private static final int NO_IDENTITY = -1;
     private static final float CAM_LATERAL_SPEED = 0.00275f;
     private static final float CAM_RADIAL_SPEED = 0.2f;
     private static final float CAM_ANGULAR_SPEED = 0.1f;
@@ -165,7 +166,7 @@ public abstract class Main {
         UniformGlobals.EThresholdGlobals.setMinMagE(minMagE);
         UniformGlobals.EThresholdGlobals.setMaxMagE(maxMagE);
 
-        UniformGlobals.IDGlobals.setID(NO_IDENTITY);
+        UniformGlobals.IDGlobals.setSelectedID(NO_IDENTITY);
 
         UniformGlobals.buffer();
 
@@ -282,7 +283,11 @@ public abstract class Main {
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
+        glDrawBuffers(attachmentsBuffer);
+
         CardinalScene.draw();
+
+        glDrawBuffers(GL_COLOR_ATTACHMENT0);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -297,12 +302,12 @@ public abstract class Main {
         glBindFramebuffer(GL_FRAMEBUFFER, fb.id());
         glReadBuffer(GL_COLOR_ATTACHMENT1);
 
-        //glReadPixels((int)window.mouseX(), (int)window.mouseY(), 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, identityBuffer);
-        glReadPixels(Math.round(fb.width() / 2.0f), Math.round(fb.height() / 2.0f), 1, 1, GL_RED_INTEGER, GL_UNSIGNED_INT, identityBuffer);
+        glReadPixels((int)window.mouseXGL(), (int)window.mouseYGL(), 1, 1, GL_RED_INTEGER, GL_INT, identityBuffer);
 
         int oldIdentity = currentIdentity;
         currentIdentity = identityBuffer.get(0);
         if (currentIdentity != oldIdentity) {
+            //System.out.println(currentIdentity);
             if (oldIdentity != NO_IDENTITY) {
                 identities.get(oldIdentity).lost();
             }
@@ -313,7 +318,7 @@ public abstract class Main {
         if (currentIdentity != NO_IDENTITY) {
             identities.get(currentIdentity).has();
         }
-        UniformGlobals.IDGlobals.setID(currentIdentity);
+        UniformGlobals.IDGlobals.setSelectedID(currentIdentity);
 
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

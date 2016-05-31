@@ -5,7 +5,9 @@ import java.nio.FloatBuffer;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;
 import static org.lwjgl.BufferUtils.createFloatBuffer;
+import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.glUniform1ui;
 
 /**
  * @since 5/20/2016
@@ -38,83 +40,88 @@ public class ShaderProgram {
     }
 
     protected void setUniform(int u_id, int x) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform1i(u_id, x);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, int x, int y) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform2i(u_id, x, y);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, int x, int y, int z) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform3i(u_id, x, y, z);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, int x, int y, int z, int w) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform4i(u_id, x, y, z, w);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, float v) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform1f(u_id, v);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, Vec2 v) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform2f(u_id, v.x, v.y);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, Vec3 v) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform3f(u_id, v.x, v.y, v.z);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, Vec4 v) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
         glUniform4f(u_id, v.x, v.y, v.z, v.w);
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     private ByteBuffer matBuffer = createByteBuffer(64); //enough to store up to a mat4
 
     protected void setUniform(int u_id, Mat2 mat) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
-
         mat.buffer(matBuffer);
         matBuffer.flip();
         glUniformMatrix2fv(u_id, 1, false, matBuffer);
-
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, Mat3 mat) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
-
         mat.buffer(matBuffer);
         matBuffer.flip();
         glUniformMatrix3fv(u_id, 1, false, matBuffer);
-
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
     protected void setUniform(int u_id, Mat4 mat) {
+        int p = glGetInteger(GL_CURRENT_PROGRAM);
         glUseProgram(id);
-
         mat.buffer(matBuffer);
         matBuffer.flip();
         glUniformMatrix4fv(u_id, 1, false, matBuffer);
-
-        glUseProgram(0);
+        glUseProgram(p);
     }
 
 }

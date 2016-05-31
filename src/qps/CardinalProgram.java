@@ -12,6 +12,7 @@ public class CardinalProgram extends ShaderProgram {
     private int u_camLoc;
     private int u_screenPos;
     private int u_lightDir;
+    private int u_id;
 
     public CardinalProgram() {
         super("shaders/cardinal.vert", null, "shaders/cardinal.frag");
@@ -27,6 +28,7 @@ public class CardinalProgram extends ShaderProgram {
         u_camLoc = glGetUniformLocation(id, "u_camLoc");
         u_screenPos = glGetUniformLocation(id, "u_screenPos");
         u_lightDir = glGetUniformLocation(id, "u_lightDir");
+        u_id = glGetUniformLocation(id, "u_id");
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to get uniform locations for main shader program!");
             return false;
@@ -45,6 +47,10 @@ public class CardinalProgram extends ShaderProgram {
 
     public void setLightDir(Vec3 lightDir) {
         setUniform(u_lightDir, lightDir);
+    }
+
+    public void setID(int id) {
+        setUniform(u_id, id);
     }
 
 }

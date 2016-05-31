@@ -8,7 +8,6 @@ in V_TO_F {
 } v_to_f;
 
 layout (location = 0) out vec4 out_color;
-layout (location = 1) out uint out_id;
 
 layout (std140) uniform View {
     vec3 view_camLoc;
@@ -24,10 +23,6 @@ layout (std140) uniform Light {
     float light_strength;
     vec3 light_color;
     float light_ambience;
-};
-
-layout (std140) uniform ID {
-    uint id_id;
 };
 
 void main(void) {
@@ -51,6 +46,4 @@ void main(void) {
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
 	out_color.a = v_to_f.vertColor.a;
-
-	out_id = id_id;
 }

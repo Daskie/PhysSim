@@ -56,7 +56,7 @@ public abstract class MainScene {
         int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1));
         spheresVAO.bufferInstanceID(spheres.size() - 1, id);
         UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size());
-        UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), (float)sphere.getCharge());
+        UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), sphere.getCharge());
     }
 
     private static class SphereIdentityListener implements IdentityListener {

@@ -129,6 +129,14 @@ public class Window {
         return mouseY;
     }
 
+    public double mouseXGL() {
+        return mouseX;
+    }
+
+    public double mouseYGL() {
+        return height - mouseY - 1;
+    }
+
     public boolean cursorPresent() {
         return cursorPresent;
     }

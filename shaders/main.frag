@@ -10,7 +10,7 @@ in V_TO_F {
 } v_to_f;
 
 layout (location = 0) out vec4 out_color;
-layout (location = 1) out uint out_id;
+layout (location = 1) out int out_id;
 
 layout (std140) uniform View {
     vec3 view_camLoc;
@@ -29,7 +29,7 @@ layout (std140) uniform Light {
 };
 
 layout (std140) uniform ID {
-    uint id_id;
+    int id_selected;
 };
 
 void main(void) {
@@ -53,7 +53,7 @@ void main(void) {
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
 
-    float highlight = 0.25f * (1.0f - abs(sign(v_to_f.instanceID - id_id)));
+    float highlight = step(0, id_selected) * 0.25f * (1.0f - abs(sign(v_to_f.instanceID - id_selected)));
     out_color.rgb += highlight;
 
 	out_color.a = v_to_f.vertColor.a;

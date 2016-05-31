@@ -41,11 +41,11 @@ public class FrameBuffer {
     public static FrameBuffer createMainIdentity(int width, int height, Vec4 clearColor, int clearIdentity) {
         AttachmentFormat af = new AttachmentFormat(
                 2,
-                new EssentialDataType[]{ EssentialDataType.UINT, EssentialDataType.UINT },
+                new EssentialDataType[]{ EssentialDataType.UINT, EssentialDataType.INT },
                 new boolean[]{ true, true },
-                new int[]{ GL_RGBA8, GL_R32UI },
+                new int[]{ GL_RGBA8, GL_R32I },
                 new int[]{ GL_RGBA, GL_RED_INTEGER },
-                new int[]{ GL_UNSIGNED_BYTE, GL_UNSIGNED_INT },
+                new int[]{ GL_UNSIGNED_BYTE, GL_INT },
                 true,
                 false
         );

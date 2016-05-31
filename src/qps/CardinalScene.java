@@ -1,7 +1,6 @@
 package qps;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.GL_STATIC_COPY;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -45,6 +44,19 @@ public abstract class CardinalScene {
     private static Mat4 pzSlideNormMat;
     private static Mat4 nzSlideNormMat;
 
+    private static int pxSlideID;
+    private static int nxSlideID;
+    private static int pySlideID;
+    private static int nySlideID;
+    private static int pzSlideID;
+    private static int nzSlideID;
+    private static int pxStepID;
+    private static int nxStepID;
+    private static int pyStepID;
+    private static int nyStepID;
+    private static int pzStepID;
+    private static int nzStepID;
+
     public static boolean init() {
         program = new CardinalProgram();
         program.init();
@@ -52,7 +64,9 @@ public abstract class CardinalScene {
         axesVAO = new VAO(MeshManager.axesMesh, 0, null, null, null, GL_STATIC_DRAW);
         coneVAO = new VAO(MeshManager.coneMesh, 0, null, null, null, GL_STATIC_DRAW);
 
-        float innerR = 0.5f;
+        program.setCamLoc(new Vec3(0.0f, 0.0f, 4.0f));
+        program.setLightDir(new Vec3(1.0f, -1.0f, -1.0f));
+        program.setScreenPos(new Vec2(0.75f, -0.75f));
 
         axesMat = new Mat4();
         axesNormMat = new Mat4();
@@ -85,9 +99,20 @@ public abstract class CardinalScene {
         pzSlideNormMat = new Mat4(pzSlideMat.inv().trans());
         nzSlideNormMat = new Mat4(nzSlideMat.inv().trans());
 
-        program.setCamLoc(new Vec3(0.0f, 0.0f, 4.0f));
-        program.setLightDir(new Vec3(1.0f, -1.0f, -1.0f));
-        program.setScreenPos(new Vec2(0.75f, -0.75f));
+        SlideIdentityListener slideIL = new SlideIdentityListener();
+        pxSlideID = Main.registerIdentity(slideIL);
+        nxSlideID = Main.registerIdentity(slideIL);
+        pySlideID = Main.registerIdentity(slideIL);
+        nySlideID = Main.registerIdentity(slideIL);
+        pzSlideID = Main.registerIdentity(slideIL);
+        nzSlideID = Main.registerIdentity(slideIL);
+        StepIdentityListener stepIL = new StepIdentityListener();
+        pxStepID = Main.registerIdentity(stepIL);
+        nxStepID = Main.registerIdentity(stepIL);
+        pyStepID = Main.registerIdentity(stepIL);
+        nyStepID = Main.registerIdentity(stepIL);
+        pzStepID = Main.registerIdentity(stepIL);
+        nzStepID = Main.registerIdentity(stepIL);
 
         return true;
     }
@@ -104,74 +129,122 @@ public abstract class CardinalScene {
         UniformGlobals.ModelGlobals.setModelMat(axesMat);
         UniformGlobals.ModelGlobals.setNormMat(axesNormMat);
         UniformGlobals.ModelGlobals.buffer();
+        program.setID(Main.NO_IDENTITY);
         glDrawElements(GL_TRIANGLES, MeshManager.axesMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
+        glBindVertexArray(coneVAO.vao());
+
+        UniformGlobals.ModelGlobals.setModelMat(pxSlideMat);
+        UniformGlobals.ModelGlobals.setNormMat(pxSlideNormMat);
+        program.setID(pxSlideID);
+        UniformGlobals.ModelGlobals.buffer();
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
+        UniformGlobals.ModelGlobals.setModelMat(nxSlideMat);
+        UniformGlobals.ModelGlobals.setNormMat(nxSlideNormMat);
+        program.setID(nxSlideID);
+        UniformGlobals.ModelGlobals.buffer();
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
+        UniformGlobals.ModelGlobals.setModelMat(pySlideMat);
+        UniformGlobals.ModelGlobals.setNormMat(pySlideNormMat);
+        program.setID(pySlideID);
+        UniformGlobals.ModelGlobals.buffer();
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
+        UniformGlobals.ModelGlobals.setModelMat(nySlideMat);
+        UniformGlobals.ModelGlobals.setNormMat(nySlideNormMat);
+        program.setID(nySlideID);
+        UniformGlobals.ModelGlobals.buffer();
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
+        UniformGlobals.ModelGlobals.setModelMat(pzSlideMat);
+        UniformGlobals.ModelGlobals.setNormMat(pzSlideNormMat);
+        program.setID(pzSlideID);
+        UniformGlobals.ModelGlobals.buffer();
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
+        UniformGlobals.ModelGlobals.setModelMat(nzSlideMat);
+        UniformGlobals.ModelGlobals.setNormMat(nzSlideNormMat);
+        program.setID(nzSlideID);
+        UniformGlobals.ModelGlobals.buffer();
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(coneVAO.vao());
 
         UniformGlobals.ModelGlobals.setModelMat(pxStepMat);
         UniformGlobals.ModelGlobals.setNormMat(pxStepNormMat);
         UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        program.setID(pxStepID);
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         UniformGlobals.ModelGlobals.setModelMat(nxStepMat);
         UniformGlobals.ModelGlobals.setNormMat(nxStepNormMat);
         UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        program.setID(nxStepID);
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         UniformGlobals.ModelGlobals.setModelMat(pyStepMat);
         UniformGlobals.ModelGlobals.setNormMat(pyStepNormMat);
         UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        program.setID(pyStepID);
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         UniformGlobals.ModelGlobals.setModelMat(nyStepMat);
         UniformGlobals.ModelGlobals.setNormMat(nyStepNormMat);
         UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        program.setID(nyStepID);
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         UniformGlobals.ModelGlobals.setModelMat(pzStepMat);
         UniformGlobals.ModelGlobals.setNormMat(pzStepNormMat);
         UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        program.setID(pzStepID);
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         UniformGlobals.ModelGlobals.setModelMat(nzStepMat);
         UniformGlobals.ModelGlobals.setNormMat(nzStepNormMat);
         UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        glBindVertexArray(coneVAO.vao());
-
-        UniformGlobals.ModelGlobals.setModelMat(pxSlideMat);
-        UniformGlobals.ModelGlobals.setNormMat(pxSlideNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(nxSlideMat);
-        UniformGlobals.ModelGlobals.setNormMat(nxSlideNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(pySlideMat);
-        UniformGlobals.ModelGlobals.setNormMat(pySlideNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(nySlideMat);
-        UniformGlobals.ModelGlobals.setNormMat(nySlideNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(pzSlideMat);
-        UniformGlobals.ModelGlobals.setNormMat(pzSlideNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(nzSlideMat);
-        UniformGlobals.ModelGlobals.setNormMat(nzSlideNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        program.setID(nzStepID);
+        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
         glUseProgram(0);
     }
 
+    private static class SlideIdentityListener implements IdentityListener {
+
+        @Override
+        public void gained() {
+
+        }
+
+        @Override
+        public void has() {
+
+        }
+
+        @Override
+        public void lost() {
+
+        }
+    }
+
+    private static class StepIdentityListener implements IdentityListener {
+
+        @Override
+        public void gained() {
+
+        }
+
+        @Override
+        public void has() {
+
+        }
+
+        @Override
+        public void lost() {
+
+        }
+    }
 }

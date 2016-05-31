@@ -8,17 +8,15 @@ in V_TO_F {
 } v_to_f;
 
 layout (location = 0) out vec4 out_color;
-layout (location = 1) out uint out_id;
+layout (location = 1) out int out_id;
 
 layout (std140) uniform ID {
-    uint id_id;
+    int id_selected;
 };
 
 uniform vec3 u_camLoc;
 uniform vec3 u_lightDir;
-//uniform float u_lightStrength;
-//uniform vec3 u_lightColor;
-//uniform float u_lightAmbience;
+uniform int u_id;
 
 void main(void) {
     vec3 norm = normalize(v_to_f.vertNorm);
@@ -42,5 +40,8 @@ void main(void) {
 	out_color.rgb = (ambientCol + diffuseCol + specularCol);
 	out_color.a = v_to_f.vertColor.a;
 
-	out_id = id_id;
+    float highlight = step(0, id_selected) * 0.25f * (1.0f - abs(sign(u_id - id_selected)));
+    out_color.rgb += highlight;
+
+	out_id = u_id;
 }
