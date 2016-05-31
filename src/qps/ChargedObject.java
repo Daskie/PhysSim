@@ -23,7 +23,7 @@ public class ChargedObject extends Entity {
         this.charge = charge;
     }
 
-    double getCharge() {
+    float getCharge() {
         return charge;
     }
 

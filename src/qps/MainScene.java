@@ -27,7 +27,7 @@ public abstract class MainScene {
         program = new MainProgram();
         program.init();
         spheres = new ArrayList<ChargedSphere>(MAX_SPHERES);
-        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, null, GL_STREAM_DRAW);
+        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, null, null, GL_STREAM_DRAW);
 
         return true;
     }
@@ -51,8 +51,9 @@ public abstract class MainScene {
 
     public static void addSphere(ChargedSphere sphere) {
         spheres.add(sphere);
-        int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1));
         spheresVAO.bufferInstanceMat(spheres.size() - 1, new Mat4(sphere.modelMat()));
+        spheresVAO.bufferInstanceCharge(spheres.size() - 1, sphere.getCharge());
+        int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1));
         spheresVAO.bufferInstanceID(spheres.size() - 1, id);
         UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size());
         UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), (float)sphere.getCharge());

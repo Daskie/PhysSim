@@ -19,7 +19,7 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 public abstract class Main {
 
-    private static final Vec4 CLEAR_COLOR = new Vec4(0.25f, 0.0f, 0.25f, 1.0f);
+    private static final Vec4 CLEAR_COLOR = new Vec4(0.9f, 0.9f, 0.9f, 1.0f);
     private static final int NO_IDENTITY = -1;
     private static final float CAM_SPEED = 0.1f;
 
@@ -39,7 +39,9 @@ public abstract class Main {
     private static Vec3 lightDir = new Vec3(-1.0f, -1.0f, -1.0f);
     private static float lightStrength = 1.0f;
     private static Vec3 lightColor = new Vec3(1.0f, 1.0f, 1.0f);
-    private static float lightAmbience = 0.1f;
+    private static float lightAmbience = 0.25f;
+    private static float minMagE = 0.0f;
+    private static float maxMagE = 1.0f;
 
     private static FrameBuffer fb;
 
@@ -109,6 +111,8 @@ public abstract class Main {
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         if (!Utils.checkGLErr()) {
             System.err.println("OpenGL initialization error!");
@@ -153,6 +157,9 @@ public abstract class Main {
 
         UniformGlobals.ChargeCountsGlobals.setSphereCount(0);
 
+        UniformGlobals.EThresholdGlobals.setMinMagE(minMagE);
+        UniformGlobals.EThresholdGlobals.setMaxMagE(maxMagE);
+
         UniformGlobals.IDGlobals.setID(NO_IDENTITY);
 
         UniformGlobals.buffer();
@@ -167,8 +174,8 @@ public abstract class Main {
 
     private static boolean initScene() {
         MainScene.init();
-        MainScene.addSphere(new ChargedSphere(1.0f, new Vec3(1.0f, 0.0f, 0.0f)));
-        MainScene.addSphere(new ChargedSphere(-1.0f, new Vec3(-1.0f, 0.0f, 0.0f)));
+        MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
+        MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
 
         FieldScene.init();
 
@@ -302,6 +309,7 @@ public abstract class Main {
         if (currentIdentity != NO_IDENTITY) {
             identities.get(currentIdentity).has();
         }
+        UniformGlobals.IDGlobals.setID(currentIdentity);
 
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

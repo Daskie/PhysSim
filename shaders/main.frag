@@ -5,6 +5,7 @@ in V_TO_F {
 	vec4 vertColor;
 	vec2 vertUV;
 	vec3 vertNorm;
+	flat float instanceCharge;
 	flat int instanceID;
 } v_to_f;
 
@@ -27,6 +28,10 @@ layout (std140) uniform Light {
     float light_ambience;
 };
 
+layout (std140) uniform ID {
+    uint id_id;
+};
+
 void main(void) {
     vec3 norm = normalize(v_to_f.vertNorm);
 
@@ -47,6 +52,10 @@ void main(void) {
 	specularCol *= light_color * pow(max(dot(norm, halfway), 0.0f), shininess) * specularIntensity;
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
+
+    float highlight = 0.25f * (1.0f - abs(sign(v_to_f.instanceID - id_id)));
+    out_color.rgb += highlight;
+
 	out_color.a = v_to_f.vertColor.a;
 
 	out_id = v_to_f.instanceID;

@@ -24,7 +24,7 @@ public abstract class FBScene {
 
         texID = 0;
 
-        squareVAO = new VAO(MeshManager.squareMesh, 0, null, null, GL_STATIC_DRAW);
+        squareVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, GL_STATIC_DRAW);
 
         return true;
     }

@@ -130,9 +130,7 @@ public abstract class UniformGlobals {
         private static boolean needsBuffered;
 
         public static void buffer() {
-            chargeCountsGroup.data.clear();
-            chargeCountsGroup.data.putInt(sphereCount);
-            chargeCountsGroup.data.flip();
+            chargeCountsGroup.data.putInt(0, sphereCount);
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
             glBufferSubData(GL_UNIFORM_BUFFER, chargeCountsGroup.offset, SIZE, chargeCountsGroup.data);
@@ -166,6 +164,32 @@ public abstract class UniformGlobals {
         }
     }
 
+    public static class EThresholdGlobals {
+        private static float minMagE;      //4
+        private static float maxMagE;      //4
+
+        public static final int SIZE = 8;
+        public static final int BINDING = nextBinding();
+
+        private static boolean needsBuffered;
+
+        public static void buffer() {
+            eThresholdGroup.data.clear();
+            eThresholdGroup.data.putFloat(minMagE);
+            eThresholdGroup.data.putFloat(maxMagE);
+            eThresholdGroup.data.flip();
+
+            glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+            glBufferSubData(GL_UNIFORM_BUFFER, eThresholdGroup.offset, SIZE, eThresholdGroup.data);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            needsBuffered = false;
+        }
+
+        public static void setMinMagE(float minMagE) { EThresholdGlobals.minMagE = minMagE; needsBuffered = true; }
+        public static void setMaxMagE(float maxMagE) { EThresholdGlobals.maxMagE = maxMagE; needsBuffered = true; }
+    }
+
     public static class IDGlobals {
         private static int id;      //4
 
@@ -175,9 +199,7 @@ public abstract class UniformGlobals {
         static boolean needsBuffered;
 
         public static void buffer() {
-            idGroup.data.clear();
-            idGroup.data.putInt(id);
-            idGroup.data.flip();
+            idGroup.data.putInt(0, id);
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
             glBufferSubData(GL_UNIFORM_BUFFER, idGroup.offset, SIZE, idGroup.data);
@@ -199,7 +221,7 @@ public abstract class UniformGlobals {
         }
     }
 
-    private static UniformGroup viewGroup, transformGroup, lightGroup, chargeCountsGroup, sphereChargesGroup, idGroup;
+    private static UniformGroup viewGroup, transformGroup, lightGroup, chargeCountsGroup, sphereChargesGroup, eThresholdGroup, idGroup;
     private static int ubo;
 
     public static boolean init()  {
@@ -214,6 +236,8 @@ public abstract class UniformGlobals {
         offset += (int)Math.ceil((float)LightGlobals.SIZE / alignSize) * alignSize;
         chargeCountsGroup = new UniformGroup(offset, ChargeCountsGlobals.SIZE);
         offset += (int)Math.ceil((float) ChargeCountsGlobals.SIZE / alignSize) * alignSize;
+        eThresholdGroup = new UniformGroup(offset, EThresholdGlobals.SIZE);
+        offset += (int)Math.ceil((float) EThresholdGlobals.SIZE / alignSize) * alignSize;
         sphereChargesGroup = new UniformGroup(offset, SphereChargesGlobals.SIZE);
         offset += (int)Math.ceil((float)SphereChargesGlobals.SIZE / alignSize) * alignSize;
         idGroup = new UniformGroup(offset, IDGlobals.SIZE);
@@ -235,6 +259,7 @@ public abstract class UniformGlobals {
         glBindBufferRange(GL_UNIFORM_BUFFER, LightGlobals.BINDING, ubo, lightGroup.offset, LightGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, ChargeCountsGlobals.BINDING, ubo, chargeCountsGroup.offset, ChargeCountsGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, SphereChargesGlobals.BINDING, ubo, sphereChargesGroup.offset, SphereChargesGlobals.SIZE);
+        glBindBufferRange(GL_UNIFORM_BUFFER, EThresholdGlobals.BINDING, ubo, eThresholdGroup.offset, EThresholdGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, IDGlobals.BINDING, ubo, idGroup.offset, IDGlobals.SIZE);
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize uniform buffer ranges!");
@@ -250,6 +275,7 @@ public abstract class UniformGlobals {
         if (LightGlobals.needsBuffered) LightGlobals.buffer();
         if (ChargeCountsGlobals.needsBuffered) ChargeCountsGlobals.buffer();
         if (SphereChargesGlobals.needsBuffered) SphereChargesGlobals.buffer();
+        if (EThresholdGlobals.needsBuffered) EThresholdGlobals.buffer();
         if (IDGlobals.needsBuffered) IDGlobals.buffer();
     }
 
@@ -259,6 +285,7 @@ public abstract class UniformGlobals {
         LightGlobals.buffer();
         ChargeCountsGlobals.buffer();
         SphereChargesGlobals.buffer();
+        EThresholdGlobals.buffer();
         IDGlobals.buffer();
     }
 

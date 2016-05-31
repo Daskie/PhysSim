@@ -8,6 +8,9 @@ import static org.lwjgl.opengl.GL11.glGetError;
  */
 public abstract class Utils {
 
+    public static final float E0 = 8.854e-12f;
+    public static final float K = 1.0f / 4.0f / (float)Math.PI / E0;
+
     public static boolean checkGLErr() {
         int glErr = glGetError();
 

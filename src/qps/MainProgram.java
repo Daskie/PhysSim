@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL31.glUniformBlockBinding;
 public class MainProgram extends ShaderProgram {
 
     public MainProgram() {
-        super("shaders/i.vert", null, "shaders/i.frag");
+        super("shaders/main.vert", null, "shaders/main.frag");
     }
 
     @Override
@@ -23,6 +23,7 @@ public class MainProgram extends ShaderProgram {
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "View"), UniformGlobals.ViewGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Transform"), UniformGlobals.TransformGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Light"), UniformGlobals.LightGlobals.BINDING);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "ID"), UniformGlobals.IDGlobals.BINDING);
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to get uniform locations for main shader program!");
             return false;
@@ -30,5 +31,7 @@ public class MainProgram extends ShaderProgram {
 
         return true;
     }
+
+
 
 }
