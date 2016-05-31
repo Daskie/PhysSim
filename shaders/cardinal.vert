@@ -29,7 +29,7 @@ void main(void) {
     mat3 viewMat = mat3(camera_viewMat);
     mat3 normViewMat = transpose(inverse(viewMat));
 
-    vec3 coords = viewMat * mat3(model_modelMat) * in_vertCoords - u_camLoc;
+    vec3 coords = viewMat * vec3(model_modelMat * vec4(in_vertCoords, 1.0f)) - u_camLoc;
 	gl_Position = camera_projMat * vec4(coords, 1.0f);
 	gl_Position.xy += u_screenPos * gl_Position.w;
 	v_to_f.vertCoords = coords;
