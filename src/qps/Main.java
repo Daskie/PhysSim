@@ -5,6 +5,7 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import qps.input_listeners.CursorListener;
 import qps.input_listeners.KeyListener;
+import qps.input_listeners.ScrollListener;
 import qps.window_listeners.WindowCloseListener;
 
 import java.nio.IntBuffer;
@@ -21,12 +22,15 @@ public abstract class Main {
 
     private static final Vec4 CLEAR_COLOR = new Vec4(0.9f, 0.9f, 0.9f, 1.0f);
     private static final int NO_IDENTITY = -1;
-    private static final float CAM_SPEED = 0.1f;
+    private static final float CAM_LATERAL_SPEED = 0.1f;
+    private static final float CAM_RADIAL_SPEED = 0.5f;
+    private static final float CAM_ANGULAR_SPEED = 0.1f;
+    private static final float CAM_RANGE = 50.0f;
 
     private static boolean running;
     private static Window window;
     private static FieldProgram fieldProgram;
-    private static Camera camera = new Camera();
+    private static Camera camera = new Camera(new Vec3(), CAM_RANGE, CAM_RANGE);
     private static ArrayList<IdentityListener> identities = new ArrayList<IdentityListener>();
     private static int currentIdentity = NO_IDENTITY;
 
@@ -215,12 +219,20 @@ public abstract class Main {
 
             @Override
             public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
-                if (dx <= 10) {
-                    camera.yaw(CAMERA_THETA_PER_PIXEL * (float) -dx);
+                if (window.mouseButtonState(0)) {
+                    camera.translate((new Vec3((float)dx, (float)dy, 0.0f)).mult(CAM_LATERAL_SPEED));
                 }
-                if (dy <= 10) {
+                if (window.mouseButtonState(1)) {
+                    camera.yaw(CAMERA_THETA_PER_PIXEL * (float) -dx);
                     camera.pitch(CAMERA_THETA_PER_PIXEL * (float) -dy);
                 }
+            }
+        });
+
+        window.inputHandler().addScrollListener(new ScrollListener() {
+            @Override
+            public void scrolled(double xScroll, double yScroll, InputHandler handler) {
+                camera.move((float)yScroll * CAM_RADIAL_SPEED);
             }
         });
 
@@ -243,22 +255,22 @@ public abstract class Main {
 
     private static void updateCamera(int t, int dt) {
         if (window.keyState(GLFW_KEY_W)) {
-            camera.translate(camera.forward().mult(CAM_SPEED));
+            camera.translate(camera.forward().mult(CAM_ANGULAR_SPEED));
         }
         if (window.keyState(GLFW_KEY_A)) {
-            camera.translate(camera.right().mult(-CAM_SPEED));
+            camera.translate(camera.right().mult(-CAM_ANGULAR_SPEED));
         }
         if (window.keyState(GLFW_KEY_S)) {
-            camera.translate(camera.forward().mult(-CAM_SPEED));
+            camera.translate(camera.forward().mult(-CAM_ANGULAR_SPEED));
         }
         if (window.keyState(GLFW_KEY_D)) {
-            camera.translate(camera.right().mult(CAM_SPEED));
+            camera.translate(camera.right().mult(CAM_ANGULAR_SPEED));
         }
         if (window.keyState(GLFW_KEY_SPACE)) {
-            camera.translate(Vec3.POSZ.mult(CAM_SPEED));
+            camera.translate(Vec3.POSZ.mult(CAM_ANGULAR_SPEED));
         }
         if (window.keyState(GLFW_KEY_LEFT_SHIFT)) {
-            camera.translate(Vec3.NEGZ.mult(CAM_SPEED));
+            camera.translate(Vec3.NEGZ.mult(CAM_ANGULAR_SPEED));
         }
 
         UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
