@@ -31,8 +31,9 @@ public class CardinalProgram extends ShaderProgram {
         u_screenPos = glGetUniformLocation(id, "u_screenPos");
         u_lightDir = glGetUniformLocation(id, "u_lightDir");
         u_id = glGetUniformLocation(id, "u_id");
+
         if (!Utils.checkGLErr()) {
-            System.err.println("Failed to get uniform locations for main shader program!");
+            System.err.println("Failed to initialize cardinal program!");
             return false;
         }
 

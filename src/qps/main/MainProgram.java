@@ -25,8 +25,9 @@ public class MainProgram extends ShaderProgram {
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "View"), UniformGlobals.ViewGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Light"), UniformGlobals.LightGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "ID"), UniformGlobals.IDGlobals.BINDING);
+
         if (!Utils.checkGLErr()) {
-            System.err.println("Failed to get uniform locations for main shader program!");
+            System.err.println("Failed to initialize main program!");
             return false;
         }
 

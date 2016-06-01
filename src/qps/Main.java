@@ -120,9 +120,7 @@ public abstract class Main {
     }
 
     private static boolean initOpenGL() {
-        int majVer = glGetInteger(GL_MAJOR_VERSION);
-        int minVer = glGetInteger(GL_MINOR_VERSION);
-        System.out.println("OpenGL Version: " + majVer + "." + minVer);
+        System.out.println("OpenGL version: " + glGetString(GL_VERSION));
 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glViewport(0, 0, window.width(), window.height());
@@ -202,14 +200,14 @@ public abstract class Main {
 
         //FieldScene.init();
 
-        MapScene.init();
-
         GridScene.init();
+
+        MapScene.init();
 
         CardinalScene.init();
 
         FBScene.init();
-        fb = FrameBuffer.createMain(window.width(), window.height(), CLEAR_COLOR, MULTISAMPLED, SAMPLES);
+        fb = FrameBuffer.createMainIdentity(window.width(), window.height(), CLEAR_COLOR, NO_IDENTITY, MULTISAMPLED, SAMPLES);
         FBScene.setTex(fb.colorBuffer(0));
 
         return true;
@@ -340,9 +338,9 @@ public abstract class Main {
 
         //FieldScene.draw();
 
-        //MapScene.draw();
-
         GridScene.draw();
+
+        MapScene.draw();
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -419,7 +417,7 @@ public abstract class Main {
 
             draw();
 
-            //identify();
+            identify();
         }
 
         if (!cleanup()) {

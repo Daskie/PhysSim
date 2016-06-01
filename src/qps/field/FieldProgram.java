@@ -36,8 +36,9 @@ public class FieldProgram extends ShaderProgram {
         u_fieldLoc = glGetUniformLocation(id, "u_fieldLoc");
         u_fieldSize = glGetUniformLocation(id, "u_fieldSize");
         u_fieldCount = glGetUniformLocation(id, "u_fieldCount");
+
         if (!Utils.checkGLErr()) {
-            System.err.println("Failed to get uniform locations for field shader program!");
+            System.err.println("Failed to initialize field program!");
             return false;
         }
 

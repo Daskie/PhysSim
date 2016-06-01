@@ -19,7 +19,7 @@ public class FBProgram extends ShaderProgram {
         if (!super.init()) return false;
 
         if (!Utils.checkGLErr()) {
-            System.err.println("Failed to get uniform locations for main shader program!");
+            System.err.println("Failed to initialize fb program!");
             return false;
         }
 
