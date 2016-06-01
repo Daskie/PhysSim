@@ -10,7 +10,7 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * @since 5/19/2016
  */
-public class InputHandler {
+public class InputManager {
 
     private Window window;
 
@@ -30,7 +30,7 @@ public class InputHandler {
     private LinkedList<ScrollListener> scrollListeners;
     private LinkedList<DropListener> dropListeners;
 
-    public InputHandler(Window window) {
+    public InputManager(Window window) {
         this.window = window;
 
         keyListeners = new LinkedList<KeyListener>();
@@ -97,19 +97,19 @@ public class InputHandler {
             switch (action) {
                 case GLFW_PRESS: {
                     for (KeyListener listener : keyListeners) {
-                        listener.keyPressed(key, false, shift, ctrl, alt, InputHandler.this);
+                        listener.keyPressed(key, false, shift, ctrl, alt, InputManager.this);
                     }
                     break;
                 }
                 case GLFW_REPEAT: {
                     for (KeyListener listener : keyListeners) {
-                        listener.keyPressed(key, true, shift, ctrl, alt, InputHandler.this);
+                        listener.keyPressed(key, true, shift, ctrl, alt, InputManager.this);
                     }
                     break;
                 }
                 case GLFW_RELEASE: {
                     for (KeyListener listener : keyListeners) {
-                        listener.keyReleased(key, shift, ctrl, alt, InputHandler.this);
+                        listener.keyReleased(key, shift, ctrl, alt, InputManager.this);
                     }
                     break;
                 }
@@ -125,7 +125,7 @@ public class InputHandler {
             boolean alt = (mods & GLFW_MOD_ALT) != 0;
 
             for (CharListener listener : charListeners) {
-                listener.charPressed((char)codepoint, shift, ctrl, alt, InputHandler.this);
+                listener.charPressed((char)codepoint, shift, ctrl, alt, InputManager.this);
             }
         }
     }
@@ -135,7 +135,7 @@ public class InputHandler {
         @Override
         public void invoke(long windowID, double x, double y) {
             for (CursorListener listener : cursorListeners) {
-                listener.cursorMoved(x, y, x - lastX, y - lastY, InputHandler.this);
+                listener.cursorMoved(x, y, x - lastX, y - lastY, InputManager.this);
             }
 
             lastX = x;
@@ -147,7 +147,7 @@ public class InputHandler {
         @Override
         public void invoke(long windowID, int entered) {
             for (EnterListener listener : enterListeners) {
-                listener.entered(InputHandler.this);
+                listener.entered(InputManager.this);
             }
         }
     }
@@ -161,12 +161,12 @@ public class InputHandler {
 
             if (action != GLFW_RELEASE) {
                 for (MouseListener listener : mouseListeners) {
-                    listener.mousePressed(button, shift, ctrl, alt, InputHandler.this);
+                    listener.mousePressed(button, shift, ctrl, alt, InputManager.this);
                 }
             }
             else {
                 for (MouseListener listener : mouseListeners) {
-                    listener.mouseReleased(button, shift, ctrl, alt, InputHandler.this);
+                    listener.mouseReleased(button, shift, ctrl, alt, InputManager.this);
                 }
             }
         }
@@ -176,7 +176,7 @@ public class InputHandler {
         @Override
         public void invoke(long windowID, double xOffset, double yOffset) {
             for (ScrollListener listener : scrollListeners) {
-                listener.scrolled(xOffset, yOffset, InputHandler.this);
+                listener.scrolled(xOffset, yOffset, InputManager.this);
             }
         }
     }
@@ -187,7 +187,7 @@ public class InputHandler {
             String[] filePaths = getNames(count, pathsPointer);
 
             for (DropListener listener : dropListeners) {
-                listener.dropped(filePaths, InputHandler.this);
+                listener.dropped(filePaths, InputManager.this);
             }
         }
     }

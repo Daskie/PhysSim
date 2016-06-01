@@ -1,14 +1,14 @@
 package qps.input_listeners;
 
-import qps.InputHandler;
+import qps.InputManager;
 
 /**
  * @since 5/20/2016
  */
 public interface MouseListener {
 
-    void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputHandler handler);
+    void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager);
 
-    void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputHandler handler);
+    void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager);
 
 }

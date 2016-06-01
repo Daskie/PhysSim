@@ -53,7 +53,7 @@ public class FieldScene {
 
         UniformGlobals.ModelGlobals.setModelMat(new Mat4());
         UniformGlobals.ModelGlobals.setNormMat(new Mat4());
-        UniformGlobals.buffer();
+        UniformGlobals.ModelGlobals.buffer();
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.arrowMesh.nIndices(), GL_UNSIGNED_INT, 0, xCount * yCount * zCount);
 
         glBindVertexArray(0);

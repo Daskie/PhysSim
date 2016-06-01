@@ -42,7 +42,7 @@ public abstract class MainScene {
 
         UniformGlobals.ModelGlobals.setModelMat(new Mat4());
         UniformGlobals.ModelGlobals.setNormMat(new Mat4());
-        UniformGlobals.buffer();
+        UniformGlobals.ModelGlobals.buffer();
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0, spheres.size());
 
         glBindVertexArray(0);
@@ -53,7 +53,7 @@ public abstract class MainScene {
         spheres.add(sphere);
         spheresVAO.bufferInstanceMat(spheres.size() - 1, new Mat4(sphere.modelMat()));
         spheresVAO.bufferInstanceCharge(spheres.size() - 1, sphere.getCharge());
-        int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1));
+        int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1), null, null);
         spheresVAO.bufferInstanceID(spheres.size() - 1, id);
         UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size());
         UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), sphere.getCharge());
@@ -68,18 +68,23 @@ public abstract class MainScene {
         }
 
         @Override
-        public void gained() {
+        public void gainedHover() {
 
         }
 
         @Override
-        public void has() {
+        public void lostHover() {
 
         }
 
         @Override
-        public void lost() {
+        public boolean gainedSelect() {
+            return true;
+        }
 
+        @Override
+        public boolean lostSelect() {
+            return true;
         }
     }
 

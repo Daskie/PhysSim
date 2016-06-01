@@ -11,7 +11,7 @@ import static org.lwjgl.glfw.GLFW.*;
 /**
  * @since 5/20/2016
  */
-public class WindowHandler {
+public class WindowManager {
 
     private Window window;
 
@@ -31,7 +31,7 @@ public class WindowHandler {
     private LinkedList<WindowFocusListener> focusListeners;
     private LinkedList<WindowRefreshListener> refreshListeners;
 
-    public WindowHandler(Window window) {
+    public WindowManager(Window window) {
         this.window = window;
 
         closeListeners = new LinkedList<WindowCloseListener>();
@@ -93,7 +93,7 @@ public class WindowHandler {
         @Override
         public void invoke(long windowID) {
             for (WindowCloseListener listener : closeListeners) {
-                listener.wantsToClose(WindowHandler.this);
+                listener.wantsToClose(WindowManager.this);
             }
         }
     }
@@ -102,7 +102,7 @@ public class WindowHandler {
         @Override
         public void invoke(long windowID, int width, int height) {
             for (WindowSizeListener listener : sizeListeners) {
-                listener.resized(width, height, WindowHandler.this);
+                listener.resized(width, height, WindowManager.this);
             }
         }
     }
@@ -111,7 +111,7 @@ public class WindowHandler {
         @Override
         public void invoke(long windowID, int width, int height) {
             for (FramebufferSizeListener listener : framebufferSizeListeners) {
-                listener.resized(width, height, WindowHandler.this);
+                listener.resized(width, height, WindowManager.this);
             }
         }
     }
@@ -120,7 +120,7 @@ public class WindowHandler {
         @Override
         public void invoke(long windowID, int xPos, int yPos) {
             for (WindowPosListener listener : posListeners) {
-                listener.moved(xPos, yPos, WindowHandler.this);
+                listener.moved(xPos, yPos, WindowManager.this);
             }
         }
     }
@@ -130,12 +130,12 @@ public class WindowHandler {
         public void invoke(long windowID, int iconified) {
             if (iconified != 0) {
                 for (WindowIconifyListener listener : iconifyListeners) {
-                    listener.minimized(WindowHandler.this);
+                    listener.minimized(WindowManager.this);
                 }
             }
             else {
                 for (WindowIconifyListener listener : iconifyListeners) {
-                    listener.maximized(WindowHandler.this);
+                    listener.maximized(WindowManager.this);
                 }
             }
         }
@@ -146,12 +146,12 @@ public class WindowHandler {
         public void invoke(long windowID, int focused) {
             if (focused != 0) {
                 for (WindowFocusListener listener : focusListeners) {
-                    listener.focusGained(WindowHandler.this);
+                    listener.focusGained(WindowManager.this);
                 }
             }
             else {
                 for (WindowFocusListener listener : focusListeners) {
-                    listener.focusLost(WindowHandler.this);
+                    listener.focusLost(WindowManager.this);
                 }
             }
         }
@@ -162,7 +162,7 @@ public class WindowHandler {
         @Override
         public void invoke(long windowID) {
             for (WindowRefreshListener listener : refreshListeners) {
-                listener.needsRefreshed(WindowHandler.this);
+                listener.needsRefreshed(WindowManager.this);
             }
         }
     }

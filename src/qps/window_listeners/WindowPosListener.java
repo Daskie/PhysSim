@@ -1,12 +1,12 @@
 package qps.window_listeners;
 
-import qps.WindowHandler;
+import qps.WindowManager;
 
 /**
  * @since 5/20/2016
  */
 public interface WindowPosListener {
 
-    void moved(int xPos, int yPos, WindowHandler handler);
+    void moved(int xPos, int yPos, WindowManager handler);
 
 }

@@ -1,12 +1,12 @@
 package qps.input_listeners;
 
-import qps.InputHandler;
+import qps.InputManager;
 
 /**
  * @since 5/20/2016
  */
 public interface DropListener {
 
-    void dropped(String[] filePaths, InputHandler handler);
+    void dropped(String[] filePaths, InputManager manager);
 
 }

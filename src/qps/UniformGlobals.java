@@ -211,15 +211,19 @@ public abstract class UniformGlobals {
     }
 
     public static class IDGlobals {
-        private static int selected;      //4
+        private static int hovored;         //4
+        private static int selected;        //8
 
-        public static final int SIZE = 4;
+        public static final int SIZE = 8;
         public static final int BINDING = nextBinding();
 
         static boolean needsBuffered;
 
         public static void buffer() {
-            idGroup.data.putInt(0, selected);
+            idGroup.data.clear();
+            idGroup.data.putInt(hovored);
+            idGroup.data.putInt(selected);
+            idGroup.data.flip();
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
             glBufferSubData(GL_UNIFORM_BUFFER, idGroup.offset, SIZE, idGroup.data);
@@ -228,6 +232,7 @@ public abstract class UniformGlobals {
             needsBuffered = false;
         }
 
+        public static void setHoveredID(int hoveredID) { IDGlobals.hovored = hoveredID; needsBuffered = true; }
         public static void setSelectedID(int selectedID) { IDGlobals.selected = selectedID; needsBuffered = true; }
     }
 

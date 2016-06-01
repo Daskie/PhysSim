@@ -5,7 +5,6 @@ import qps.input_listeners.*;
 import qps.window_listeners.*;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.BufferUtils.*;
@@ -16,8 +15,8 @@ import static org.lwjgl.BufferUtils.*;
 public class Window {
 
     private long id;
-    private WindowHandler windowHandler;
-    private InputHandler inputHandler;
+    private WindowManager windowManager;
+    private InputManager inputManager;
 
     private int width, height;
     private int framebufferWidth, framebufferHeight;
@@ -70,25 +69,25 @@ public class Window {
         mouseY = buffer2.getDouble(0);
         mouseButtonStates = new boolean[GLFW_MOUSE_BUTTON_LAST + 1];
 
-        windowHandler = new WindowHandler(this);
+        windowManager = new WindowManager(this);
         WindowListener windowListener = new WindowListener();
-        windowHandler.addWindowCloseListener(windowListener);
-        windowHandler.addWindowSizeListener(windowListener);
-        windowHandler.addFramebufferSizeListener(windowListener);
-        windowHandler.addWindowPosListener(windowListener);
-        windowHandler.addWindowIconifyListener(windowListener);
-        windowHandler.addWindowFocusListener(windowListener);
-        windowHandler.addWindowRefreshListener(windowListener);
+        windowManager.addWindowCloseListener(windowListener);
+        windowManager.addWindowSizeListener(windowListener);
+        windowManager.addFramebufferSizeListener(windowListener);
+        windowManager.addWindowPosListener(windowListener);
+        windowManager.addWindowIconifyListener(windowListener);
+        windowManager.addWindowFocusListener(windowListener);
+        windowManager.addWindowRefreshListener(windowListener);
 
-        inputHandler = new InputHandler(this);
+        inputManager = new InputManager(this);
         InputListener inputListener = new InputListener();
-        inputHandler.addKeyListener(inputListener);
-        inputHandler.addCharListener(inputListener);
-        inputHandler.addCursorListener(inputListener);
-        inputHandler.addEnterListener(inputListener);
-        inputHandler.addMouseListener(inputListener);
-        inputHandler.addScrollListener(inputListener);
-        inputHandler.addDropListener(inputListener);
+        inputManager.addKeyListener(inputListener);
+        inputManager.addCharListener(inputListener);
+        inputManager.addCursorListener(inputListener);
+        inputManager.addEnterListener(inputListener);
+        inputManager.addMouseListener(inputListener);
+        inputManager.addScrollListener(inputListener);
+        inputManager.addDropListener(inputListener);
     }
 
     public void setCurrent() {
@@ -100,8 +99,8 @@ public class Window {
     }
 
     public void cleanup() {
-        windowHandler.cleanup();
-        inputHandler.cleanup();
+        windowManager.cleanup();
+        inputManager.cleanup();
         glfwDestroyWindow(id);
     }
 
@@ -145,54 +144,54 @@ public class Window {
         return mouseButtonStates[button];
     }
 
-    public WindowHandler windowHandler() {
-        return windowHandler;
+    public WindowManager windowHandler() {
+        return windowManager;
     }
 
-    public InputHandler inputHandler() {
-        return inputHandler;
+    public InputManager inputHandler() {
+        return inputManager;
     }
 
     private class WindowListener implements WindowCloseListener, WindowSizeListener, FramebufferSizeListener, WindowPosListener, WindowIconifyListener, WindowFocusListener, WindowRefreshListener {
 
         @Override
-        public void wantsToClose(WindowHandler handler) {
+        public void wantsToClose(WindowManager handler) {
 
         }
 
         @Override
-        public void focusGained(WindowHandler handler) {
+        public void focusGained(WindowManager handler) {
             focused = true;
         }
 
         @Override
-        public void focusLost(WindowHandler handler) {
+        public void focusLost(WindowManager handler) {
             focused = false;
         }
 
         @Override
-        public void minimized(WindowHandler handler) {
+        public void minimized(WindowManager handler) {
             iconified = true;
         }
 
         @Override
-        public void maximized(WindowHandler handler) {
+        public void maximized(WindowManager handler) {
             iconified = false;
         }
 
         @Override
-        public void moved(int xPos, int yPos, WindowHandler handler) {
+        public void moved(int xPos, int yPos, WindowManager handler) {
             Window.this.xPos = xPos;
             Window.this.yPos = yPos;
         }
 
         @Override
-        public void needsRefreshed(WindowHandler handler) {
+        public void needsRefreshed(WindowManager handler) {
 
         }
 
         @Override
-        public void resized(int width, int height, WindowHandler handler) {
+        public void resized(int width, int height, WindowManager handler) {
             Window.this.width = width;
             Window.this.height = height;
         }
@@ -201,53 +200,53 @@ public class Window {
     private class InputListener implements KeyListener, CharListener, CursorListener, EnterListener, MouseListener, ScrollListener, DropListener {
 
         @Override
-        public void charPressed(char c, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+        public void charPressed(char c, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
 
         }
 
         @Override
-        public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
+        public void cursorMoved(double x, double y, double dx, double dy, InputManager manager) {
             mouseX = x;
             mouseY = y;
         }
 
         @Override
-        public void dropped(String[] filePaths, InputHandler handler) {
+        public void dropped(String[] filePaths, InputManager manager) {
 
         }
 
         @Override
-        public void entered(InputHandler handler) {
+        public void entered(InputManager manager) {
             cursorPresent = true;
         }
 
         @Override
-        public void exited(InputHandler handler) {
+        public void exited(InputManager manager) {
             cursorPresent = false;
         }
 
         @Override
-        public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+        public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
             keyStates[key] = true;
         }
 
         @Override
-        public void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+        public void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
             keyStates[key] = false;
         }
 
         @Override
-        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
             mouseButtonStates[button] = true;
         }
 
         @Override
-        public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+        public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
             mouseButtonStates[button] = false;
         }
 
         @Override
-        public void scrolled(double xScroll, double yScroll, InputHandler handler) {
+        public void scrolled(double xScroll, double yScroll, InputManager manager) {
 
         }
     }

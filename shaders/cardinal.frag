@@ -11,6 +11,7 @@ layout (location = 0) out vec4 out_color;
 layout (location = 1) out int out_id;
 
 layout (std140) uniform ID {
+    int id_hovored;
     int id_selected;
 };
 
@@ -40,7 +41,10 @@ void main(void) {
 	out_color.rgb = (ambientCol + diffuseCol + specularCol);
 	out_color.a = v_to_f.vertColor.a;
 
-    float highlight = step(0, id_selected) * 0.25f * (1.0f - abs(sign(u_id - id_selected)));
+    float hovored = step(0, id_hovored) * (1.0f - abs(sign(u_id - id_hovored)));
+    float selected = step(0, id_selected) * (1.0f - abs(sign(u_id - id_selected)));
+    float highlight = mix(hovored * 0.25, selected * -0.25, selected);
+
     out_color.rgb += highlight;
 
 	out_id = u_id;

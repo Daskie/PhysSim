@@ -29,6 +29,7 @@ layout (std140) uniform Light {
 };
 
 layout (std140) uniform ID {
+    int id_hovored;
     int id_selected;
 };
 
@@ -53,7 +54,10 @@ void main(void) {
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
 
-    float highlight = step(0, id_selected) * 0.25f * (1.0f - abs(sign(v_to_f.instanceID - id_selected)));
+    float hovored = step(0, id_hovored) * (1.0f - abs(sign(v_to_f.instanceID - id_hovored)));
+    float selected = step(0, id_selected) * (1.0f - abs(sign(v_to_f.instanceID - id_selected)));
+    float highlight = mix(hovored * 0.25, selected * -0.25, selected);
+
     out_color.rgb += highlight;
 
 	out_color.a = v_to_f.vertColor.a;

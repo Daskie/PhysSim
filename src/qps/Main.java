@@ -3,9 +3,7 @@ package qps;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import qps.input_listeners.CursorListener;
-import qps.input_listeners.KeyListener;
-import qps.input_listeners.ScrollListener;
+import qps.input_listeners.*;
 import qps.window_listeners.WindowCloseListener;
 
 import java.nio.IntBuffer;
@@ -32,8 +30,11 @@ public abstract class Main {
     private static Window window;
     private static FieldProgram fieldProgram;
     private static Camera camera = new Camera(new Vec3(), 10.0f, CAM_RANGE, CAM_RANGE);
-    private static ArrayList<IdentityListener> identities = new ArrayList<IdentityListener>();
-    private static int currentIdentity = NO_IDENTITY;
+    private static ArrayList<IdentityListener> identityListeners = new ArrayList<IdentityListener>();
+    private static ArrayList<InputAdapter> identityHoveredAdapters = new ArrayList<InputAdapter>();
+    private static ArrayList<InputAdapter> identitySelectedAdapters = new ArrayList<InputAdapter>();
+    private static int hovoredID = NO_IDENTITY;
+    private static int selectedID = NO_IDENTITY;
 
     private static IntBuffer attachmentsBuffer;
     private static IntBuffer identityBuffer;
@@ -50,9 +51,11 @@ public abstract class Main {
 
     private static FrameBuffer fb;
 
-    public static int registerIdentity(IdentityListener identityListener) {
-        identities.add(identityListener);
-        return identities.size() - 1;
+    public static int registerIdentity(IdentityListener identityListener, InputAdapter hoveredAdapter, InputAdapter selectedAdapter) {
+        identityListeners.add(identityListener);
+        identityHoveredAdapters.add(hoveredAdapter);
+        identitySelectedAdapters.add(selectedAdapter);
+        return identityListeners.size() - 1;
     }
 
 
@@ -166,6 +169,7 @@ public abstract class Main {
         UniformGlobals.EThresholdGlobals.setMinMagE(minMagE);
         UniformGlobals.EThresholdGlobals.setMaxMagE(maxMagE);
 
+        UniformGlobals.IDGlobals.setHoveredID(NO_IDENTITY);
         UniformGlobals.IDGlobals.setSelectedID(NO_IDENTITY);
 
         UniformGlobals.buffer();
@@ -199,21 +203,53 @@ public abstract class Main {
     private static boolean initInput() {
         window.windowHandler().addWindowCloseListener(new WindowCloseListener() {
             @Override
-            public void wantsToClose(WindowHandler handler) {
+            public void wantsToClose(WindowManager handler) {
                 running = false;
             }
         });
 
         window.inputHandler().addKeyListener(new KeyListener() {
             @Override
-            public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+            public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
                 switch (key) {
 
                 }
             }
 
             @Override
-            public void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler) {
+            public void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+
+            }
+        });
+
+        window.inputHandler().addMouseListener(new MouseListener() {
+            @Override
+            public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+                if (button == 0) {
+                    if (hovoredID != selectedID) {
+                        //System.out.println(selectedID);
+                        if (hovoredID != NO_IDENTITY) {
+                            if (identityListeners.get(hovoredID).gainedSelect()) {
+                                selectedID = hovoredID;
+                            }
+                        }
+                        else if (identityListeners.get(selectedID).lostSelect()) {
+                            selectedID = NO_IDENTITY;
+                        }
+                        UniformGlobals.IDGlobals.setSelectedID(selectedID);
+                        UniformGlobals.IDGlobals.buffer();
+                    }
+                }
+                if (hovoredID != NO_IDENTITY && identityHoveredAdapters.get(hovoredID) != null) {
+                    identityHoveredAdapters.get(hovoredID).mousePressed(button, shift, ctrl, alt, manager);
+                }
+                if (selectedID != NO_IDENTITY && identitySelectedAdapters.get(selectedID) != null) {
+                    identitySelectedAdapters.get(selectedID).mousePressed(button, shift, ctrl, alt, manager);
+                }
+            }
+
+            @Override
+            public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
 
             }
         });
@@ -222,7 +258,7 @@ public abstract class Main {
             private static final float CAMERA_THETA_PER_PIXEL = 0.01f;
 
             @Override
-            public void cursorMoved(double x, double y, double dx, double dy, InputHandler handler) {
+            public void cursorMoved(double x, double y, double dx, double dy, InputManager manager) {
                 if (window.mouseButtonState(0)) {
                     Vec3 vec = (new Vec3((float)dx, (float)-dy, 0.0f)).mult(camera.distance() * CAM_LATERAL_SPEED);
                     Mat3 mapMat = Mat3.mapFrom(camera.right(), camera.up(), camera.forward());
@@ -237,7 +273,7 @@ public abstract class Main {
 
         window.inputHandler().addScrollListener(new ScrollListener() {
             @Override
-            public void scrolled(double xScroll, double yScroll, InputHandler handler) {
+            public void scrolled(double xScroll, double yScroll, InputManager manager) {
                 camera.move((float)-yScroll * camera.distance() * CAM_RADIAL_SPEED);
             }
         });
@@ -304,21 +340,18 @@ public abstract class Main {
 
         glReadPixels((int)window.mouseXGL(), (int)window.mouseYGL(), 1, 1, GL_RED_INTEGER, GL_INT, identityBuffer);
 
-        int oldIdentity = currentIdentity;
-        currentIdentity = identityBuffer.get(0);
-        if (currentIdentity != oldIdentity) {
-            //System.out.println(currentIdentity);
-            if (oldIdentity != NO_IDENTITY) {
-                identities.get(oldIdentity).lost();
+        int oldHovoredID = hovoredID;
+        hovoredID = identityBuffer.get(0);
+        if (hovoredID != oldHovoredID) {
+            //System.out.println(hovoredID);
+            if (oldHovoredID != NO_IDENTITY) {
+                identityListeners.get(oldHovoredID).lostHover();
             }
-            if (currentIdentity != NO_IDENTITY) {
-                identities.get(currentIdentity).gained();
+            if (hovoredID != NO_IDENTITY) {
+                identityListeners.get(hovoredID).gainedHover();
             }
         }
-        if (currentIdentity != NO_IDENTITY) {
-            identities.get(currentIdentity).has();
-        }
-        UniformGlobals.IDGlobals.setSelectedID(currentIdentity);
+        UniformGlobals.IDGlobals.setHoveredID(hovoredID);
 
         glReadBuffer(GL_COLOR_ATTACHMENT0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -359,4 +392,5 @@ public abstract class Main {
             System.exit(-1);
         }
     }
+
 }

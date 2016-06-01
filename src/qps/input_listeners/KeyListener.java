@@ -1,14 +1,14 @@
 package qps.input_listeners;
 
-import qps.InputHandler;
+import qps.InputManager;
 
 /**
  * @since 5/20/2016
  */
 public interface KeyListener {
 
-    void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputHandler handler);
+    void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputManager manager);
 
-    void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputHandler handler);
+    void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputManager manager);
 
 }

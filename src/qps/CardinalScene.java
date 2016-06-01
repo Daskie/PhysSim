@@ -1,5 +1,7 @@
 package qps;
 
+import qps.input_listeners.InputAdapter;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL20.glUseProgram;
@@ -99,20 +101,20 @@ public abstract class CardinalScene {
         pzSlideNormMat = new Mat4(pzSlideMat.inv().trans());
         nzSlideNormMat = new Mat4(nzSlideMat.inv().trans());
 
-        SlideIdentityListener slideIL = new SlideIdentityListener();
-        pxSlideID = Main.registerIdentity(slideIL);
-        nxSlideID = Main.registerIdentity(slideIL);
-        pySlideID = Main.registerIdentity(slideIL);
-        nySlideID = Main.registerIdentity(slideIL);
-        pzSlideID = Main.registerIdentity(slideIL);
-        nzSlideID = Main.registerIdentity(slideIL);
-        StepIdentityListener stepIL = new StepIdentityListener();
-        pxStepID = Main.registerIdentity(stepIL);
-        nxStepID = Main.registerIdentity(stepIL);
-        pyStepID = Main.registerIdentity(stepIL);
-        nyStepID = Main.registerIdentity(stepIL);
-        pzStepID = Main.registerIdentity(stepIL);
-        nzStepID = Main.registerIdentity(stepIL);
+        SlideListener slideIL = new SlideListener();
+        pxSlideID = Main.registerIdentity(slideIL, slideIL, null);
+        nxSlideID = Main.registerIdentity(slideIL, slideIL, null);
+        pySlideID = Main.registerIdentity(slideIL, slideIL, null);
+        nySlideID = Main.registerIdentity(slideIL, slideIL, null);
+        pzSlideID = Main.registerIdentity(slideIL, slideIL, null);
+        nzSlideID = Main.registerIdentity(slideIL, slideIL, null);
+        StepListener stepIL = new StepListener();
+        pxStepID = Main.registerIdentity(stepIL, slideIL, null);
+        nxStepID = Main.registerIdentity(stepIL, slideIL, null);
+        pyStepID = Main.registerIdentity(stepIL, slideIL, null);
+        nyStepID = Main.registerIdentity(stepIL, slideIL, null);
+        pzStepID = Main.registerIdentity(stepIL, slideIL, null);
+        nzStepID = Main.registerIdentity(stepIL, slideIL, null);
 
         return true;
     }
@@ -212,39 +214,54 @@ public abstract class CardinalScene {
         glUseProgram(0);
     }
 
-    private static class SlideIdentityListener implements IdentityListener {
+    private static class SlideListener extends InputAdapter implements IdentityListener {
 
         @Override
-        public void gained() {
+        public void gainedHover() {
 
         }
 
         @Override
-        public void has() {
+        public void lostHover() {
 
         }
 
         @Override
-        public void lost() {
+        public boolean gainedSelect() {
+            return true;
+        }
 
+        @Override
+        public boolean lostSelect() {
+            return true;
+        }
+
+        @Override
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            System.out.println("wow");
         }
     }
 
-    private static class StepIdentityListener implements IdentityListener {
+    private static class StepListener extends InputAdapter implements IdentityListener {
 
         @Override
-        public void gained() {
+        public void gainedHover() {
 
         }
 
         @Override
-        public void has() {
+        public void lostHover() {
 
         }
 
         @Override
-        public void lost() {
+        public boolean gainedSelect() {
+            return false;
+        }
 
+        @Override
+        public boolean lostSelect() {
+            return true;
         }
     }
 }

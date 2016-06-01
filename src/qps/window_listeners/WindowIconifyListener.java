@@ -1,14 +1,14 @@
 package qps.window_listeners;
 
-import qps.WindowHandler;
+import qps.WindowManager;
 
 /**
  * @since 5/20/2016
  */
 public interface WindowIconifyListener {
 
-    void minimized(WindowHandler handler);
+    void minimized(WindowManager handler);
 
-    void maximized(WindowHandler handler);
+    void maximized(WindowManager handler);
 
 }

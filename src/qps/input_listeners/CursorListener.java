@@ -1,12 +1,12 @@
 package qps.input_listeners;
 
-import qps.InputHandler;
+import qps.InputManager;
 
 /**
  * @since 5/20/2016
  */
 public interface CursorListener {
 
-    void cursorMoved(double x, double y, double dx, double dy, InputHandler handler);
+    void cursorMoved(double x, double y, double dx, double dy, InputManager manager);
 
 }
