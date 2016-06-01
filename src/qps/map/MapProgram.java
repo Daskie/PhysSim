@@ -1,4 +1,8 @@
-package qps;
+package qps.map;
+
+import qps.ShaderProgram;
+import qps.UniformGlobals;
+import qps.Utils;
 
 import static org.lwjgl.opengl.GL31.glGetUniformBlockIndex;
 import static org.lwjgl.opengl.GL31.glUniformBlockBinding;

@@ -1,4 +1,6 @@
-package qps;
+package qps.cardinal;
+
+import qps.*;
 
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL31.glGetUniformBlockIndex;

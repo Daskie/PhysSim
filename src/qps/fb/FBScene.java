@@ -1,4 +1,8 @@
-package qps;
+package qps.fb;
+
+import qps.MeshManager;
+import qps.Utils;
+import qps.VAO;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
@@ -25,6 +29,11 @@ public abstract class FBScene {
         texID = 0;
 
         squareVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, GL_STATIC_DRAW);
+
+        if (!Utils.checkGLErr()) {
+            System.err.println("Failed to initialize fb scene!");
+            return false;
+        }
 
         return true;
     }

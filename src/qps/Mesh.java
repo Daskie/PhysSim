@@ -1,15 +1,6 @@
 package qps;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
-import static org.lwjgl.BufferUtils.createFloatBuffer;
-import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL33.*;
 
 /**
  * @since 5/17/2016
@@ -41,46 +32,46 @@ public class Mesh {
         this.indicesData = indicesData;
     }
 
-    boolean hasCoords() {
+    public boolean hasCoords() {
         return coordsData != null;
     }
 
-    boolean hasColors() {
+    public boolean hasColors() {
         return colorsData != null;
     }
 
-    boolean hasUVs() {
+    public boolean hasUVs() {
         return uvsData != null;
     }
 
-    boolean hasNorms() {
+    public boolean hasNorms() {
         return normsData != null;
     }
     int nVerts() {
         return nVerts;
     }
 
-    int nIndices() {
+    public int nIndices() {
         return nIndices;
     }
 
-    ByteBuffer coordsData() {
+    public ByteBuffer coordsData() {
         return coordsData;
     }
 
-    ByteBuffer colorsData() {
+    public ByteBuffer colorsData() {
         return colorsData;
     }
 
-    ByteBuffer uvsData() {
+    public ByteBuffer uvsData() {
         return uvsData;
     }
 
-    ByteBuffer normsData() {
+    public ByteBuffer normsData() {
         return normsData;
     }
 
-    ByteBuffer indicesData() {
+    public ByteBuffer indicesData() {
         return indicesData;
     }
 

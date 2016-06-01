@@ -23,11 +23,11 @@ public class ChargedObject extends Entity {
         this.charge = charge;
     }
 
-    float getCharge() {
+    public float getCharge() {
         return charge;
     }
 
-    void setCharge(float charge) {
+    public void setCharge(float charge) {
         this.charge = charge;
     }
 

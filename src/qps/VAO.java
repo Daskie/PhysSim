@@ -281,11 +281,11 @@ public class VAO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }*/
 
-    void bufferInstanceMat(int i, Mat4 mat) {
+    public void bufferInstanceMat(int i, Mat4 mat) {
         bufferInstanceMats(i, 1, new Mat4[]{ mat });
     }
 
-    void bufferInstanceMats(int i, int n, Mat4[] mats) {
+    public void bufferInstanceMats(int i, int n, Mat4[] mats) {
         buffer.clear();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -302,11 +302,11 @@ public class VAO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    void bufferInstanceCharge(int i, float charge) {
+    public void bufferInstanceCharge(int i, float charge) {
         bufferInstanceCharges(i, 1, new float[]{ charge });
     }
 
-    void bufferInstanceCharges(int i, int n, float[] charges) {
+    public void bufferInstanceCharges(int i, int n, float[] charges) {
         buffer.clear();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -323,11 +323,11 @@ public class VAO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    void bufferInstanceID(int i, int id) {
+    public void bufferInstanceID(int i, int id) {
         bufferInstanceIDs(i, 1, new int[]{ id });
     }
 
-    void bufferInstanceIDs(int i, int n, int[] ids) {
+    public void bufferInstanceIDs(int i, int n, int[] ids) {
         buffer.clear();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);

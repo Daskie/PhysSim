@@ -1,4 +1,9 @@
-package qps;
+package qps.field;
+
+import qps.ShaderProgram;
+import qps.UniformGlobals;
+import qps.Utils;
+import qps.Vec3;
 
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL31.glGetUniformBlockIndex;

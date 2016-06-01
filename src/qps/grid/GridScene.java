@@ -1,31 +1,41 @@
-package qps;
+package qps.grid;
+
+import qps.*;
+import qps.map.MapProgram;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 /**
- * @since 5/28/2016
+ * @since 5/31/2016
  */
-public abstract class MapScene {
+public abstract class GridScene {
 
-    private static MapProgram program;
+    private static GridProgram program;
     private static VAO planeVAO;
 
     private static Vec4 plane;
     private static Mat4 modelMat;
+    private static int divisions;
 
     public static boolean init() {
-        program = new MapProgram();
+        program = new GridProgram();
         program.init();
 
         planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, GL_STREAM_DRAW);
 
         plane = new Vec4();
-        modelMat = new Mat4(Mat3.scale(1000.0f));
+        modelMat = new Mat4(Mat3.scale(500.0f));
+        divisions = 1000;
+
+        program.setDivisions(divisions);
+
+        if (!Utils.checkGLErr()) {
+            System.err.println("Failed to initialize grid scene!");
+            return false;
+        }
 
         return true;
     }
@@ -49,4 +59,5 @@ public abstract class MapScene {
         glBindVertexArray(0);
         glUseProgram(0);
     }
+
 }

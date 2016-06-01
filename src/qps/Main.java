@@ -3,7 +3,14 @@ package qps;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
+import qps.cardinal.CardinalScene;
+import qps.fb.FBScene;
+import qps.field.FieldProgram;
+import qps.field.FieldScene;
+import qps.grid.GridScene;
 import qps.input_listeners.*;
+import qps.main.MainScene;
+import qps.map.MapScene;
 import qps.window_listeners.WindowCloseListener;
 
 import java.nio.IntBuffer;
@@ -191,6 +198,8 @@ public abstract class Main {
 
         MapScene.init();
 
+        GridScene.init();
+
         CardinalScene.init();
 
         FBScene.init();
@@ -298,6 +307,8 @@ public abstract class Main {
 
         MapScene.update(t, dt);
 
+        GridScene.update(t, dt);
+
         CardinalScene.update(t, dt);
 
         FBScene.update(t, dt);
@@ -323,7 +334,9 @@ public abstract class Main {
 
         //FieldScene.draw();
 
-        MapScene.draw();
+        //MapScene.draw();
+
+        GridScene.draw();
 
         glClear(GL_DEPTH_BUFFER_BIT);
 

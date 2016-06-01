@@ -1,5 +1,7 @@
 package qps;
 
+import qps.*;
+
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 

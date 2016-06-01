@@ -1,4 +1,7 @@
-package qps;
+package qps.fb;
+
+import qps.ShaderProgram;
+import qps.Utils;
 
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 

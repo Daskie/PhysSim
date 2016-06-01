@@ -1,4 +1,6 @@
-package qps;
+package qps.main;
+
+import qps.*;
 
 import java.util.ArrayList;
 
@@ -27,6 +29,11 @@ public abstract class MainScene {
         spheres = new ArrayList<ChargedSphere>(MAX_SPHERES);
         spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, null, null, GL_STREAM_DRAW);
         selectedIndex = Main.NO_IDENTITY;
+
+        if (!Utils.checkGLErr()) {
+            System.err.println("Failed to initialize main scene!");
+            return false;
+        }
 
         return true;
     }

@@ -1,9 +1,9 @@
-package qps;
+package qps.main;
 
-import java.nio.FloatBuffer;
+import qps.ShaderProgram;
+import qps.UniformGlobals;
+import qps.Utils;
 
-import static org.lwjgl.BufferUtils.createFloatBuffer;
-import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL31.glGetUniformBlockIndex;
 import static org.lwjgl.opengl.GL31.glUniformBlockBinding;
 
