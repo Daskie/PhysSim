@@ -5,12 +5,12 @@ package qps;
  */
 public interface IdentityListener {
 
-    void gainedHover();
+    void gainedHover(int id);
 
-    void lostHover();
+    void lostHover(int id);
 
-    boolean gainedSelect();
+    boolean gainedSelect(int id);
 
-    boolean lostSelect();
+    boolean lostSelect(int id);
 
 }

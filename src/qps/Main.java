@@ -229,11 +229,11 @@ public abstract class Main {
                     if (hovoredID != selectedID) {
                         //System.out.println(selectedID);
                         if (hovoredID != NO_IDENTITY) {
-                            if (identityListeners.get(hovoredID).gainedSelect()) {
+                            if (identityListeners.get(hovoredID).gainedSelect(hovoredID)) {
                                 selectedID = hovoredID;
                             }
                         }
-                        else if (identityListeners.get(selectedID).lostSelect()) {
+                        else if (identityListeners.get(selectedID).lostSelect(selectedID)) {
                             selectedID = NO_IDENTITY;
                         }
                         UniformGlobals.IDGlobals.setSelectedID(selectedID);
@@ -345,10 +345,10 @@ public abstract class Main {
         if (hovoredID != oldHovoredID) {
             //System.out.println(hovoredID);
             if (oldHovoredID != NO_IDENTITY) {
-                identityListeners.get(oldHovoredID).lostHover();
+                identityListeners.get(oldHovoredID).lostHover(oldHovoredID);
             }
             if (hovoredID != NO_IDENTITY) {
-                identityListeners.get(hovoredID).gainedHover();
+                identityListeners.get(hovoredID).gainedHover(hovoredID);
             }
         }
         UniformGlobals.IDGlobals.setHoveredID(hovoredID);

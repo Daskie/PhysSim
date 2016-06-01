@@ -13,6 +13,9 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
  */
 public abstract class CardinalScene {
 
+    private static final float SLIDE_SPEED = 0.1f;
+    private static final float STEP_SPEED = 1.0f;
+
     private static CardinalProgram program;
     private static VAO axesVAO;
     private static VAO coneVAO;
@@ -109,12 +112,12 @@ public abstract class CardinalScene {
         pzSlideID = Main.registerIdentity(slideIL, slideIL, null);
         nzSlideID = Main.registerIdentity(slideIL, slideIL, null);
         StepListener stepIL = new StepListener();
-        pxStepID = Main.registerIdentity(stepIL, slideIL, null);
-        nxStepID = Main.registerIdentity(stepIL, slideIL, null);
-        pyStepID = Main.registerIdentity(stepIL, slideIL, null);
-        nyStepID = Main.registerIdentity(stepIL, slideIL, null);
-        pzStepID = Main.registerIdentity(stepIL, slideIL, null);
-        nzStepID = Main.registerIdentity(stepIL, slideIL, null);
+        pxStepID = Main.registerIdentity(stepIL, stepIL, null);
+        nxStepID = Main.registerIdentity(stepIL, stepIL, null);
+        pyStepID = Main.registerIdentity(stepIL, stepIL, null);
+        nyStepID = Main.registerIdentity(stepIL, stepIL, null);
+        pzStepID = Main.registerIdentity(stepIL, stepIL, null);
+        nzStepID = Main.registerIdentity(stepIL, stepIL, null);
 
         return true;
     }
@@ -216,52 +219,73 @@ public abstract class CardinalScene {
 
     private static class SlideListener extends InputAdapter implements IdentityListener {
 
-        @Override
-        public void gainedHover() {
+        private int currentID = Main.NO_IDENTITY;
 
+        @Override
+        public void gainedHover(int id) {
+            currentID = id;
         }
 
         @Override
-        public void lostHover() {
-
+        public void lostHover(int id) {
+            currentID = Main.NO_IDENTITY;
         }
 
         @Override
-        public boolean gainedSelect() {
-            return true;
+        public boolean gainedSelect(int id) {
+            return false;
         }
 
         @Override
-        public boolean lostSelect() {
+        public boolean lostSelect(int id) {
             return true;
         }
 
         @Override
         public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
-            System.out.println("wow");
+            Vec3 delta = new Vec3();
+            switch (currentID) {
+                //case pxSlideID: delta.x += SLIDE_SPEED;
+            }
         }
     }
 
     private static class StepListener extends InputAdapter implements IdentityListener {
 
-        @Override
-        public void gainedHover() {
+        private int currentID = Main.NO_IDENTITY;
 
+        @Override
+        public void gainedHover(int id) {
+            currentID = id;
         }
 
         @Override
-        public void lostHover() {
-
+        public void lostHover(int id) {
+            currentID = Main.NO_IDENTITY;
         }
 
         @Override
-        public boolean gainedSelect() {
+        public boolean gainedSelect(int id) {
             return false;
         }
 
         @Override
-        public boolean lostSelect() {
+        public boolean lostSelect(int id) {
             return true;
+        }
+
+        @Override
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            Vec3 delta = new Vec3();
+
+            if (currentID == pxStepID) delta.x += STEP_SPEED;
+            else if (currentID == nxStepID) delta.x -= STEP_SPEED;
+            else if (currentID == pyStepID) delta.y += STEP_SPEED;
+            else if (currentID == nyStepID) delta.y -= STEP_SPEED;
+            else if (currentID == pzStepID) delta.z += STEP_SPEED;
+            else if (currentID == nzStepID) delta.z -= STEP_SPEED;
+
+            MainScene.moveSphere(delta);
         }
     }
 }
