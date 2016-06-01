@@ -31,7 +31,6 @@ public class Window {
 
     public Window(int width, int height) {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-        //glfwWindowHint(GLFW_SAMPLES, 8);
 
         id = glfwCreateWindow(width, height, "Hello World!", 0, 0);
         if (id == 0) {

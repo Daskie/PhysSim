@@ -6,13 +6,15 @@ import static org.lwjgl.BufferUtils.createByteBuffer;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL32.GL_TEXTURE_2D_MULTISAMPLE;
+import static org.lwjgl.opengl.GL32.glTexImage2DMultisample;
 
 /**
  * @since 5/29/2016
  */
 public class FrameBuffer {
 
-    public static FrameBuffer creatMain(int width, int height, Vec4 clearColor) {
+    public static FrameBuffer createMain(int width, int height, Vec4 clearColor, boolean multisampled, int samples) {
         AttachmentFormat af = new AttachmentFormat(
                 1,
                 new EssentialDataType[]{ EssentialDataType.UINT },
@@ -31,14 +33,14 @@ public class FrameBuffer {
         TextureFormat dstf = new TextureFormat(false, GL_NEAREST, GL_NEAREST, GL_CLAMP_TO_EDGE);
 
         ByteBuffer cb = createByteBuffer(16);
-        cb.putInt(Math.round(clearColor.x * 255)).putInt(Math.round(clearColor.y * 255)).putInt(Math.round(clearColor.z * 255)).putInt(Math.round(clearColor.w * 255));
+        cb.putFloat(clearColor.x).putFloat(clearColor.y).putFloat(clearColor.z).putFloat(clearColor.w);
         cb.flip();
         ClearFormat cf = new ClearFormat(new ByteBuffer[]{ cb }, 1.0f, 0);
 
-        return new FrameBuffer(width, height, af, ctfs, dstf, cf);
+        return new FrameBuffer(width, height, af, ctfs, dstf, cf, multisampled, samples);
     }
 
-    public static FrameBuffer createMainIdentity(int width, int height, Vec4 clearColor, int clearIdentity) {
+    public static FrameBuffer createMainIdentity(int width, int height, Vec4 clearColor, int clearIdentity, boolean multisampled, int samples) {
         AttachmentFormat af = new AttachmentFormat(
                 2,
                 new EssentialDataType[]{ EssentialDataType.UINT, EssentialDataType.INT },
@@ -65,7 +67,7 @@ public class FrameBuffer {
         cb1.flip();
         ClearFormat cf = new ClearFormat(new ByteBuffer[]{ cb0, cb1 }, 1.0f, 0);
 
-        return new FrameBuffer(width, height, af, ctfs, dstf, cf);
+        return new FrameBuffer(width, height, af, ctfs, dstf, cf, multisampled, samples);
     }
 
     public static class AttachmentFormat {
@@ -145,8 +147,10 @@ public class FrameBuffer {
     private TextureFormat[] colorTextureFormats;
     private TextureFormat depthStencilTextureFormat;
     private ClearFormat clearFormat;
+    private boolean multisampled;
+    private int samples;
 
-    public FrameBuffer(int width, int height, AttachmentFormat attachmentFormat, TextureFormat[] colorTextureFormats, TextureFormat depthStencilTextureFormat, ClearFormat clearFormat) {
+    public FrameBuffer(int width, int height, AttachmentFormat attachmentFormat, TextureFormat[] colorTextureFormats, TextureFormat depthStencilTextureFormat, ClearFormat clearFormat, boolean multisampled, int samples) {
         this.width = width;
         this.height = height;
         this.attachmentFormat = attachmentFormat;
@@ -154,6 +158,8 @@ public class FrameBuffer {
         System.arraycopy(colorTextureFormats, 0, this.colorTextureFormats, 0, attachmentFormat.nColorAttachments);
         this.depthStencilTextureFormat = depthStencilTextureFormat;
         this.clearFormat = clearFormat;
+        this.multisampled = multisampled;
+        this.samples = samples;
 
         fboID = glGenFramebuffers();
         glBindFramebuffer(GL_FRAMEBUFFER, fboID);
@@ -163,58 +169,79 @@ public class FrameBuffer {
         for (int i = 0; i < attachmentFormat.nColorAttachments; ++i) {
             if (attachmentFormat.colorBuffersReadable[i]) {
                 colorBufferIDs[i] = glGenTextures();
-
-                glBindTexture(GL_TEXTURE_2D, colorBufferIDs[i]);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, colorTextureFormats[i].minFilter);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, colorTextureFormats[i].magFilter);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, colorTextureFormats[i].wrapMode);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, colorTextureFormats[i].wrapMode);
-                glTexImage2D(GL_TEXTURE_2D, 0, attachmentFormat.colorBufferInternalFormats[i], width, height, 0, attachmentFormat.colorBufferFormats[i], attachmentFormat.colorBufferTypes[i], (ByteBuffer) null);
-                if (colorTextureFormats[i].mipmapped) glGenerateMipmap(colorBufferIDs[i]);
-                glBindTexture(GL_TEXTURE_2D, 0);
-
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBufferIDs[i], 0);
-
+                if (multisampled) {
+                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, colorBufferIDs[i]);
+                    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, attachmentFormat.colorBufferInternalFormats[i], width, height, true);
+                    this.colorTextureFormats[i].mipmapped = false;
+                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D_MULTISAMPLE, colorBufferIDs[i], 0);
+                }
+                else {
+                    glBindTexture(GL_TEXTURE_2D, colorBufferIDs[i]);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, colorTextureFormats[i].minFilter);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, colorTextureFormats[i].magFilter);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, colorTextureFormats[i].wrapMode);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, colorTextureFormats[i].wrapMode);
+                    glTexImage2D(GL_TEXTURE_2D, 0, attachmentFormat.colorBufferInternalFormats[i], width, height, 0, attachmentFormat.colorBufferFormats[i], attachmentFormat.colorBufferTypes[i], (ByteBuffer) null);
+                    if (colorTextureFormats[i].mipmapped) glGenerateMipmap(colorBufferIDs[i]);
+                    glBindTexture(GL_TEXTURE_2D, 0);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, colorBufferIDs[i], 0);
+                }
             }
             else {
                 colorBufferIDs[i] = glGenRenderbuffers();
-
                 glBindRenderbuffer(GL_RENDERBUFFER, colorBufferIDs[i]);
-                glRenderbufferStorage(GL_RENDERBUFFER, attachmentFormat.colorBufferInternalFormats[i], width, height);
+                if (multisampled) {
+                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, attachmentFormat.colorBufferInternalFormats[i], width, height);
+                }
+                else {
+                    glRenderbufferStorage(GL_RENDERBUFFER, attachmentFormat.colorBufferInternalFormats[i], width, height);
+                }
                 glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
                 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_RENDERBUFFER, colorBufferIDs[i]);
             }
         }
         if (attachmentFormat.hasDepthStencilAttachment) {
             if (attachmentFormat.depthStencilReadable) {
                 depthStencilBufferID = glGenTextures();
+                if (multisampled) {
+                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, depthStencilBufferID);
+                    glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH24_STENCIL8, width, height, true);
+                    this.depthStencilTextureFormat.mipmapped = false;
+                    glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0);
 
-                glBindTexture(GL_TEXTURE_2D, depthStencilBufferID);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, depthStencilTextureFormat.minFilter);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, depthStencilTextureFormat.magFilter);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, depthStencilTextureFormat.wrapMode);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, depthStencilTextureFormat.wrapMode);
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, (ByteBuffer)null);
-                if (depthStencilTextureFormat.mipmapped) glGenerateMipmap(depthStencilBufferID);
-                glBindTexture(GL_TEXTURE_2D, 0);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, depthStencilBufferID, 0);
+                }
+                else {
+                    glBindTexture(GL_TEXTURE_2D, depthStencilBufferID);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, depthStencilTextureFormat.minFilter);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, depthStencilTextureFormat.magFilter);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, depthStencilTextureFormat.wrapMode);
+                    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, depthStencilTextureFormat.wrapMode);
+                    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, (ByteBuffer) null);
+                    if (depthStencilTextureFormat.mipmapped)
+                        glGenerateMipmap(depthStencilBufferID);
+                    glBindTexture(GL_TEXTURE_2D, 0);
 
-                glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilBufferID, 0);
-
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, depthStencilBufferID, 0);
+                }
             }
             else {
                 depthStencilBufferID = glGenRenderbuffers();
-
                 glBindRenderbuffer(GL_RENDERBUFFER, depthStencilBufferID);
-                glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+                if (multisampled) {
+                    glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH24_STENCIL8, width, height);
+                }
+                else {
+                    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+                }
                 glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
                 glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, depthStencilBufferID);
             }
         }
 
-        int fbStatus;
-        if ((fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE) {
+        int fbStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (fbStatus != GL_FRAMEBUFFER_COMPLETE) {
             System.err.println("Failed to create framebuffer! Error: " + fbStatus);
         }
         if (!Utils.checkGLErr()) {

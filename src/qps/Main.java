@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import static org.lwjgl.BufferUtils.createIntBuffer;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 import static org.lwjgl.opengl.GL20.glDrawBuffers;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
@@ -27,6 +28,8 @@ public abstract class Main {
 
     public static final int NO_IDENTITY = -1;
 
+    private static final boolean MULTISAMPLED = false; //turned out to be a bitch. what a surprise.
+    private static final int SAMPLES = 8;
     private static final Vec4 CLEAR_COLOR = new Vec4(0.9f, 0.9f, 0.9f, 1.0f);
     private static final float CAM_LATERAL_SPEED = 0.00275f;
     private static final float CAM_RADIAL_SPEED = 0.2f;
@@ -128,6 +131,9 @@ public abstract class Main {
         glEnable(GL_CULL_FACE);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if (MULTISAMPLED) {
+            glEnable(GL_MULTISAMPLE);
+        }
 
         if (!Utils.checkGLErr()) {
             System.err.println("OpenGL initialization error!");
@@ -203,7 +209,7 @@ public abstract class Main {
         CardinalScene.init();
 
         FBScene.init();
-        fb = FrameBuffer.createMainIdentity(window.width(), window.height(), CLEAR_COLOR, NO_IDENTITY);
+        fb = FrameBuffer.createMain(window.width(), window.height(), CLEAR_COLOR, MULTISAMPLED, SAMPLES);
         FBScene.setTex(fb.colorBuffer(0));
 
         return true;
@@ -350,7 +356,15 @@ public abstract class Main {
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-        FBScene.draw();
+        if (MULTISAMPLED) {
+            glBindFramebuffer(GL_READ_BUFFER, fb.id());
+            glBindFramebuffer(GL_DRAW_BUFFER, 0);
+            glBlitFramebuffer(0, 0, fb.width(), fb.height(), 0, 0, window.width(), window.height(), GL_COLOR_BUFFER_BIT, GL_NEAREST);
+            //glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        }
+        else {
+            FBScene.draw();
+        }
 
         window.swap();
     }
@@ -405,7 +419,7 @@ public abstract class Main {
 
             draw();
 
-            identify();
+            //identify();
         }
 
         if (!cleanup()) {
