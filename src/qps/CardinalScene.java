@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
  */
 public abstract class CardinalScene {
 
-    private static final float SLIDE_SPEED = 0.1f;
+    private static final float SLIDE_SPEED = 1.0f;
     private static final float STEP_SPEED = 1.0f;
 
     private static CardinalProgram program;
@@ -61,6 +61,8 @@ public abstract class CardinalScene {
     private static int nyStepID;
     private static int pzStepID;
     private static int nzStepID;
+
+    private static Vec3 slideVelocity;
 
     public static boolean init() {
         program = new CardinalProgram();
@@ -123,7 +125,9 @@ public abstract class CardinalScene {
     }
 
     public static void update(int t, int dt) {
-
+        if (slideVelocity != null) {
+            MainScene.moveSphere(slideVelocity.mult(dt / 1000.0f));
+        }
     }
 
     public static void draw() {
@@ -229,6 +233,7 @@ public abstract class CardinalScene {
         @Override
         public void lostHover(int id) {
             currentID = Main.NO_IDENTITY;
+            slideVelocity = null;
         }
 
         @Override
@@ -242,11 +247,26 @@ public abstract class CardinalScene {
         }
 
         @Override
-        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
-            Vec3 delta = new Vec3();
-            switch (currentID) {
-                //case pxSlideID: delta.x += SLIDE_SPEED;
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
+            if (repeat) {
+                return;
             }
+
+            Vec3 delta = new Vec3();
+
+            if      (currentID == pxSlideID) delta.x = 1.0f;
+            else if (currentID == nxSlideID) delta.x = -1.0f;
+            else if (currentID == pySlideID) delta.y = 1.0f;
+            else if (currentID == nySlideID) delta.y = -1.0f;
+            else if (currentID == pzSlideID) delta.z = 1.0f;
+            else if (currentID == nzSlideID) delta.z = -1.0f;
+
+            slideVelocity = delta.mult(SLIDE_SPEED);
+        }
+
+        @Override
+        public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            slideVelocity = null;
         }
     }
 
@@ -275,7 +295,11 @@ public abstract class CardinalScene {
         }
 
         @Override
-        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
+            if (repeat) {
+                return;
+            }
+
             Vec3 delta = new Vec3();
 
             if (currentID == pxStepID) delta.x += STEP_SPEED;

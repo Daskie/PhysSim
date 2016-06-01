@@ -62,31 +62,31 @@ public class WindowManager {
     }
 
     public void addWindowCloseListener(WindowCloseListener listener) {
-        closeListeners.push(listener);
+        closeListeners.addLast(listener);
     }
 
     public void addWindowSizeListener(WindowSizeListener listener) {
-        sizeListeners.push(listener);
+        sizeListeners.addLast(listener);
     }
 
     public void addFramebufferSizeListener(FramebufferSizeListener listener) {
-        framebufferSizeListeners.push(listener);
+        framebufferSizeListeners.addLast(listener);
     }
 
     public void addWindowPosListener(WindowPosListener listener) {
-        posListeners.push(listener);
+        posListeners.addLast(listener);
     }
 
     public void addWindowIconifyListener(WindowIconifyListener listener) {
-        iconifyListeners.push(listener);
+        iconifyListeners.addLast(listener);
     }
 
     public void addWindowFocusListener(WindowFocusListener listener) {
-        focusListeners.push(listener);
+        focusListeners.addLast(listener);
     }
 
     public void addWindowRefreshListener(WindowRefreshListener listener) {
-        refreshListeners.push(listener);
+        refreshListeners.addLast(listener);
     }
 
     private class WindowCloseCallback extends GLFWWindowCloseCallback {

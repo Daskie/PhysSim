@@ -7,7 +7,7 @@ import qps.InputManager;
  */
 public interface MouseListener {
 
-    void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager);
+    void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager);
 
     void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager);
 

@@ -60,31 +60,31 @@ public class InputManager {
     }
 
     public void addKeyListener(KeyListener listener) {
-        keyListeners.push(listener);
+        keyListeners.addLast(listener);
     }
 
     public void addCharListener(CharListener listener) {
-        charListeners.push(listener);
+        charListeners.addLast(listener);
     }
 
     public void addCursorListener(CursorListener listener) {
-        cursorListeners.push(listener);
+        cursorListeners.addLast(listener);
     }
 
     public void addEnterListener(EnterListener listener) {
-        enterListeners.push(listener);
+        enterListeners.addLast(listener);
     }
 
     public void addMouseListener(MouseListener listener) {
-        mouseListeners.push(listener);
+        mouseListeners.addLast(listener);
     }
 
     public void addScrollListener(ScrollListener listener) {
-        scrollListeners.push(listener);
+        scrollListeners.addLast(listener);
     }
 
     public void addDropListener(DropListener listener) {
-        dropListeners.push(listener);
+        dropListeners.addLast(listener);
     }
 
     private class KeyCallback extends GLFWKeyCallback {
@@ -97,13 +97,13 @@ public class InputManager {
             switch (action) {
                 case GLFW_PRESS: {
                     for (KeyListener listener : keyListeners) {
-                        listener.keyPressed(key, false, shift, ctrl, alt, InputManager.this);
+                        listener.keyPressed(key, shift, ctrl, alt, false, InputManager.this);
                     }
                     break;
                 }
                 case GLFW_REPEAT: {
                     for (KeyListener listener : keyListeners) {
-                        listener.keyPressed(key, true, shift, ctrl, alt, InputManager.this);
+                        listener.keyPressed(key, shift, ctrl, alt, true, InputManager.this);
                     }
                     break;
                 }
@@ -159,14 +159,24 @@ public class InputManager {
             boolean ctrl = (mods & GLFW_MOD_CONTROL) != 0;
             boolean alt = (mods & GLFW_MOD_ALT) != 0;
 
-            if (action != GLFW_RELEASE) {
-                for (MouseListener listener : mouseListeners) {
-                    listener.mousePressed(button, shift, ctrl, alt, InputManager.this);
+            switch (action) {
+                case GLFW_PRESS: {
+                    for (MouseListener listener : mouseListeners) {
+                        listener.mousePressed(button, shift, ctrl, alt, false, InputManager.this);
+                    }
+                    break;
                 }
-            }
-            else {
-                for (MouseListener listener : mouseListeners) {
-                    listener.mouseReleased(button, shift, ctrl, alt, InputManager.this);
+                case GLFW_REPEAT: {
+                    for (MouseListener listener : mouseListeners) {
+                        listener.mousePressed(button, shift, ctrl, alt, true, InputManager.this);
+                    }
+                    break;
+                }
+                case GLFW_RELEASE: {
+                    for (MouseListener listener : mouseListeners) {
+                        listener.mouseReleased(button, shift, ctrl, alt, InputManager.this);
+                    }
+                    break;
                 }
             }
         }

@@ -7,7 +7,7 @@ import qps.InputManager;
  */
 public interface KeyListener {
 
-    void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputManager manager);
+    void keyPressed(int key, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager);
 
     void keyReleased(int key, boolean shift, boolean ctrl, boolean alt, InputManager manager);
 

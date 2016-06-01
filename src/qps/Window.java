@@ -226,7 +226,7 @@ public class Window {
         }
 
         @Override
-        public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+        public void keyPressed(int key, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
             keyStates[key] = true;
         }
 
@@ -236,7 +236,7 @@ public class Window {
         }
 
         @Override
-        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
             mouseButtonStates[button] = true;
         }
 

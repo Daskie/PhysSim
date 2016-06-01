@@ -210,7 +210,7 @@ public abstract class Main {
 
         window.inputHandler().addKeyListener(new KeyListener() {
             @Override
-            public void keyPressed(int key, boolean repeat, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            public void keyPressed(int key, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
                 switch (key) {
 
                 }
@@ -224,7 +224,10 @@ public abstract class Main {
 
         window.inputHandler().addMouseListener(new MouseListener() {
             @Override
-            public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
+                if (repeat) {
+                    return;
+                }
                 if (button == 0) {
                     if (hovoredID != selectedID) {
                         //System.out.println(selectedID);
@@ -241,16 +244,21 @@ public abstract class Main {
                     }
                 }
                 if (hovoredID != NO_IDENTITY && identityHoveredAdapters.get(hovoredID) != null) {
-                    identityHoveredAdapters.get(hovoredID).mousePressed(button, shift, ctrl, alt, manager);
+                    identityHoveredAdapters.get(hovoredID).mousePressed(button, shift, ctrl, alt, repeat, manager);
                 }
                 if (selectedID != NO_IDENTITY && identitySelectedAdapters.get(selectedID) != null) {
-                    identitySelectedAdapters.get(selectedID).mousePressed(button, shift, ctrl, alt, manager);
+                    identitySelectedAdapters.get(selectedID).mousePressed(button, shift, ctrl, alt, repeat, manager);
                 }
             }
 
             @Override
             public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
-
+                if (hovoredID != NO_IDENTITY && identityHoveredAdapters.get(hovoredID) != null) {
+                    identityHoveredAdapters.get(hovoredID).mouseReleased(button, shift, ctrl, alt, manager);
+                }
+                if (selectedID != NO_IDENTITY && identitySelectedAdapters.get(selectedID) != null) {
+                    identitySelectedAdapters.get(selectedID).mouseReleased(button, shift, ctrl, alt, manager);
+                }
             }
         });
 
