@@ -1,5 +1,7 @@
 package qps;
 
+import qps.main.MainScene;
+
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;
@@ -149,8 +151,9 @@ public abstract class UniformGlobals {
 
     public static class ChargeCountsGlobals {
         private static int sphereCount;     //4
+        private static int planeCount;      //8
 
-        public static final int SIZE = 4;
+        public static final int SIZE = 8;
         public static final int BINDING = nextBinding();
 
         private static boolean needsBuffered;
@@ -166,12 +169,13 @@ public abstract class UniformGlobals {
         }
 
         public static void setSphereCount(int sphereCount) { ChargeCountsGlobals.sphereCount = sphereCount; needsBuffered = true; }
+        public static void setPlaneCount(int planeCount) { ChargeCountsGlobals.planeCount = planeCount; needsBuffered = true; }
     }
 
     public static class SphereChargesGlobals {
         //loc       12
         //charge    16
-        public static final int SIZE = 128 * 16;
+        public static final int SIZE = MainScene.MAX_OBJECTS * 16;
         public static final int BINDING = nextBinding();
 
         private static boolean needsBuffered;
@@ -187,6 +191,30 @@ public abstract class UniformGlobals {
         public static void set(int i, Vec3 loc, float charge) {
             loc.buffer(sphereChargesGroup.data, i * 16);
             sphereChargesGroup.data.putFloat(i * 16 + 12, charge);
+
+            needsBuffered = true;
+        }
+    }
+
+    public static class PlaneChargesGlobals {
+        //norm      12
+        //charge    16
+        public static final int SIZE = MainScene.MAX_OBJECTS * 16;
+        public static final int BINDING = nextBinding();
+
+        private static boolean needsBuffered;
+
+        public static void buffer() {
+            glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+            glBufferSubData(GL_UNIFORM_BUFFER, planeChargesGroup.offset, SIZE, planeChargesGroup.data);
+            glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+            needsBuffered = false;
+        }
+
+        public static void set(int i, Vec3 norm, float charge) {
+            norm.buffer(planeChargesGroup.data, i * 16);
+            planeChargesGroup.data.putFloat(i * 16 + 12, charge);
 
             needsBuffered = true;
         }
@@ -254,7 +282,7 @@ public abstract class UniformGlobals {
         }
     }
 
-    private static UniformGroup cameraGroup, modelGroup, viewGroup, lightGroup, chargeCountsGroup, sphereChargesGroup, eThresholdGroup, idGroup;
+    private static UniformGroup cameraGroup, modelGroup, viewGroup, lightGroup, chargeCountsGroup, sphereChargesGroup, planeChargesGroup, eThresholdGroup, idGroup;
     private static int ubo;
 
     public static boolean init()  {
@@ -275,6 +303,8 @@ public abstract class UniformGlobals {
         offset += (int)Math.ceil((float) EThresholdGlobals.SIZE / alignSize) * alignSize;
         sphereChargesGroup = new UniformGroup(offset, SphereChargesGlobals.SIZE);
         offset += (int)Math.ceil((float)SphereChargesGlobals.SIZE / alignSize) * alignSize;
+        planeChargesGroup = new UniformGroup(offset, PlaneChargesGlobals.SIZE);
+        offset += (int)Math.ceil((float)PlaneChargesGlobals.SIZE / alignSize) * alignSize;
         idGroup = new UniformGroup(offset, IDGlobals.SIZE);
         offset += (int)Math.ceil((float)IDGlobals.SIZE / alignSize) * alignSize;
 
@@ -295,6 +325,7 @@ public abstract class UniformGlobals {
         glBindBufferRange(GL_UNIFORM_BUFFER, LightGlobals.BINDING, ubo, lightGroup.offset, LightGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, ChargeCountsGlobals.BINDING, ubo, chargeCountsGroup.offset, ChargeCountsGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, SphereChargesGlobals.BINDING, ubo, sphereChargesGroup.offset, SphereChargesGlobals.SIZE);
+        glBindBufferRange(GL_UNIFORM_BUFFER, PlaneChargesGlobals.BINDING, ubo, planeChargesGroup.offset, PlaneChargesGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, EThresholdGlobals.BINDING, ubo, eThresholdGroup.offset, EThresholdGlobals.SIZE);
         glBindBufferRange(GL_UNIFORM_BUFFER, IDGlobals.BINDING, ubo, idGroup.offset, IDGlobals.SIZE);
         if (!Utils.checkGLErr()) {
@@ -312,6 +343,7 @@ public abstract class UniformGlobals {
         if (LightGlobals.needsBuffered) LightGlobals.buffer();
         if (ChargeCountsGlobals.needsBuffered) ChargeCountsGlobals.buffer();
         if (SphereChargesGlobals.needsBuffered) SphereChargesGlobals.buffer();
+        if (PlaneChargesGlobals.needsBuffered) PlaneChargesGlobals.buffer();
         if (EThresholdGlobals.needsBuffered) EThresholdGlobals.buffer();
         if (IDGlobals.needsBuffered) IDGlobals.buffer();
     }
@@ -323,6 +355,7 @@ public abstract class UniformGlobals {
         LightGlobals.buffer();
         ChargeCountsGlobals.buffer();
         SphereChargesGlobals.buffer();
+        PlaneChargesGlobals.buffer();
         EThresholdGlobals.buffer();
         IDGlobals.buffer();
     }

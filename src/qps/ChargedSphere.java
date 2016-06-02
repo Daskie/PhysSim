@@ -1,10 +1,9 @@
 package qps;
 
 /**
- * @since 5/28/2016
+ * @since 6/2/2016
  */
 public class ChargedSphere extends ChargedObject {
-
     public ChargedSphere(float charge) {
         super(charge);
     }

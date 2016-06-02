@@ -17,19 +17,24 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
  */
 public abstract class MainScene {
 
-    private static final int MAX_SPHERES = 128;
+    public static final int MAX_OBJECTS = 128;
 
     private static MainProgram program;
     private static VAO spheresVAO;
+    private static VAO planesVAO;
     private static ArrayList<ChargedSphere> spheres;
-    private static int selectedSphere;
+    private static ArrayList<ChargedPlane> planes;
+    private static int selectedIndex;
+    private static ChargedObject selectedObject;
 
     public static boolean init() {
         program = new MainProgram();
         program.init();
-        spheres = new ArrayList<ChargedSphere>(MAX_SPHERES);
-        selectedSphere = -1;
-        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, null, null, GL_STREAM_DRAW);
+        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_OBJECTS, null, null, null, GL_STREAM_DRAW);
+        planesVAO = new VAO(MeshManager.squareMesh, MAX_OBJECTS, null, null, null, GL_STREAM_DRAW);
+        spheres = new ArrayList<ChargedSphere>();
+        planes = new ArrayList<ChargedPlane>();
+        selectedIndex = -1;
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize main scene!");
@@ -45,9 +50,12 @@ public abstract class MainScene {
 
     public static void draw() {
         glUseProgram(program.id());
-        glBindVertexArray(spheresVAO.vao());
 
+        glBindVertexArray(spheresVAO.vao());
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0, spheres.size());
+
+        glBindVertexArray(planesVAO.vao());
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0, planes.size());
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -55,56 +63,72 @@ public abstract class MainScene {
 
     public static void addSphere(ChargedSphere sphere) {
         spheres.add(sphere);
-        spheresVAO.bufferInstanceMat(spheres.size() - 1, sphere.modelMat());
-        spheresVAO.bufferInstanceCharge(spheres.size() - 1, sphere.getCharge());
-        int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1), null, null);
-        CardinalScene.registerListener(id, new SphereCardinalListener());
-        spheresVAO.bufferInstanceID(spheres.size() - 1, id);
+        int index = spheres.size() - 1;
+
+        SphereListener listener = new SphereListener(index);
+        int id = Main.registerIdentity(listener, null, null);
+        CardinalScene.registerListener(id, listener);
+
+        spheresVAO.bufferInstanceMat(index, sphere.modelMat());
+        spheresVAO.bufferInstanceCharge(index, sphere.getCharge());
+        spheresVAO.bufferInstanceID(index, id);
+
         UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size());
-        UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), sphere.getCharge());
+        UniformGlobals.SphereChargesGlobals.set(index, sphere.getLoc(), sphere.getCharge());
+    }
+
+    public static void addPlane(ChargedPlane plane) {
+        planes.add(plane);
+        int index = planes.size() - 1;
+
+        PlaneListener listener = new PlaneListener(index);
+        int id = Main.registerIdentity(listener, null, null);
+        CardinalScene.registerListener(id, listener);
+
+        planesVAO.bufferInstanceMat(index, plane.modelMat());
+        planesVAO.bufferInstanceCharge(index, plane.getCharge());
+        planesVAO.bufferInstanceID(index, id);
+
+        UniformGlobals.ChargeCountsGlobals.setPlaneCount(spheres.size());
+        UniformGlobals.PlaneChargesGlobals.set(index, plane.getForward(), plane.getCharge());
     }
 
     public static void moveSphere(Vec3 delta) {
-        if (selectedSphere >= 0) {
-            ChargedSphere sphere = spheres.get(selectedSphere);
+        if (selectedIndex >= 0) {
+            ChargedSphere sphere = spheres.get(selectedIndex);
             sphere.translate(delta);
-            spheresVAO.bufferInstanceMat(selectedSphere, sphere.modelMat());
-            UniformGlobals.SphereChargesGlobals.set(selectedSphere, sphere.getLoc(), sphere.getCharge());
+            spheresVAO.bufferInstanceMat(selectedIndex, sphere.modelMat());
+            UniformGlobals.SphereChargesGlobals.set(selectedIndex, sphere.getLoc(), sphere.getCharge());
         }
     }
 
-    public static ChargedSphere getSelected() {
-        if (selectedSphere >= 0) {
-            return spheres.get(selectedSphere);
-        }
-
-        return null;
-    }
-
-    private static class SphereCardinalListener implements CardinalListener {
-        @Override
-        public void move(int id, Vec3 delta) {
-            moveSphere(delta);
-        }
-
-        @Override
-        public void round(int id) {
-            Vec3 loc = spheres.get(selectedSphere).getLoc();
-            spheres.get(selectedSphere).resetRotation();
-            moveSphere(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
-        }
-
-        @Override
-        public void rotate(int id, Vec3 axis, float theta) {
-
+    public static void movePlane(Vec3 delta) {
+        if (selectedIndex >= 0) {
+            ChargedPlane plane = planes.get(selectedIndex);
+            plane.translate(delta);
+            planesVAO.bufferInstanceMat(selectedIndex, plane.modelMat());
+            UniformGlobals.PlaneChargesGlobals.set(selectedIndex, plane.getForward(), plane.getCharge());
         }
     }
 
-    private static class SphereIdentityListener implements IdentityListener {
+    public static void rotatePlane(Vec3 axis, float theta) {
+        if (selectedIndex >= 0) {
+            ChargedPlane plane = planes.get(selectedIndex);
+            plane.rotate(Quaternion.angleAxis(theta, axis));
+            planesVAO.bufferInstanceMat(selectedIndex, plane.modelMat());
+            UniformGlobals.PlaneChargesGlobals.set(selectedIndex, plane.getForward(), plane.getCharge());
+        }
+    }
+
+    public static ChargedObject getSelected() {
+        return selectedObject;
+    }
+
+    private static class SphereListener implements IdentityListener, CardinalListener {
 
         private int sphereI;
 
-        public SphereIdentityListener(int sphereI) {
+        public SphereListener(int sphereI) {
             this.sphereI = sphereI;
         }
 
@@ -116,15 +140,78 @@ public abstract class MainScene {
 
         @Override
         public boolean gainedSelect(int id) {
-            selectedSphere = sphereI;
+            selectedIndex = sphereI;
+            selectedObject = spheres.get(sphereI);
             return true;
         }
 
         @Override
         public boolean lostSelect(int id) {
-            selectedSphere = -1;
+            selectedIndex = -1;
+            selectedObject = null;
             return true;
         }
+
+        @Override
+        public void move(int id, Vec3 delta) {
+            moveSphere(delta);
+        }
+
+        @Override
+        public void round(int id) {
+            Vec3 loc = selectedObject.getLoc();
+            moveSphere(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+        }
+
+        @Override
+        public void rotate(int id, Vec3 axis, float theta) {}
+
+    }
+
+    private static class PlaneListener implements IdentityListener, CardinalListener {
+
+        private int planeI;
+
+        public PlaneListener(int planeI) {
+            this.planeI = planeI;
+        }
+
+        @Override
+        public void gainedHover(int id) {}
+
+        @Override
+        public void lostHover(int id) {}
+
+        @Override
+        public boolean gainedSelect(int id) {
+            selectedIndex = planeI;
+            selectedObject = planes.get(planeI);
+            return true;
+        }
+
+        @Override
+        public boolean lostSelect(int id) {
+            selectedIndex = -1;
+            selectedObject = null;
+            return true;
+        }
+
+        @Override
+        public void move(int id, Vec3 delta) {
+            movePlane(delta);
+        }
+
+        @Override
+        public void round(int id) {
+            Vec3 loc = selectedObject.getLoc();
+            movePlane(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+        }
+
+        @Override
+        public void rotate(int id, Vec3 axis, float theta) {
+            rotatePlane(axis, theta);
+        }
+
     }
 
 }

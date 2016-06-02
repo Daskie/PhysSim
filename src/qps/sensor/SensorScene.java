@@ -20,6 +20,7 @@ public abstract class SensorScene {
     private static VAO sphereVAO;
     private static Entity sensor;
     private static Mat4 sensorMat;
+    private static Mat4 sensorNormMat;
     private static boolean selected;
 
     public static boolean init() {
@@ -34,6 +35,7 @@ public abstract class SensorScene {
 
         sensor = new Entity();
         sensorMat = new Mat4();
+        sensorNormMat = new Mat4(sensorMat.inv().trans());
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize main scene!");
@@ -52,7 +54,7 @@ public abstract class SensorScene {
         glBindVertexArray(sphereVAO.vao());
 
         UniformGlobals.ModelGlobals.setModelMat(sensorMat);
-        UniformGlobals.ModelGlobals.setNormMat(new Mat4());
+        UniformGlobals.ModelGlobals.setNormMat(sensorNormMat);
         UniformGlobals.ModelGlobals.buffer();
         glDrawElements(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
@@ -63,11 +65,13 @@ public abstract class SensorScene {
     public static void move(Vec3 delta) {
         sensor.translate(delta);
         sensorMat = sensor.modelMat();
+        sensorNormMat = new Mat4(sensorMat.inv().trans());
     }
 
     public static void rotate(Vec3 axis, float theta) {
         sensor.rotate(Quaternion.angleAxis(theta, axis));
         sensorMat = sensor.modelMat();
+        sensorNormMat = new Mat4(sensorMat.inv().trans());
     }
 
     public static Vec3 getSensorLoc() {

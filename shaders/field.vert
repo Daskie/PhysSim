@@ -29,6 +29,7 @@ layout (std140) uniform Model {
 
 layout (std140) uniform ChargeCounts {
     int chargeCounts_nSpheres;
+    int chargeCounts_nPlanes;
 };
 
 layout (std140) uniform SphereCharges {
