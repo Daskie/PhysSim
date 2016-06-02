@@ -2,8 +2,8 @@ package qps.cardinal;
 
 import qps.*;
 import qps.input_listeners.InputAdapter;
-import qps.main.MainScene;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -24,29 +24,19 @@ public abstract class CardinalScene {
     private static CardinalProgram program;
     private static VAO axesVAO;
     private static VAO coneVAO;
+    private static VAO sphereVao;
 
     private static Mat4 axesMat;
     private static Mat4 axesNormMat;
 
-    private static Mat4 pxMat;
-    private static Mat4 nxMat;
-    private static Mat4 pyMat;
-    private static Mat4 nyMat;
-    private static Mat4 pzMat;
-    private static Mat4 nzMat;
-    private static Mat4 pxNormMat;
-    private static Mat4 nxNormMat;
-    private static Mat4 pyNormMat;
-    private static Mat4 nyNormMat;
-    private static Mat4 pzNormMat;
-    private static Mat4 nzNormMat;
+    private static Mat4[] moveMats;     //px, nx, py, ny, pz, nz
+    private static Mat4[] moveNormMats;
+    private static int[] moveIDs;
+    private static Vec3[] moveDirs;
 
-    private static int pxID;
-    private static int nxID;
-    private static int pyID;
-    private static int nyID;
-    private static int pzID;
-    private static int nzID;
+    private static Mat4 roundMat;
+    private static Mat4 roundNormMat;
+    private static int roundID;
 
     private static Vec3 slideVelocity;
 
@@ -67,26 +57,38 @@ public abstract class CardinalScene {
         axesNormMat = new Mat4();
 
         Mat4 mat = new Mat4(Mat4.translate(new Vec3(0.0f, 0.0f, 0.5f)).mult(new Mat4(Mat3.scale(0.33f))));
-        pxMat = new Mat4((new Mat4(Mat3.rotate((float)Math.PI / 2.0f, Vec3.POSY)).mult(mat)));
-        nxMat = new Mat4(new Mat4(Mat3.rotate((float)Math.PI / 2.0f, Vec3.NEGY)).mult(mat));
-        pyMat = new Mat4(new Mat4(Mat3.rotate((float)Math.PI / 2.0f, Vec3.NEGX)).mult(mat));
-        nyMat = new Mat4(new Mat4(Mat3.rotate((float)Math.PI / 2.0f, Vec3.POSX)).mult(mat));
-        pzMat = mat;
-        nzMat = new Mat4(new Mat4(Mat3.rotate((float)Math.PI, Vec3.POSX)).mult(mat));
-        pxNormMat = new Mat4(pxMat.inv().trans());
-        nxNormMat = new Mat4(nxMat.inv().trans());
-        pyNormMat = new Mat4(pyMat.inv().trans());
-        nyNormMat = new Mat4(nyMat.inv().trans());
-        pzNormMat = new Mat4(pzMat.inv().trans());
-        nzNormMat = new Mat4(nzMat.inv().trans());
+        moveMats = new Mat4[]{
+            new Mat4((new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.POSY)).mult(mat))),
+            new Mat4(new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.NEGY)).mult(mat)),
+            new Mat4(new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.NEGX)).mult(mat)),
+            new Mat4(new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.POSX)).mult(mat)),
+            mat,
+            new Mat4(new Mat4(Mat3.rotate((float) Math.PI, Vec3.POSX)).mult(mat))
+        };
+        moveNormMats = new Mat4[6];
+        for (int i = 0; i < 6; ++i) {
+            moveNormMats[i] = new Mat4(moveMats[i].inv().trans());
+        }
 
-        SlideListener slideIL = new SlideListener();
-        pxID = Main.registerIdentity(slideIL, slideIL, null);
-        nxID = Main.registerIdentity(slideIL, slideIL, null);
-        pyID = Main.registerIdentity(slideIL, slideIL, null);
-        nyID = Main.registerIdentity(slideIL, slideIL, null);
-        pzID = Main.registerIdentity(slideIL, slideIL, null);
-        nzID = Main.registerIdentity(slideIL, slideIL, null);
+        MoveListener slideListener = new MoveListener();
+        moveIDs = new int[6];
+        for (int i = 0; i < 6; ++i) {
+            moveIDs[i] = Main.registerIdentity(slideListener, slideListener, null);
+        }
+
+        moveDirs = new Vec3[]{
+            Vec3.POSX,
+            Vec3.NEGX,
+            Vec3.POSY,
+            Vec3.NEGY,
+            Vec3.POSZ,
+            Vec3.NEGZ
+        };
+
+        roundMat = new Mat4();
+        roundNormMat = new Mat4(roundMat.inv().trans());
+        RoundListener roundListener = new RoundListener();
+        roundID = Main.registerIdentity(null, roundListener, null);
 
         cardinalListeners = new HashMap<Integer, CardinalListener>();
 
@@ -117,41 +119,13 @@ public abstract class CardinalScene {
 
         glBindVertexArray(coneVAO.vao());
 
-        UniformGlobals.ModelGlobals.setModelMat(pxMat);
-        UniformGlobals.ModelGlobals.setNormMat(pxNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        program.setID(pxID);
-        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(nxMat);
-        UniformGlobals.ModelGlobals.setNormMat(nxNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        program.setID(nxID);
-        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(pyMat);
-        UniformGlobals.ModelGlobals.setNormMat(pyNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        program.setID(pyID);
-        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(nyMat);
-        UniformGlobals.ModelGlobals.setNormMat(nyNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        program.setID(nyID);
-        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(pzMat);
-        UniformGlobals.ModelGlobals.setNormMat(pzNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        program.setID(pzID);
-        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
-
-        UniformGlobals.ModelGlobals.setModelMat(nzMat);
-        UniformGlobals.ModelGlobals.setNormMat(nzNormMat);
-        UniformGlobals.ModelGlobals.buffer();
-        program.setID(nzID);
-        glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        for (int i = 0; i < 6; ++i) {
+            UniformGlobals.ModelGlobals.setModelMat(moveMats[i]);
+            UniformGlobals.ModelGlobals.setNormMat(moveNormMats[i]);
+            UniformGlobals.ModelGlobals.buffer();
+            program.setID(moveIDs[i]);
+            glDrawElements(GL_TRIANGLES, MeshManager.coneMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        }
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -161,18 +135,18 @@ public abstract class CardinalScene {
         cardinalListeners.put(id, listener);
     }
 
-    private static class SlideListener extends InputAdapter implements IdentityListener {
+    private static class MoveListener extends InputAdapter implements IdentityListener {
 
-        private int currentID = Main.NO_IDENTITY;
+        private int currentI = -1;
 
         @Override
         public void gainedHover(int id) {
-            currentID = id;
+            currentI = Arrays.binarySearch(moveIDs, id);
         }
 
         @Override
         public void lostHover(int id) {
-            currentID = Main.NO_IDENTITY;
+            currentI = -1;
             slideVelocity = null;
         }
 
@@ -192,14 +166,7 @@ public abstract class CardinalScene {
                 return;
             }
 
-            Vec3 delta = new Vec3();
-
-            if      (currentID == pxID) delta.x = 1.0f;
-            else if (currentID == nxID) delta.x = -1.0f;
-            else if (currentID == pyID) delta.y = 1.0f;
-            else if (currentID == nyID) delta.y = -1.0f;
-            else if (currentID == pzID) delta.z = 1.0f;
-            else if (currentID == nzID) delta.z = -1.0f;
+            Vec3 delta = moveDirs[currentI];
 
             if (ctrl) {
                 cardinalListeners.get(Main.getSelected()).move(Main.getSelected(), delta.mult(STEP_SIZE));
@@ -210,6 +177,33 @@ public abstract class CardinalScene {
             else {
                 slideVelocity = delta.mult(SLIDE_SPEED);
             }
+        }
+
+        @Override
+        public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            slideVelocity = null;
+        }
+    }
+
+    private static class RoundListener extends InputAdapter {
+
+        @Override
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
+            if (!cardinalListeners.containsKey(Main.getSelected())) {
+                return;
+            }
+
+            /*Vec3 loc = Main.getSelected()
+
+            if (ctrl) {
+                cardinalListeners.get(Main.getSelected()).move(Main.getSelected(), delta.mult(STEP_SIZE));
+            }
+            else if (shift) {
+                cardinalListeners.get(Main.getSelected()).move(Main.getSelected(), delta.mult(JUMP_SIZE));
+            }
+            else {
+                slideVelocity = delta.mult(SLIDE_SPEED);
+            }*/
         }
 
         @Override

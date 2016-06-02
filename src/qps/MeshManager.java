@@ -13,6 +13,7 @@ public abstract class MeshManager {
     public static Mesh arrowMesh;
     public static Mesh coneMesh;
     public static Mesh axesMesh;
+    public static Mesh cylinderMesh;
 
     public static boolean initMeshes() {
         squareMesh = MeshLoader.square();
@@ -23,6 +24,7 @@ public abstract class MeshManager {
             arrowMesh = MeshLoader.fromFile("meshes/arrow16.qmesh");
             coneMesh = MeshLoader.fromFile("meshes/cone16.qmesh");
             axesMesh = MeshLoader.fromFile("meshes/cardinal16.qmesh");
+            cylinderMesh = MeshLoader.fromFile("meshes/cylinder16.qmesh");
         } catch (IOException e) {
             System.err.println("Failed to initialize meshes!");
             e.printStackTrace();
