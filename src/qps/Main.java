@@ -12,6 +12,7 @@ import qps.grid.GridReticleScene;
 import qps.input_listeners.*;
 import qps.main.MainScene;
 import qps.map.MapScene;
+import qps.sensor.SensorScene;
 import qps.window_listeners.WindowCloseListener;
 
 import java.nio.IntBuffer;
@@ -210,6 +211,8 @@ public abstract class Main {
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
 
+        SensorScene.init();
+
         //FieldScene.init();
 
         GridScene.init();
@@ -332,17 +335,19 @@ public abstract class Main {
     private static void update(int t, int  dt) {
         updateCamera(t, dt);
 
+        CardinalScene.update(t, dt);
+
         MainScene.update(t, dt);
 
-        FieldScene.update(t, dt);
+        SensorScene.update(t, dt);
+
+        //FieldScene.update(t, dt);
 
         GridScene.update(t, dt);
 
         GridReticleScene.update(t, dt);
 
         MapScene.update(t, dt);
-
-        CardinalScene.update(t, dt);
 
         FBScene.update(t, dt);
 
@@ -362,6 +367,8 @@ public abstract class Main {
         glDrawBuffers(attachmentsBuffer);
 
         MainScene.draw();
+
+        SensorScene.draw();
 
         glDrawBuffers(GL_COLOR_ATTACHMENT0);
 

@@ -54,8 +54,8 @@ void main(void) {
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
 
-    float hovored = step(0, id_hovored) * (1.0f - abs(sign(v_to_f.instanceID - id_hovored)));
-    float selected = step(0, id_selected) * (1.0f - abs(sign(v_to_f.instanceID - id_selected)));
+    float hovored = step(0, id_hovored) * (1.0f - abs(sign(u_id - id_hovored)));
+    float selected = step(0, id_selected) * (1.0f - abs(sign(u_id - id_selected)));
     float highlight = mix(hovored * 0.25, selected * -0.25, selected);
 
     out_color.rgb += highlight;

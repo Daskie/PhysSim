@@ -28,7 +28,7 @@ public class Camera {
         this.camDistance = Utils.max(camDistance, MIN_CAM_DISTANCE);
         this.camRange = camRange;
         this.tetherRange = tetherRange;
-        theta = -(float)Math.PI / 2.0f;
+        theta = (float)Math.PI / 4.0f;
         phi = (float)Math.PI / 4.0f;
     }
 
