@@ -110,12 +110,14 @@ public abstract class UniformGlobals {
     }
 
     public static class LightGlobals {
-        private static Vec3 dir;         //12
-        private static float strength;   //16
-        private static Vec3 color;       //28
-        private static float ambience;   //32
+        private static Vec3 dir;                //12
+        private static float strength;          //16
+        private static Vec3 color;              //28
+        private static float ambience;          //32
+        private static float specularIntensity; //36
+        private static float shininess;         //40
 
-        public static final int SIZE = 32;
+        public static final int SIZE = 40;
         public static final int BINDING = nextBinding();
 
         private static boolean needsBuffered;
@@ -126,6 +128,8 @@ public abstract class UniformGlobals {
             lightGroup.data.putFloat(strength);
             color.buffer(lightGroup.data);
             lightGroup.data.putFloat(ambience);
+            lightGroup.data.putFloat(specularIntensity);
+            lightGroup.data.putFloat(shininess);
             lightGroup.data.flip();
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
@@ -139,6 +143,8 @@ public abstract class UniformGlobals {
         public static void setStrength(float strength) { LightGlobals.strength = strength; needsBuffered = true; }
         public static void setColor(Vec3 color) { LightGlobals.color = color; needsBuffered = true; }
         public static void setAmbience(float ambience) { LightGlobals.ambience = ambience; needsBuffered = true; }
+        public static void setSpecularIntensity(float specularIntensity) { LightGlobals.specularIntensity = specularIntensity; needsBuffered = true; }
+        public static void setShininess(float shininess) { LightGlobals.shininess = shininess; needsBuffered = true; }
     }
 
     public static class ChargeCountsGlobals {

@@ -66,7 +66,7 @@ public abstract class CardinalScene {
         axesMat = new Mat4();
         axesNormMat = new Mat4();
 
-        Mat4 mat = new Mat4(Mat4.translate(new Vec3(0.0f, 0.0f, 0.4f)).mult(new Mat4(Mat3.scale(0.3f))));
+        Mat4 mat = new Mat4(Mat4.translate(new Vec3(0.0f, 0.0f, 0.5f)).mult(new Mat4(Mat3.scale(0.33f))));
         pxMat = new Mat4((new Mat4(Mat3.rotate((float)Math.PI / 2.0f, Vec3.POSY)).mult(mat)));
         nxMat = new Mat4(new Mat4(Mat3.rotate((float)Math.PI / 2.0f, Vec3.NEGY)).mult(mat));
         pyMat = new Mat4(new Mat4(Mat3.rotate((float)Math.PI / 2.0f, Vec3.NEGX)).mult(mat));

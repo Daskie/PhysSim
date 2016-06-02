@@ -26,6 +26,7 @@ public class CardinalProgram extends ShaderProgram {
 
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Camera"), UniformGlobals.CameraGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Model"), UniformGlobals.ModelGlobals.BINDING);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Light"), UniformGlobals.LightGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "ID"), UniformGlobals.IDGlobals.BINDING);
         u_camLoc = glGetUniformLocation(id, "u_camLoc");
         u_screenPos = glGetUniformLocation(id, "u_screenPos");

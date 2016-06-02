@@ -24,6 +24,8 @@ layout (std140) uniform Light {
     float light_strength;
     vec3 light_color;
     float light_ambience;
+    float light_specularIntensity;
+    float light_shininess;
 };
 
 layout (std140) uniform ID {
@@ -48,9 +50,7 @@ void main(void) {
 
 	diffuseCol *= light_color * max(dot(lightDir, norm), 0.0f);
 
-	float specularIntensity = 0.5f;
-	int shininess = 32;
-	specularCol *= light_color * pow(max(dot(norm, halfway), 0.0f), shininess) * specularIntensity;
+	specularCol *= light_color * pow(max(dot(norm, halfway), 0.0f), light_shininess) * light_specularIntensity;
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
 

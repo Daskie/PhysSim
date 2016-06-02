@@ -10,6 +10,15 @@ in V_TO_F {
 layout (location = 0) out vec4 out_color;
 layout (location = 1) out int out_id;
 
+layout (std140) uniform Light {
+    vec3 light_dir;
+    float light_strength;
+    vec3 light_color;
+    float light_ambience;
+    float light_specularIntensity;
+    float light_shininess;
+};
+
 layout (std140) uniform ID {
     int id_hovored;
     int id_selected;
@@ -30,13 +39,11 @@ void main(void) {
     vec3 diffuseCol = v_to_f.vertColor.rgb;
     vec3 specularCol = v_to_f.vertColor.rgb;
 
-	ambientCol *= 0.25f;
+	ambientCol *= light_ambience;
 
 	diffuseCol *= max(dot(lightDir, norm), 0.0f);
 
-	float specularIntensity = 0.5f;
-	int shininess = 32;
-	specularCol *= pow(max(dot(norm, halfway), 0.0f), shininess) * specularIntensity;
+	specularCol *= pow(max(dot(norm, halfway), 0.0f), light_shininess) * light_specularIntensity;
 
 	out_color.rgb = (ambientCol + diffuseCol + specularCol);
 	out_color.a = v_to_f.vertColor.a;

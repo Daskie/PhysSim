@@ -6,7 +6,6 @@ import org.lwjgl.opengl.GL;
 import qps.cardinal.CardinalScene;
 import qps.fb.FBScene;
 import qps.field.FieldProgram;
-import qps.field.FieldScene;
 import qps.grid.GridScene;
 import qps.grid.GridReticleScene;
 import qps.input_listeners.*;
@@ -39,6 +38,18 @@ public abstract class Main {
     public static final float CAM_ANGULAR_SPEED = 0.1f;
     public static final float CAM_RANGE = 50.0f;
 
+    public static final float NEAR_FRUST = 0.1f;
+    public static final float FAR_FRUST = 100.0f;
+    public static final float FOV = (float)Math.PI / 2.0f;
+    public static final Vec3 LIGHT_DIR = new Vec3(-1.0f, -1.0f, -1.0f);
+    public static final float LIGHT_STRENGTH = 1.0f;
+    public static final Vec3 LIGHT_COLOR = new Vec3(1.0f, 1.0f, 1.0f);
+    public static final float LIGHT_AMBIENCE = 0.33f;
+    public static final float LIGHT_SPECULAR_INTENSITY = 0.5f;
+    public static final float LIGHT_SHININESS = 32.0f;
+    public static final float MIN_MAG_E = 0.0f;
+    public static final float MAX_MAG_E = 1.0f;
+
     private static boolean running;
     private static Window window;
     private static FieldProgram fieldProgram;
@@ -53,15 +64,6 @@ public abstract class Main {
     private static IntBuffer attachmentsBuffer;
     private static IntBuffer identityBuffer;
 
-    private static float nearFrust = 0.1f;
-    private static float farFrust = 100.0f;
-    private static float fov = (float)Math.PI / 2.0f;
-    private static Vec3 lightDir = new Vec3(-1.0f, -1.0f, -1.0f);
-    private static float lightStrength = 1.0f;
-    private static Vec3 lightColor = new Vec3(1.0f, 1.0f, 1.0f);
-    private static float lightAmbience = 0.33f;
-    private static float minMagE = 0.0f;
-    private static float maxMagE = 1.0f;
 
     private static FrameBuffer fb;
 
@@ -177,19 +179,21 @@ public abstract class Main {
         UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
         UniformGlobals.ViewGlobals.setCamForward(camera.forward());
         UniformGlobals.ViewGlobals.setCamUp(camera.up());
-        UniformGlobals.ViewGlobals.setNearFrust(nearFrust);
-        UniformGlobals.ViewGlobals.setFarFrust(farFrust);
-        UniformGlobals.ViewGlobals.setFov(fov);
+        UniformGlobals.ViewGlobals.setNearFrust(NEAR_FRUST);
+        UniformGlobals.ViewGlobals.setFarFrust(FAR_FRUST);
+        UniformGlobals.ViewGlobals.setFov(FOV);
 
-        UniformGlobals.LightGlobals.setDir(lightDir);
-        UniformGlobals.LightGlobals.setStrength(lightStrength);
-        UniformGlobals.LightGlobals.setColor(lightColor);
-        UniformGlobals.LightGlobals.setAmbience(lightAmbience);
+        UniformGlobals.LightGlobals.setDir(LIGHT_DIR);
+        UniformGlobals.LightGlobals.setStrength(LIGHT_STRENGTH);
+        UniformGlobals.LightGlobals.setColor(LIGHT_COLOR);
+        UniformGlobals.LightGlobals.setAmbience(LIGHT_AMBIENCE);
+        UniformGlobals.LightGlobals.setSpecularIntensity(LIGHT_SPECULAR_INTENSITY);
+        UniformGlobals.LightGlobals.setShininess(LIGHT_SHININESS);
 
         UniformGlobals.ChargeCountsGlobals.setSphereCount(0);
 
-        UniformGlobals.EThresholdGlobals.setMinMagE(minMagE);
-        UniformGlobals.EThresholdGlobals.setMaxMagE(maxMagE);
+        UniformGlobals.EThresholdGlobals.setMinMagE(MIN_MAG_E);
+        UniformGlobals.EThresholdGlobals.setMaxMagE(MAX_MAG_E);
 
         UniformGlobals.IDGlobals.setHoveredID(NO_IDENTITY);
         UniformGlobals.IDGlobals.setSelectedID(NO_IDENTITY);
@@ -357,7 +361,7 @@ public abstract class Main {
     private static void updateCamera(int t, int dt) {
         UniformGlobals.ViewGlobals.setCamLoc(camera.loc());
         UniformGlobals.CameraGlobals.setViewMat(Mat4.view(camera.loc(), camera.forward(), camera.up()));
-        UniformGlobals.CameraGlobals.setProjMat(Mat4.perspective(fov, (float)window.width() / window.height(), nearFrust, farFrust));
+        UniformGlobals.CameraGlobals.setProjMat(Mat4.perspective(FOV, (float)window.width() / window.height(), NEAR_FRUST, FAR_FRUST));
     }
 
     private static void draw() {
