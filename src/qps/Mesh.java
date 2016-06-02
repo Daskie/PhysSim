@@ -51,6 +51,10 @@ public class Mesh {
         return nVerts;
     }
 
+    public int nVertices() {
+        return nVerts;
+    }
+
     public int nIndices() {
         return nIndices;
     }

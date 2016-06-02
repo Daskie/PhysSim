@@ -1,8 +1,10 @@
 package qps.main;
 
 import qps.*;
+import qps.cardinal.CardinalScene;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -21,14 +23,14 @@ public abstract class MainScene {
     private static MainProgram program;
     private static VAO spheresVAO;
     private static ArrayList<ChargedSphere> spheres;
-    private static int selectedIndex;
+    private static HashMap<Integer, Integer> sphereIDs;
 
     public static boolean init() {
         program = new MainProgram();
         program.init();
         spheres = new ArrayList<ChargedSphere>(MAX_SPHERES);
+        sphereIDs = new HashMap<Integer, Integer>(MAX_SPHERES);
         spheresVAO = new VAO(MeshManager.sphereMesh, MAX_SPHERES, null, null, null, GL_STREAM_DRAW);
-        selectedIndex = Main.NO_IDENTITY;
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize main scene!");
@@ -56,59 +58,36 @@ public abstract class MainScene {
         spheres.add(sphere);
         spheresVAO.bufferInstanceMat(spheres.size() - 1, sphere.modelMat());
         spheresVAO.bufferInstanceCharge(spheres.size() - 1, sphere.getCharge());
-        int id = Main.registerIdentity(new SphereIdentityListener(spheres.size() - 1), null, null);
+        int id = Main.registerIdentity(null, null, null);
+        sphereIDs.put(id, spheres.size() - 1);
+        CardinalScene.registerListener(id, new SphereListener());
         spheresVAO.bufferInstanceID(spheres.size() - 1, id);
         UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size());
         UniformGlobals.SphereChargesGlobals.set(spheres.size() - 1, sphere.getLoc(), sphere.getCharge());
     }
 
-    public static void moveSphere(Vec3 delta) {
-        if (selectedIndex != Main.NO_IDENTITY) {
-            ChargedSphere sphere = spheres.get(selectedIndex);
+    public static void moveSphere(int id, Vec3 delta) {
+        if (sphereIDs.containsKey(id)) {
+            int sphereI = sphereIDs.get(id);
+            ChargedSphere sphere = spheres.get(sphereI);
             sphere.translate(delta);
-            spheresVAO.bufferInstanceMat(selectedIndex, sphere.modelMat());
-            UniformGlobals.SphereChargesGlobals.set(selectedIndex, sphere.getLoc(), sphere.getCharge());
+            spheresVAO.bufferInstanceMat(sphereI, sphere.modelMat());
+            UniformGlobals.SphereChargesGlobals.set(sphereI, sphere.getLoc(), sphere.getCharge());
         }
     }
 
-    public static ChargedObject getSelected() {
-        if (selectedIndex != Main.NO_IDENTITY) {
-            return spheres.get(selectedIndex);
+    public static ChargedSphere getSelected() {
+        if (sphereIDs.containsKey(Main.getSelected())) {
+            return spheres.get(sphereIDs.get(Main.getSelected()));
         }
 
         return null;
     }
 
-    private static class SphereIdentityListener implements IdentityListener {
-
-        private int sphereIndex;
-
-        public SphereIdentityListener(int sphereIndex) {
-            this.sphereIndex = sphereIndex;
-        }
-
+    private static class SphereListener implements CardinalListener {
         @Override
-        public void gainedHover(int id) {
-
-        }
-
-        @Override
-        public void lostHover(int id) {
-
-        }
-
-        @Override
-        public boolean gainedSelect(int id) {
-            selectedIndex = sphereIndex;
-
-            return true;
-        }
-
-        @Override
-        public boolean lostSelect(int id) {
-            selectedIndex = Main.NO_IDENTITY;
-
-            return true;
+        public void move(int id, Vec3 delta) {
+            moveSphere(id, delta);
         }
     }
 

@@ -52,9 +52,9 @@ public abstract class GridScene {
         glUseProgram(program.id());
         glBindVertexArray(cubeVAO.vao());
 
-        Vec3 camForward = Main.getCamera().forward();
+        Vec3 dir = Main.getCamera().forward();
 
-        if (Math.acos(Math.abs(camForward.dot(Vec3.POSZ))) <= CRITICAL_ANGLE) {
+        if (Math.acos(Math.abs(dir.dot(Vec3.POSZ))) <= CRITICAL_ANGLE) {
             program.setDir(Vec3.POSX);
             program.setLong(Vec3.POSY);
             glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
@@ -63,7 +63,7 @@ public abstract class GridScene {
             glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
         }
 
-        if (Math.acos(Math.abs(camForward.dot(Vec3.POSX))) <= CRITICAL_ANGLE) {
+        if (Math.acos(Math.abs(dir.dot(Vec3.POSX))) <= CRITICAL_ANGLE) {
             program.setDir(Vec3.POSY);
             program.setLong(Vec3.POSZ);
             glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
@@ -72,7 +72,7 @@ public abstract class GridScene {
             glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
         }
 
-        if (Math.acos(Math.abs(camForward.dot(Vec3.POSY))) <= CRITICAL_ANGLE) {
+        if (Math.acos(Math.abs(dir.dot(Vec3.POSY))) <= CRITICAL_ANGLE) {
             program.setDir(Vec3.POSZ);
             program.setLong(Vec3.POSX);
             glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);

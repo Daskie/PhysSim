@@ -4,6 +4,8 @@ import qps.*;
 import qps.input_listeners.InputAdapter;
 import qps.main.MainScene;
 
+import java.util.HashMap;
+
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
 import static org.lwjgl.opengl.GL20.glUseProgram;
@@ -48,6 +50,8 @@ public abstract class CardinalScene {
 
     private static Vec3 slideVelocity;
 
+    private static HashMap<Integer, CardinalListener> cardinalListeners;
+
     public static boolean init() {
         program = new CardinalProgram();
         program.init();
@@ -84,6 +88,8 @@ public abstract class CardinalScene {
         pzID = Main.registerIdentity(slideIL, slideIL, null);
         nzID = Main.registerIdentity(slideIL, slideIL, null);
 
+        cardinalListeners = new HashMap<Integer, CardinalListener>();
+
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize cardinal scene!");
             return false;
@@ -93,8 +99,8 @@ public abstract class CardinalScene {
     }
 
     public static void update(int t, int dt) {
-        if (slideVelocity != null) {
-            MainScene.moveSphere(slideVelocity.mult(dt / 1000.0f));
+        if (slideVelocity != null && cardinalListeners.containsKey(Main.getSelected())) {
+            cardinalListeners.get(Main.getSelected()).move(Main.getSelected(), slideVelocity.mult(dt / 1000.0f));
         }
     }
 
@@ -151,6 +157,10 @@ public abstract class CardinalScene {
         glUseProgram(0);
     }
 
+    public static void registerListener(int id, CardinalListener listener) {
+        cardinalListeners.put(id, listener);
+    }
+
     private static class SlideListener extends InputAdapter implements IdentityListener {
 
         private int currentID = Main.NO_IDENTITY;
@@ -178,6 +188,10 @@ public abstract class CardinalScene {
 
         @Override
         public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
+            if (!cardinalListeners.containsKey(Main.getSelected())) {
+                return;
+            }
+
             Vec3 delta = new Vec3();
 
             if      (currentID == pxID) delta.x = 1.0f;
@@ -188,10 +202,10 @@ public abstract class CardinalScene {
             else if (currentID == nzID) delta.z = -1.0f;
 
             if (ctrl) {
-                MainScene.moveSphere(delta.mult(STEP_SIZE));
+                cardinalListeners.get(Main.getSelected()).move(Main.getSelected(), delta.mult(STEP_SIZE));
             }
             else if (shift) {
-                MainScene.moveSphere(delta.mult(JUMP_SIZE));
+                cardinalListeners.get(Main.getSelected()).move(Main.getSelected(), delta.mult(JUMP_SIZE));
             }
             else {
                 slideVelocity = delta.mult(SLIDE_SPEED);

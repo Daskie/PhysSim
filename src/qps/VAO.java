@@ -238,11 +238,11 @@ public class VAO {
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 
-    /*void bufferCoords(int i, Vec3 coords) {
+    public void bufferCoords(int i, Vec3 coords) {
         bufferCoords(i, 1, new Vec3[]{ coords });
     }
 
-    void bufferCoords(int i, int n, Vec3[] coords) {
+    public void bufferCoords(int i, int n, Vec3[] coords) {
         buffer.clear();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -259,11 +259,11 @@ public class VAO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    void bufferColor(int i, Vec4 color) {
+    public void bufferColor(int i, Vec4 color) {
         bufferColors(i, 1, new Vec4[]{ color });
     }
 
-    void bufferColors(int i, int n, Vec4[] colors) {
+    public void bufferColors(int i, int n, Vec4[] colors) {
         buffer.clear();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
@@ -279,7 +279,30 @@ public class VAO {
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
-    }*/
+    }
+
+    public void bufferColors(int i, int n, Vec4 color) {
+        buffer.clear();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        glMapBufferRange(GL_ARRAY_BUFFER, colorsOffset + i * Mesh.COLOR_BYTES, n * Mesh.COLOR_BYTES, GL_MAP_WRITE_BIT, buffer);
+
+        byte red = (byte)Math.round(color.x * 255.0f);
+        byte green = (byte)Math.round(color.y * 255.0f);
+        byte blue = (byte)Math.round(color.z * 255.0f);
+        byte alpha = (byte)Math.round(color.w * 255.0f);
+
+        for (int j = 0; j < n; ++j) {
+            buffer.put(red).put(green).put(blue).put(alpha);
+        }
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        if (!Utils.checkGLErr()) {
+            System.err.println("Failed to buffer colors!");
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
 
     public void bufferInstanceMat(int i, Mat4 mat) {
         bufferInstanceMats(i, 1, new Mat4[]{ mat });

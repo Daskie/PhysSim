@@ -75,6 +75,10 @@ public abstract class Main {
         return camera;
     }
 
+    public static int getSelected() {
+        return selectedID;
+    }
+
     private static boolean init() {
         if (!initLWJGL()) {
             return false;
@@ -200,6 +204,8 @@ public abstract class Main {
     }
 
     private static boolean initScene() {
+        CardinalScene.init();
+
         MainScene.init();
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
@@ -211,8 +217,6 @@ public abstract class Main {
         GridReticleScene.init();
 
         MapScene.init();
-
-        CardinalScene.init();
 
         FBScene.init();
         fb = FrameBuffer.createMainIdentity(window.width(), window.height(), CLEAR_COLOR, NO_IDENTITY, MULTISAMPLED, SAMPLES);
@@ -264,12 +268,24 @@ public abstract class Main {
                     if (potentialID != NO_POTENTIAL && potentialID != selectedID) {
                         //System.out.println(selectedID);
                         if (potentialID != NO_IDENTITY) {
-                            if (identityListeners.get(potentialID).gainedSelect(potentialID)) {
+                            if (identityListeners.get(potentialID) != null) {
+                                if (identityListeners.get(potentialID).gainedSelect(potentialID)) {
+                                    selectedID = potentialID;
+                                }
+                            }
+                            else {
                                 selectedID = potentialID;
                             }
                         }
-                        else if (identityListeners.get(selectedID).lostSelect(selectedID)) {
-                            selectedID = NO_IDENTITY;
+                        else {
+                            if (identityListeners.get(selectedID) != null) {
+                                if (identityListeners.get(selectedID).lostSelect(selectedID)) {
+                                    selectedID = NO_IDENTITY;
+                                }
+                            }
+                            else {
+                                selectedID = NO_IDENTITY;
+                            }
                         }
                         UniformGlobals.IDGlobals.setSelectedID(selectedID);
                         UniformGlobals.IDGlobals.buffer();
@@ -392,10 +408,10 @@ public abstract class Main {
         hovoredID = identityBuffer.get(0);
         if (hovoredID != oldHovoredID) {
             //System.out.println(hovoredID);
-            if (oldHovoredID != NO_IDENTITY) {
+            if (oldHovoredID != NO_IDENTITY && identityListeners.get(oldHovoredID) != null) {
                 identityListeners.get(oldHovoredID).lostHover(oldHovoredID);
             }
-            if (hovoredID != NO_IDENTITY) {
+            if (hovoredID != NO_IDENTITY && identityListeners.get(hovoredID) != null) {
                 identityListeners.get(hovoredID).gainedHover(hovoredID);
             }
         }
