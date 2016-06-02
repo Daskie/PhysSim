@@ -1,9 +1,6 @@
 package qps.grid;
 
-import qps.ShaderProgram;
-import qps.UniformGlobals;
-import qps.Utils;
-import qps.Vec3;
+import qps.*;
 
 import static org.lwjgl.opengl.GL20.glGetUniformLocation;
 import static org.lwjgl.opengl.GL31.glGetUniformBlockIndex;
@@ -20,9 +17,10 @@ public class GridProgram extends ShaderProgram {
     private int u_thickness;
     private int u_size;
     private int u_spacing;
+    private int u_color;
 
     public GridProgram() {
-        super("shaders/grid.vert", null, "shaders/grid.frag");
+        super("shaders/grid.vert", null, "shaders/color.frag");
     }
 
     @Override
@@ -38,6 +36,7 @@ public class GridProgram extends ShaderProgram {
         u_thickness = glGetUniformLocation(id, "u_thickness");
         u_size = glGetUniformLocation(id, "u_size");
         u_spacing = glGetUniformLocation(id, "u_spacing");
+        u_color = glGetUniformLocation(id, "u_color");
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize grid program!");
@@ -69,6 +68,10 @@ public class GridProgram extends ShaderProgram {
 
     public void setSpacing(float spacing) {
         setUniform(u_spacing, spacing);
+    }
+
+    public void setColor(Vec4 color) {
+        setUniform(u_color, color);
     }
 
 }

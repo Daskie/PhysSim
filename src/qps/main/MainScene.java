@@ -46,9 +46,6 @@ public abstract class MainScene {
         glUseProgram(program.id());
         glBindVertexArray(spheresVAO.vao());
 
-        UniformGlobals.ModelGlobals.setModelMat(new Mat4());
-        UniformGlobals.ModelGlobals.setNormMat(new Mat4());
-        UniformGlobals.ModelGlobals.buffer();
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0, spheres.size());
 
         glBindVertexArray(0);
@@ -72,6 +69,14 @@ public abstract class MainScene {
             spheresVAO.bufferInstanceMat(selectedIndex, sphere.modelMat());
             UniformGlobals.SphereChargesGlobals.set(selectedIndex, sphere.getLoc(), sphere.getCharge());
         }
+    }
+
+    public static ChargedObject getSelected() {
+        if (selectedIndex != Main.NO_IDENTITY) {
+            return spheres.get(selectedIndex);
+        }
+
+        return null;
     }
 
     private static class SphereIdentityListener implements IdentityListener {

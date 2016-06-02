@@ -8,6 +8,7 @@ import qps.fb.FBScene;
 import qps.field.FieldProgram;
 import qps.field.FieldScene;
 import qps.grid.GridScene;
+import qps.grid.GridReticleScene;
 import qps.input_listeners.*;
 import qps.main.MainScene;
 import qps.map.MapScene;
@@ -27,14 +28,15 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 public abstract class Main {
 
     public static final int NO_IDENTITY = -1;
+    public static final int NO_POTENTIAL = -2;
 
-    private static final boolean MULTISAMPLED = false; //turned out to be a bitch. what a surprise.
-    private static final int SAMPLES = 8;
-    private static final Vec4 CLEAR_COLOR = new Vec4(0.9f, 0.9f, 0.9f, 1.0f);
-    private static final float CAM_LATERAL_SPEED = 0.00275f;
-    private static final float CAM_RADIAL_SPEED = 0.2f;
-    private static final float CAM_ANGULAR_SPEED = 0.1f;
-    private static final float CAM_RANGE = 50.0f;
+    public static final boolean MULTISAMPLED = false; //turned out to be a bitch. what a surprise.
+    public static final int SAMPLES = 8;
+    public static final Vec4 CLEAR_COLOR = new Vec4(0.9f, 0.9f, 0.9f, 1.0f);
+    public static final float CAM_LATERAL_SPEED = 0.00275f;
+    public static final float CAM_RADIAL_SPEED = 0.2f;
+    public static final float CAM_ANGULAR_SPEED = 0.1f;
+    public static final float CAM_RANGE = 50.0f;
 
     private static boolean running;
     private static Window window;
@@ -45,6 +47,7 @@ public abstract class Main {
     private static ArrayList<InputAdapter> identitySelectedAdapters = new ArrayList<InputAdapter>();
     private static int hovoredID = NO_IDENTITY;
     private static int selectedID = NO_IDENTITY;
+    private static int potentialID = NO_POTENTIAL;
 
     private static IntBuffer attachmentsBuffer;
     private static IntBuffer identityBuffer;
@@ -68,6 +71,9 @@ public abstract class Main {
         return identityListeners.size() - 1;
     }
 
+    public static Camera getCamera() {
+        return camera;
+    }
 
     private static boolean init() {
         if (!initLWJGL()) {
@@ -202,6 +208,8 @@ public abstract class Main {
 
         GridScene.init();
 
+        GridReticleScene.init();
+
         MapScene.init();
 
         CardinalScene.init();
@@ -241,21 +249,7 @@ public abstract class Main {
                 if (repeat) {
                     return;
                 }
-                if (button == 0) {
-                    if (hovoredID != selectedID) {
-                        //System.out.println(selectedID);
-                        if (hovoredID != NO_IDENTITY) {
-                            if (identityListeners.get(hovoredID).gainedSelect(hovoredID)) {
-                                selectedID = hovoredID;
-                            }
-                        }
-                        else if (identityListeners.get(selectedID).lostSelect(selectedID)) {
-                            selectedID = NO_IDENTITY;
-                        }
-                        UniformGlobals.IDGlobals.setSelectedID(selectedID);
-                        UniformGlobals.IDGlobals.buffer();
-                    }
-                }
+                potentialID = hovoredID;
                 if (hovoredID != NO_IDENTITY && identityHoveredAdapters.get(hovoredID) != null) {
                     identityHoveredAdapters.get(hovoredID).mousePressed(button, shift, ctrl, alt, repeat, manager);
                 }
@@ -266,6 +260,22 @@ public abstract class Main {
 
             @Override
             public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+                if (button == 0) {
+                    if (potentialID != NO_POTENTIAL && potentialID != selectedID) {
+                        //System.out.println(selectedID);
+                        if (potentialID != NO_IDENTITY) {
+                            if (identityListeners.get(potentialID).gainedSelect(potentialID)) {
+                                selectedID = potentialID;
+                            }
+                        }
+                        else if (identityListeners.get(selectedID).lostSelect(selectedID)) {
+                            selectedID = NO_IDENTITY;
+                        }
+                        UniformGlobals.IDGlobals.setSelectedID(selectedID);
+                        UniformGlobals.IDGlobals.buffer();
+                        potentialID = NO_POTENTIAL;
+                    }
+                }
                 if (hovoredID != NO_IDENTITY && identityHoveredAdapters.get(hovoredID) != null) {
                     identityHoveredAdapters.get(hovoredID).mouseReleased(button, shift, ctrl, alt, manager);
                 }
@@ -280,6 +290,7 @@ public abstract class Main {
 
             @Override
             public void cursorMoved(double x, double y, double dx, double dy, InputManager manager) {
+                potentialID = NO_POTENTIAL;
                 if (window.mouseButtonState(0)) {
                     Vec3 vec = (new Vec3((float)dx, (float)-dy, 0.0f)).mult(camera.distance() * CAM_LATERAL_SPEED);
                     Mat3 mapMat = Mat3.mapFrom(camera.right(), camera.up(), camera.forward());
@@ -309,9 +320,11 @@ public abstract class Main {
 
         FieldScene.update(t, dt);
 
-        MapScene.update(t, dt);
-
         GridScene.update(t, dt);
+
+        GridReticleScene.update(t, dt);
+
+        MapScene.update(t, dt);
 
         CardinalScene.update(t, dt);
 
@@ -339,6 +352,8 @@ public abstract class Main {
         //FieldScene.draw();
 
         GridScene.draw();
+
+        GridReticleScene.draw();
 
         MapScene.draw();
 

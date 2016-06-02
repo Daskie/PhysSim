@@ -15,33 +15,25 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
  */
 public abstract class GridScene {
 
+    protected static final int SIZE = 100;
+    protected static final float SPACING = 1.0f;
+    protected static final float THICKNESS = 0.005f;
+    protected static final Vec4 GRID_COLOR = new Vec4(0.1f, 0.1f, 0.1f, 1.0f);
+
     private static GridProgram program;
-    //private static VAO planeVAO;
     private static VAO cubeVAO;
 
-    //private static Mat4 modelMat;
-    //private static int divisions;
-    private static int size;
-    private static float spacing;
-    private static float thickness;
 
     public static boolean init() {
         program = new GridProgram();
         program.init();
 
-        //planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, GL_STREAM_DRAW);
         cubeVAO = new VAO(MeshManager.cubeMesh, 0, null, null, null, GL_STATIC_DRAW);
 
-        //modelMat = new Mat4(Mat3.scale(500.0f));
-        //divisions = 1000;
-        size = 100;
-        spacing = 1.0f;
-        thickness = 0.005f;
-
-        //program.setDivisions(divisions);
-        program.setSize(size);
-        program.setSpacing(spacing);
-        program.setThickness(thickness);
+        program.setSize(SIZE);
+        program.setSpacing(SPACING);
+        program.setThickness(THICKNESS);
+        program.setColor(GRID_COLOR);
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize grid scene!");
@@ -57,36 +49,28 @@ public abstract class GridScene {
 
     public static void draw() {
         glUseProgram(program.id());
-        //glBindVertexArray(planeVAO.vao());
         glBindVertexArray(cubeVAO.vao());
 
-        //glDisable(GL_CULL_FACE);
-
-        //UniformGlobals.ModelGlobals.setModelMat(modelMat);
-        //UniformGlobals.ModelGlobals.buffer();
-        //glDrawElements(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0);
         program.setDir(Vec3.POSX);
         program.setLong(Vec3.POSY);
-        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, size + 1);
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
         program.setDir(Vec3.POSY);
         program.setLong(Vec3.POSX);
-        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, size + 1);
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
 
         program.setDir(Vec3.POSY);
         program.setLong(Vec3.POSZ);
-        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, size + 1);
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
         program.setDir(Vec3.POSZ);
         program.setLong(Vec3.POSY);
-        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, size + 1);
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
 
         program.setDir(Vec3.POSZ);
         program.setLong(Vec3.POSX);
-        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, size + 1);
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
         program.setDir(Vec3.POSX);
         program.setLong(Vec3.POSZ);
-        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, size + 1);
-
-        //glEnable(GL_CULL_FACE);
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, SIZE + 1);
 
         glBindVertexArray(0);
         glUseProgram(0);

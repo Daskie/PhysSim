@@ -22,11 +22,11 @@ public class Entity {
         this(loc, DEFAULT_FORWARD, DEFAULT_UP);
     }
     public Entity(Vec3 loc, Vec3 baseForward, Vec3 baseUp) {
-        this.loc = loc;
-        this.baseForward = baseForward;
-        this.baseUp = baseUp;
-        forward = baseForward;
-        up = baseUp;
+        this.loc = new Vec3(loc);
+        this.baseForward = new Vec3(baseForward);
+        this.baseUp = new Vec3(baseUp);
+        forward = this.baseForward;
+        up = this.baseUp;
     }
 
     public Vec3 getLoc() {

@@ -9,6 +9,8 @@ in V_TO_F {
 
 layout (location = 0) out vec4 out_color;
 
+uniform vec4 u_color;
+
 void main(void) {
-	out_color = vec4(0.1f, 0.1f, 0.1f, 1.0f);
+	out_color = u_color;
 }

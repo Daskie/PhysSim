@@ -36,7 +36,6 @@ void main(void) {
 
     int centeredID = gl_InstanceID - u_size / 2;
     vec3 pos = centeredID * u_dir * u_spacing;
-    float adjustedThickness = max(u_thickness, u_thickness * distance(view_camLoc, pos) / 5.0f);
     float mult0 = (1 - sign(abs(centeredID)));
     float mult5 = (1 - sign(mod(abs(centeredID), 5)));
     float mult10 = (1 - sign(mod(abs(centeredID), 10)));
@@ -44,7 +43,11 @@ void main(void) {
     width = mix(width, 0.5f, mult5);
     width = mix(width, 1.0f, mult10);
     width = mix(width, u_size / 2, mult0);
-    vec3 coords = in_vertCoords * max((u_long * width * u_spacing), adjustedThickness);
+    vec3 coords = in_vertCoords * max((u_long * width * u_spacing), u_thickness);
+    coords += pos;
+
+    float adjustedThickness = max(u_thickness, min(distance(view_camLoc, coords), distance(view_camLoc, pos)) * 0.001);
+    coords = in_vertCoords * max((u_long * width * u_spacing), adjustedThickness);
     coords += pos;
 
 	gl_Position = camera_projMat * camera_viewMat * vec4(coords, 1.0f);
