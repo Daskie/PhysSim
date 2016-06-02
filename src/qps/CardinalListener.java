@@ -7,4 +7,8 @@ public interface CardinalListener {
 
     void move(int id, Vec3 delta);
 
+    void round(int id);
+
+    void rotate(int id, Vec3 axis, float theta);
+
 }

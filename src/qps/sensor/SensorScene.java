@@ -65,6 +65,11 @@ public abstract class SensorScene {
         sensorMat = sensor.modelMat();
     }
 
+    public static void rotate(Vec3 axis, float theta) {
+        sensor.rotate(Quaternion.angleAxis(theta, axis));
+        sensorMat = sensor.modelMat();
+    }
+
     public static Vec3 getSensorLoc() {
         return sensor.getLoc();
     }
@@ -81,6 +86,17 @@ public abstract class SensorScene {
         @Override
         public void move(int id, Vec3 delta) {
             SensorScene.move(delta);
+        }
+
+        @Override
+        public void round(int id) {
+            Vec3 loc = sensor.getLoc();
+            SensorScene.move(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+        }
+
+        @Override
+        public void rotate(int id, Vec3 axis, float theta) {
+            SensorScene.rotate(axis, theta);
         }
     }
 

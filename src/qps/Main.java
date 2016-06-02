@@ -280,18 +280,12 @@ public abstract class Main {
                                     selectedID = potentialID;
                                 }
                             }
-                            else {
-                                selectedID = potentialID;
-                            }
                         }
                         else {
                             if (identityListeners.get(selectedID) != null) {
                                 if (identityListeners.get(selectedID).lostSelect(selectedID)) {
                                     selectedID = NO_IDENTITY;
                                 }
-                            }
-                            else {
-                                selectedID = NO_IDENTITY;
                             }
                         }
                         UniformGlobals.IDGlobals.setSelectedID(selectedID);

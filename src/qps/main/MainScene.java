@@ -86,6 +86,17 @@ public abstract class MainScene {
         public void move(int id, Vec3 delta) {
             moveSphere(delta);
         }
+
+        @Override
+        public void round(int id) {
+            Vec3 loc = spheres.get(selectedSphere).getLoc();
+            moveSphere(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+        }
+
+        @Override
+        public void rotate(int id, Vec3 axis, float theta) {
+
+        }
     }
 
     private static class SphereIdentityListener implements IdentityListener {

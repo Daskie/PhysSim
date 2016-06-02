@@ -169,6 +169,8 @@ public abstract class UniformGlobals {
     }
 
     public static class SphereChargesGlobals {
+        //loc       12
+        //charge    16
         public static final int SIZE = 128 * 16;
         public static final int BINDING = nextBinding();
 
