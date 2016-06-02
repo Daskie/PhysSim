@@ -59,7 +59,7 @@ public abstract class Main {
     private static Vec3 lightDir = new Vec3(-1.0f, -1.0f, -1.0f);
     private static float lightStrength = 1.0f;
     private static Vec3 lightColor = new Vec3(1.0f, 1.0f, 1.0f);
-    private static float lightAmbience = 0.25f;
+    private static float lightAmbience = 0.33f;
     private static float minMagE = 0.0f;
     private static float maxMagE = 1.0f;
 

@@ -19,6 +19,8 @@ public abstract class SensorScene {
     private static SensorProgram program;
     private static VAO sphereVAO;
     private static Entity sensor;
+    private static Mat4 sensorMat;
+    private static boolean selected;
 
     public static boolean init() {
         program = new SensorProgram();
@@ -26,11 +28,12 @@ public abstract class SensorScene {
         sphereVAO = new VAO(MeshManager.sphereMesh, 0, null, null, null, GL_STATIC_DRAW);
 
         //sphereVAO.bufferColors(0, MeshManager.sphereMesh.nVertices(), new Vec4());
-        int id = Main.registerIdentity(null, null, null);
+        int id = Main.registerIdentity(new SensorIdentityListener(), null, null);
         CardinalScene.registerListener(id, new SensorListener());
         program.setID(id);
 
         sensor = new Entity();
+        sensorMat = new Mat4();
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize main scene!");
@@ -48,7 +51,7 @@ public abstract class SensorScene {
         glUseProgram(program.id());
         glBindVertexArray(sphereVAO.vao());
 
-        UniformGlobals.ModelGlobals.setModelMat(sensor.modelMat());
+        UniformGlobals.ModelGlobals.setModelMat(sensorMat);
         UniformGlobals.ModelGlobals.setNormMat(new Mat4());
         UniformGlobals.ModelGlobals.buffer();
         glDrawElements(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0);
@@ -59,12 +62,46 @@ public abstract class SensorScene {
 
     public static void move(Vec3 delta) {
         sensor.translate(delta);
+        sensorMat = sensor.modelMat();
+    }
+
+    public static Vec3 getSensorLoc() {
+        return sensor.getLoc();
+    }
+
+    public static Mat4 getSensorMat() {
+        return sensorMat;
+    }
+
+    public static boolean isSelected() {
+        return selected;
     }
 
     private static class SensorListener implements CardinalListener {
         @Override
         public void move(int id, Vec3 delta) {
             SensorScene.move(delta);
+        }
+    }
+
+    private static class SensorIdentityListener implements IdentityListener {
+
+        @Override
+        public void gainedHover(int id) {}
+
+        @Override
+        public void lostHover(int id) {}
+
+        @Override
+        public boolean gainedSelect(int id) {
+            selected = true;
+            return true;
+        }
+
+        @Override
+        public boolean lostSelect(int id) {
+            selected = false;
+            return true;
         }
     }
 

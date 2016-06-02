@@ -2,6 +2,7 @@ package qps.grid;
 
 import qps.*;
 import qps.main.MainScene;
+import qps.sensor.SensorScene;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -47,12 +48,19 @@ public class GridReticleScene {
         glUseProgram(program.id());
         glBindVertexArray(cubeVAO.vao());
 
-        if (MainScene.getSelected() == null) {
+
+        Vec3 camLoc = Main.getCamera().loc();
+        Vec3 target;
+
+        if (MainScene.getSelected() != null) {
+            target = MainScene.getSelected().getLoc();
+        }
+        else if (SensorScene.isSelected()) {
+            target = SensorScene.getSensorLoc();
+        }
+        else {
             return;
         }
-
-        Vec3 target = MainScene.getSelected().getLoc();
-        Vec3 camLoc = Main.getCamera().loc();
 
         float d1 = camLoc.sub(new Vec3(target.x, 0.0f, 0.0f)).mag();
         float d2 = camLoc.sub(new Vec3(0.0f, target.y, 0.0f)).mag();

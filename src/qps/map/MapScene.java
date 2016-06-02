@@ -1,6 +1,7 @@
 package qps.map;
 
 import qps.*;
+import qps.sensor.SensorScene;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -25,6 +26,7 @@ public abstract class MapScene {
     private static Vec3[] planeDirs;
     private static Mat4[] planeMats;
     private static float[] planeDistances;
+    private static Integer[] indices;
 
     public static boolean init() {
         program = new MapProgram();
@@ -67,6 +69,7 @@ public abstract class MapScene {
         };
 
         planeDistances = new float[12];
+        indices = new Integer[12];
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize map scene!");
@@ -85,14 +88,21 @@ public abstract class MapScene {
         glBindVertexArray(planeVAO.vao());
 
         Vec3 camLoc = Main.getCamera().loc();
+        Vec3 sensorLoc = SensorScene.getSensorLoc();
         for (int i = 0; i < 12; ++i) {
-            planeDistances[i] = camLoc.sub(planeDirs[i]).mag2();
+            planeDistances[i] = camLoc.sub(sensorLoc.add(planeDirs[i])).mag2();
         }
 
-        TreeMap<Float, Integer> tree = new TreeMap<Float, Integer>();
-        for (int i = 0; i < 12; ++i) {
-            tree.put(planeDistances[i], i);
+        for (int i = 0; i < indices.length; ++i) {
+            indices[i] = i;
         }
+
+        Arrays.sort(indices, new Comparator<Integer>(){
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return -(int)Math.signum(planeDistances[o1] - planeDistances[o2]);
+            }
+        });
 
         Vec3 camForward = Main.getCamera().forward();
 
@@ -104,9 +114,10 @@ public abstract class MapScene {
 
         glDisable(GL_CULL_FACE);
 
-        for (Integer i : tree.descendingMap().values()) {
+        Mat4 sensorMat = SensorScene.getSensorMat();
+        for (Integer i : indices) {
             if (renderPlane[i / 4]) {
-                UniformGlobals.ModelGlobals.setModelMat(planeMats[i]);
+                UniformGlobals.ModelGlobals.setModelMat(new Mat4(sensorMat.mult(planeMats[i])));
                 UniformGlobals.ModelGlobals.buffer();
                 glDrawElements(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0);
             }
@@ -117,4 +128,5 @@ public abstract class MapScene {
         glBindVertexArray(0);
         glUseProgram(0);
     }
+
 }
