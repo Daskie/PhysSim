@@ -91,6 +91,7 @@ public abstract class SensorScene {
         @Override
         public void round(int id) {
             Vec3 loc = sensor.getLoc();
+            sensor.resetRotation();
             SensorScene.move(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
         }
 

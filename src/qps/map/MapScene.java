@@ -89,8 +89,9 @@ public abstract class MapScene {
 
         Vec3 camLoc = Main.getCamera().loc();
         Vec3 sensorLoc = SensorScene.getSensorLoc();
+        Mat4 sensorMat = SensorScene.getSensorMat();
         for (int i = 0; i < 12; ++i) {
-            planeDistances[i] = camLoc.sub(sensorLoc.add(planeDirs[i])).mag2();
+            planeDistances[i] = camLoc.sub(sensorLoc.add(new Vec3(sensorMat.mult(new Vec4(planeDirs[i]))))).mag2();
         }
 
         for (int i = 0; i < indices.length; ++i) {
@@ -107,14 +108,12 @@ public abstract class MapScene {
         Vec3 camForward = Main.getCamera().forward();
 
         boolean[] renderPlane = new boolean[]{
-            Math.acos(Math.abs(camForward.dot(Vec3.POSZ))) <= CRITICAL_ANGLE,
-            Math.acos(Math.abs(camForward.dot(Vec3.POSX))) <= CRITICAL_ANGLE,
-            Math.acos(Math.abs(camForward.dot(Vec3.POSY))) <= CRITICAL_ANGLE
+            Math.acos(Math.abs(camForward.dot(new Vec3(sensorMat.mult(new Vec4(Vec3.POSZ)))))) <= CRITICAL_ANGLE,
+            Math.acos(Math.abs(camForward.dot(new Vec3(sensorMat.mult(new Vec4(Vec3.POSX)))))) <= CRITICAL_ANGLE,
+            Math.acos(Math.abs(camForward.dot(new Vec3(sensorMat.mult(new Vec4(Vec3.POSY)))))) <= CRITICAL_ANGLE
         };
 
         glDisable(GL_CULL_FACE);
-
-        Mat4 sensorMat = SensorScene.getSensorMat();
         for (Integer i : indices) {
             if (renderPlane[i / 4]) {
                 UniformGlobals.ModelGlobals.setModelMat(new Mat4(sensorMat.mult(planeMats[i])));

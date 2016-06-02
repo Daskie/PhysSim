@@ -27,6 +27,7 @@ layout (std140) uniform ID {
 uniform vec3 u_camLoc;
 uniform vec3 u_lightDir;
 uniform int u_id;
+uniform vec3 u_lightColor;
 
 void main(void) {
     vec3 norm = normalize(v_to_f.vertNorm);
@@ -45,7 +46,7 @@ void main(void) {
 
 	specularCol *= pow(max(dot(norm, halfway), 0.0f), light_shininess) * light_specularIntensity;
 
-	out_color.rgb = (ambientCol + diffuseCol + specularCol);
+	out_color.rgb = u_lightColor * (ambientCol + diffuseCol + specularCol);
 	out_color.a = v_to_f.vertColor.a;
 
     float hovored = step(0, id_hovored) * (1.0f - abs(sign(u_id - id_hovored)));

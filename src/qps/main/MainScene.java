@@ -90,6 +90,7 @@ public abstract class MainScene {
         @Override
         public void round(int id) {
             Vec3 loc = spheres.get(selectedSphere).getLoc();
+            spheres.get(selectedSphere).resetRotation();
             moveSphere(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
         }
 

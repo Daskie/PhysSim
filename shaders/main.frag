@@ -46,13 +46,13 @@ void main(void) {
     vec3 diffuseCol = v_to_f.vertColor.rgb;
     vec3 specularCol = v_to_f.vertColor.rgb;
 
-	ambientCol *= light_color * light_ambience;
+	ambientCol *= light_ambience;
 
-	diffuseCol *= light_color * max(dot(lightDir, norm), 0.0f);
+	diffuseCol *= max(dot(lightDir, norm), 0.0f);
 
-	specularCol *= light_color * pow(max(dot(norm, halfway), 0.0f), light_shininess) * light_specularIntensity;
+	specularCol *= pow(max(dot(norm, halfway), 0.0f), light_shininess) * light_specularIntensity;
 
-	out_color.rgb = (ambientCol + diffuseCol + specularCol) * light_strength;
+	out_color.rgb = light_color * (ambientCol + diffuseCol + specularCol) * light_strength;
 
     float hovored = step(0, id_hovored) * (1.0f - abs(sign(v_to_f.instanceID - id_hovored)));
     float selected = step(0, id_selected) * (1.0f - abs(sign(v_to_f.instanceID - id_selected)));

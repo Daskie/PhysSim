@@ -83,6 +83,11 @@ public class Entity {
         up = mat.mult(baseUp);
     }
 
+    public void resetRotation() {
+        forward = new Vec3(baseForward);
+        up = new Vec3(baseUp);
+    }
+
     public Mat3 alignToBaseMat() {
         return Mat3.align(forward, up, baseForward, baseUp);
     }

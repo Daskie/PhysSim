@@ -22,8 +22,7 @@ public abstract class CardinalScene {
     private static final float MOVE_JUMP_SIZE = 1.0f;
 
     private static final float SPIN_SLIDE_SPEED = (float)Math.PI / 2.0f;
-    private static final float SPIN_STEP_SIZE = (float)Math.PI / 2.0f;
-    private static final float SPIN_JUMP_SIZE = (float)Math.PI / 2.0f;
+    private static final float SPIN_STEP_SIZE = (float)Math.PI / 12.0f;
 
     private static CardinalProgram program;
     private static VAO axesVAO;
@@ -32,6 +31,8 @@ public abstract class CardinalScene {
     private static VAO spinVao;
 
     private static Vec3[] axes;
+    private static Vec3[] colors;
+    private static Vec3 white;
 
     private static Mat4 axesMat;
     private static Mat4 axesNormMat;
@@ -61,6 +62,11 @@ public abstract class CardinalScene {
         sphereVao = new VAO(MeshManager.sphereMesh, 0, null, null, null, GL_STATIC_DRAW);
         spinVao = new VAO(MeshManager.spinMesh, 0, null, null, null, GL_STATIC_DRAW);
 
+        Vec4 color = new Vec4(0.75f, 0.75f, 0.75f, 1.0f);
+        coneVAO.bufferColors(0, MeshManager.coneMesh.nVertices(), color);
+        sphereVao.bufferColors(0, MeshManager.sphereMesh.nVertices(), color);
+        spinVao.bufferColors(0, MeshManager.spinMesh.nVertices(), color);
+
         axes = new Vec3[]{
                 Vec3.POSX,
                 Vec3.NEGX,
@@ -70,9 +76,20 @@ public abstract class CardinalScene {
                 Vec3.NEGZ
         };
 
+        colors = new Vec3[]{
+                new Vec3(1.0f, 0.5f, 0.5f),
+                new Vec3(1.0f, 0.5f, 0.5f),
+                new Vec3(0.5f, 1.0f, 0.5f),
+                new Vec3(0.5f, 1.0f, 0.5f),
+                new Vec3(0.5f, 0.5f, 1.0f),
+                new Vec3(0.5f, 0.5f, 1.0f)
+        };
+        white = new Vec3(1.0f, 1.0f, 1.0f);
+
         program.setCamLoc(new Vec3(0.0f, 0.0f, 4.0f));
         program.setLightDir(new Vec3(1.0f, -1.0f, -1.0f));
         program.setScreenPos(new Vec2(0.75f, -0.75f));
+        program.setLightColor(white);
 
         axesMat = new Mat4();
         axesNormMat = new Mat4();
@@ -288,7 +305,7 @@ public abstract class CardinalScene {
                 cardinalListeners.get(Main.getSelected()).rotate(Main.getSelected(), axes[currentI], SPIN_STEP_SIZE);
             }
             else if (shift) {
-                cardinalListeners.get(Main.getSelected()).rotate(Main.getSelected(), axes[currentI], SPIN_JUMP_SIZE);
+
             }
             else {
                 spinSlideAxis = axes[currentI];

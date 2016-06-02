@@ -56,7 +56,7 @@ public class Mat3 extends MatN {
         v2 = v2.norm();
 
         Vec3 c = v1.cross(v2);
-        float d = v1.dot(v2);
+        float d = Utils.clamp(v1.dot(v2), -1.0f, 1.0f);
 
         return rotate((float)Math.acos(d), c);
     }
