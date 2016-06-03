@@ -4,13 +4,12 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import qps.cardinal.CardinalScene;
-import qps.charges.ChargedLine;
-import qps.charges.ChargedPlane;
 import qps.charges.ChargedSphere;
 import qps.fb.FBScene;
 import qps.field.FieldProgram;
 import qps.grid.GridScene;
 import qps.grid.GridReticleScene;
+import qps.hud.HUDScene;
 import qps.input_listeners.*;
 import qps.main.MainScene;
 import qps.map.MapScene;
@@ -45,7 +44,7 @@ public abstract class Main {
     public static final float FAR_FRUST = 100.0f;
     public static final float FOV = (float)Math.PI / 2.0f;
     public static final Vec3 LIGHT_DIR = new Vec3(-1.0f, -1.0f, -1.0f);
-    public static final float LIGHT_STRENGTH = 1.0f;
+    public static final float LIGHT_STRENGTH = 0.75f;
     public static final Vec3 LIGHT_COLOR = new Vec3(1.0f, 1.0f, 1.0f);
     public static final float LIGHT_AMBIENCE = 0.33f;
     public static final float LIGHT_SPECULAR_INTENSITY = 0.5f;
@@ -215,10 +214,12 @@ public abstract class Main {
     private static boolean initScene() {
         CardinalScene.init();
 
+        HUDScene.init();
+
         MainScene.init();
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
-        MainScene.addLine(new ChargedLine(-0.1e-9f, new Vec3()));
+        //MainScene.addLine(new ChargedLine(-0.1e-9f, new Vec3()));
 
         SensorScene.init();
 
@@ -340,6 +341,8 @@ public abstract class Main {
 
         CardinalScene.update(t, dt);
 
+        HUDScene.update(t, dt);
+
         MainScene.update(t, dt);
 
         SensorScene.update(t, dt);
@@ -388,6 +391,8 @@ public abstract class Main {
         glDrawBuffers(attachmentsBuffer);
 
         CardinalScene.draw();
+
+        HUDScene.draw();
 
         glDrawBuffers(GL_COLOR_ATTACHMENT0);
 

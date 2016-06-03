@@ -43,10 +43,10 @@ public abstract class MeshLoader {
 
         byte w = (byte)255;
         byte b = (byte)0;
-        colors.put(w); colors.put(b); colors.put(b); colors.put(b);
-        colors.put(b); colors.put(w); colors.put(b); colors.put(b);
-        colors.put(b); colors.put(b); colors.put(w); colors.put(b);
-        colors.put(w); colors.put(w); colors.put(w); colors.put(b);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
         colors.flip();
 
         uvs.putFloat(0.0f); uvs.putFloat(0.0f);

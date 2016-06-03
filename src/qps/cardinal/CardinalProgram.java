@@ -16,6 +16,7 @@ public class CardinalProgram extends ShaderProgram {
     private int u_lightDir;
     private int u_id;
     private int u_lightColor;
+    private int u_lightStrength;
 
     public CardinalProgram() {
         super("shaders/cardinal.vert", null, "shaders/cardinal.frag");
@@ -34,6 +35,7 @@ public class CardinalProgram extends ShaderProgram {
         u_lightDir = glGetUniformLocation(id, "u_lightDir");
         u_id = glGetUniformLocation(id, "u_id");
         u_lightColor = glGetUniformLocation(id, "u_lightColor");
+        u_lightStrength = glGetUniformLocation(id, "u_lightStrength");
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize cardinal program!");
@@ -61,6 +63,10 @@ public class CardinalProgram extends ShaderProgram {
 
     public void setLightColor(Vec3 color) {
         setUniform(u_lightColor, color);
+    }
+
+    public void setLightStrength(float strength) {
+        setUniform(u_lightStrength, strength);
     }
 
 }

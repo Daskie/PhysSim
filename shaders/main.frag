@@ -56,7 +56,7 @@ void main(void) {
 
     float hovored = step(0, id_hovored) * (1.0f - abs(sign(v_to_f.instanceID - id_hovored)));
     float selected = step(0, id_selected) * (1.0f - abs(sign(v_to_f.instanceID - id_selected)));
-    float highlight = mix(hovored * 0.25, selected * -0.25, selected);
+    float highlight = mix(hovored * 0.125f, selected * 0.25f, selected);
 
     out_color.rgb += highlight;
 

@@ -28,6 +28,7 @@ uniform vec3 u_camLoc;
 uniform vec3 u_lightDir;
 uniform int u_id;
 uniform vec3 u_lightColor;
+uniform float u_lightStrength;
 
 void main(void) {
     vec3 norm = normalize(v_to_f.vertNorm);
@@ -46,12 +47,12 @@ void main(void) {
 
 	specularCol *= pow(max(dot(norm, halfway), 0.0f), light_shininess) * light_specularIntensity;
 
-	out_color.rgb = u_lightColor * (ambientCol + diffuseCol + specularCol);
+	out_color.rgb = u_lightColor * (ambientCol + diffuseCol + specularCol) * u_lightStrength;
 	out_color.a = v_to_f.vertColor.a;
 
     float hovored = step(0, id_hovored) * (1.0f - abs(sign(u_id - id_hovored)));
     float selected = step(0, id_selected) * (1.0f - abs(sign(u_id - id_selected)));
-    float highlight = mix(hovored * 0.25, selected * -0.25, selected);
+    float highlight = mix(hovored * 0.25, selected * 0.5, selected);
 
     out_color.rgb += highlight;
 
