@@ -22,13 +22,16 @@ struct PlaneCharge { //needs to be 140 aligned
 };
 
 struct LineCharge { //needs to be 140 aligned
-    vec3 dir;
+    vec3 loc;
     float chargeDensity;
+    vec3 dir;
+    float filler0;
 };
 
 layout (std140) uniform ChargeCounts {
     int chargeCounts_nSpheres;
     int chargeCounts_nPlanes;
+    int chargeCount_nLines;
 };
 
 layout (std140) uniform SphereCharges {
@@ -50,7 +53,7 @@ layout (std140) uniform EThreshold {
 
 const float PI = 3.14159265f;
 const float E0 = 8.854e-12f;
-const float K = 8.98774244e9f;
+const float K = 8.98774244e9f;   // 1/4/pi/e0
 
 const float maxAlpha = 0.9f;
 
@@ -67,6 +70,11 @@ float calcPlaneE(float chargeDensity) {
     return chargeDensity / 2.0f / E0;
 }
 
+float calcLineE(float chargeDensity, vec3 lineLoc, vec3 lineDir, vec3 p) {
+    float d = length(cross(p - lineLoc, normalize(lineDir)));
+    return 2.0f * K * chargeDensity / d;
+}
+
 void main(void) {
 
     float eField = 0;
@@ -75,6 +83,9 @@ void main(void) {
     }
     for (int i = 0; i < chargeCounts_nPlanes; ++i) {
         eField += calcPlaneE(planeCharges_planes[i].chargeDensity);
+    }
+    for (int i = 0; i < chargeCount_nLines; ++i) {
+        eField += calcLineE(lineCharges_lines[i].chargeDensity, lineCharges_lines[i].loc, lineCharges_lines[i].dir, v_to_f.vertCoords);
     }
 
     float eRel = sign(eField) * clamp((abs(eField) - eThreshold_minMagE) / (eThreshold_maxMagE - eThreshold_minMagE), 0.0f, 1.0f);

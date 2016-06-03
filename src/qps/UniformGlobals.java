@@ -227,9 +227,11 @@ public abstract class UniformGlobals {
     }
 
     public static class LineChargesGlobals {
-        //dir       12
+        //loc       12
         //charge    16
-        public static final int SIZE = MainScene.MAX_OBJECTS * 16;
+        //dir       28
+        //filler0   32
+        public static final int SIZE = MainScene.MAX_OBJECTS * 32;
         public static final int BINDING = nextBinding();
 
         private static boolean needsBuffered;
@@ -242,9 +244,11 @@ public abstract class UniformGlobals {
             needsBuffered = false;
         }
 
-        public static void set(int i, Vec3 dir, float charge) {
-            dir.buffer(lineChargesGroup.data, i * 16);
+        public static void set(int i, Vec3 loc, float charge, Vec3 dir) {
+            loc.buffer(lineChargesGroup.data, i * 16);
             lineChargesGroup.data.putFloat(i * 16 + 12, charge);
+            dir.buffer(lineChargesGroup.data, i * 16 + 16);
+            lineChargesGroup.data.putFloat(i * 16 + 28, 0.0f);
 
             needsBuffered = true;
         }

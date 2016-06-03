@@ -218,7 +218,7 @@ public abstract class Main {
         MainScene.init();
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
-        MainScene.addLine(new ChargedLine(-0.01e-9f, new Vec3()));
+        MainScene.addLine(new ChargedLine(-0.1e-9f, new Vec3()));
 
         SensorScene.init();
 

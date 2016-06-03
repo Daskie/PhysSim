@@ -8,7 +8,7 @@ import qps.Vec3;
 public class ChargedPlane extends ChargedObject {
 
     public ChargedPlane(float charge, Vec3 loc) {
-        super(charge, loc, new Vec3(1000.0f, 1000.0f, 1000.0f));
+        super(charge, loc, Vec3.POSZ, Vec3.NEGY, new Vec3(1000.0f, 1000.0f, 1000.0f));
     }
 
 }

@@ -125,7 +125,7 @@ public abstract class MainScene {
         linesVAO.bufferInstanceID(index, id);
 
         UniformGlobals.ChargeCountsGlobals.setLineCount(lines.size());
-        UniformGlobals.LineChargesGlobals.set(index, line.getForward(), line.getCharge());
+        UniformGlobals.LineChargesGlobals.set(index, line.getLoc(), line.getCharge(), line.getForward());
     }
 
     public static void moveSphere(Vec3 delta) {
@@ -157,7 +157,7 @@ public abstract class MainScene {
             Mat4 mat = line.modelMat();
             linesVAO.bufferInstanceModelMat(selectedIndex, mat);
             linesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
-            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getForward(), line.getCharge());
+            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getLoc(), line.getCharge(), line.getForward());
         }
     }
 
@@ -179,7 +179,7 @@ public abstract class MainScene {
             Mat4 mat = line.modelMat();
             linesVAO.bufferInstanceModelMat(selectedIndex, mat);
             linesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
-            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getForward(), line.getCharge());
+            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getLoc(), line.getCharge(), line.getForward());
         }
     }
 
