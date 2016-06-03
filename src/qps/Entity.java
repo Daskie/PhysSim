@@ -8,14 +8,14 @@ public class Entity {
     public static final Vec3 DEFAULT_LOC = new Vec3();
     public static final Vec3 DEFAULT_FORWARD = Vec3.POSY;
     public static final Vec3 DEFAULT_UP = Vec3.POSZ;
-    public static final float DEFAULT_SCALE = 1.0f;
+    public static final Vec3 DEFAULT_SCALE = new Vec3(1.0f, 1.0f, 1.0f);
 
     protected Vec3 loc;
     protected Vec3 baseForward;
     protected Vec3 baseUp;
     protected Vec3 forward;
     protected Vec3 up;
-    protected float scale;
+    protected Vec3 scale;
 
     public Entity() {
         this(DEFAULT_LOC, DEFAULT_FORWARD, DEFAULT_UP);
@@ -23,19 +23,19 @@ public class Entity {
     public Entity(Vec3 loc) {
         this(loc, DEFAULT_FORWARD, DEFAULT_UP);
     }
-    public Entity(Vec3 loc, float scale) {
+    public Entity(Vec3 loc, Vec3 scale) {
         this(loc, DEFAULT_FORWARD, DEFAULT_UP, scale);
     }
     public Entity(Vec3 loc, Vec3 baseForward, Vec3 baseUp) {
         this(loc, baseForward, baseUp, DEFAULT_SCALE);
     }
-    public Entity(Vec3 loc, Vec3 baseForward, Vec3 baseUp, float scale) {
+    public Entity(Vec3 loc, Vec3 baseForward, Vec3 baseUp, Vec3 scale) {
         this.loc = new Vec3(loc);
         this.baseForward = new Vec3(baseForward);
         this.baseUp = new Vec3(baseUp);
+        this.scale = new Vec3(scale);
         forward = this.baseForward;
         up = this.baseUp;
-        this.scale = scale;
     }
 
     public Vec3 getLoc() {
@@ -97,8 +97,8 @@ public class Entity {
         up = new Vec3(baseUp);
     }
 
-    public void scale(float scale) {
-        this.scale = scale;
+    public void scale(Vec3 scale) {
+        this.scale = new Vec3(scale);
     }
 
     public Mat3 alignToBaseMat() {

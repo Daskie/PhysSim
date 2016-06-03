@@ -1,4 +1,7 @@
-package qps;
+package qps.charges;
+
+import qps.Entity;
+import qps.Vec3;
 
 /**
  * @since 5/28/2016
@@ -17,7 +20,7 @@ public class ChargedObject extends Entity {
         this.charge = charge;
     }
 
-    public ChargedObject(float charge, Vec3 loc, float scale) {
+    public ChargedObject(float charge, Vec3 loc, Vec3 scale) {
         super(loc, scale);
 
         this.charge = charge;
@@ -29,7 +32,7 @@ public class ChargedObject extends Entity {
         this.charge = charge;
     }
 
-    public ChargedObject(float charge, Vec3 loc, Vec3 forward, Vec3 up, float scale) {
+    public ChargedObject(float charge, Vec3 loc, Vec3 forward, Vec3 up, Vec3 scale) {
         super(loc, forward, up, scale);
 
         this.charge = charge;

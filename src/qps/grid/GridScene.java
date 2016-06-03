@@ -29,7 +29,7 @@ public abstract class GridScene {
         program = new GridProgram();
         program.init();
 
-        cubeVAO = new VAO(MeshManager.cubeMesh, 0, null, null, null, GL_STATIC_DRAW);
+        cubeVAO = new VAO(MeshManager.cubeMesh, 0, null, null, null, null, GL_STATIC_DRAW);
 
         program.setSize(SIZE);
         program.setSpacing(SPACING);

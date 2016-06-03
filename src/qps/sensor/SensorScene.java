@@ -26,7 +26,7 @@ public abstract class SensorScene {
     public static boolean init() {
         program = new SensorProgram();
         program.init();
-        sphereVAO = new VAO(MeshManager.sphereMesh, 0, null, null, null, GL_STATIC_DRAW);
+        sphereVAO = new VAO(MeshManager.sphereMesh, 0, null, null, null, null, GL_STATIC_DRAW);
 
         //sphereVAO.bufferColors(0, MeshManager.sphereMesh.nVertices(), new Vec4());
         int id = Main.registerIdentity(new SensorIdentityListener(), null, null);

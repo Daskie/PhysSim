@@ -2,6 +2,10 @@ package qps.main;
 
 import qps.*;
 import qps.cardinal.CardinalScene;
+import qps.charges.ChargedLine;
+import qps.charges.ChargedObject;
+import qps.charges.ChargedPlane;
+import qps.charges.ChargedSphere;
 
 import java.util.ArrayList;
 
@@ -21,8 +25,10 @@ public abstract class MainScene {
     private static MainProgram program;
     private static VAO spheresVAO;
     private static VAO planesVAO;
+    private static VAO linesVAO;
     private static ArrayList<ChargedSphere> spheres;
     private static ArrayList<ChargedPlane> planes;
+    private static ArrayList<ChargedLine> lines;
     private static int selectedIndex;
     private static ChargedObject selectedObject;
     private static Mat4 scaleMat;
@@ -30,10 +36,12 @@ public abstract class MainScene {
     public static boolean init() {
         program = new MainProgram();
         program.init();
-        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_OBJECTS, null, null, null, GL_STREAM_DRAW);
-        planesVAO = new VAO(MeshManager.squareMesh, MAX_OBJECTS, null, null, null, GL_STREAM_DRAW);
+        spheresVAO = new VAO(MeshManager.sphereMesh, MAX_OBJECTS, null, null, null, null, GL_STREAM_DRAW);
+        planesVAO = new VAO(MeshManager.squareMesh, MAX_OBJECTS, null, null, null, null, GL_STREAM_DRAW);
+        linesVAO = new VAO(MeshManager.cylinderMesh, MAX_OBJECTS, null, null, null, null, GL_STREAM_DRAW);
         spheres = new ArrayList<ChargedSphere>();
         planes = new ArrayList<ChargedPlane>();
+        lines = new ArrayList<ChargedLine>();
         selectedIndex = -1;
 
         if (!Utils.checkGLErr()) {
@@ -59,6 +67,9 @@ public abstract class MainScene {
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0, planes.size());
         glEnable(GL_CULL_FACE);
 
+        glBindVertexArray(linesVAO.vao());
+        glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cylinderMesh.nIndices(), GL_UNSIGNED_INT, 0, lines.size());
+
         glBindVertexArray(0);
         glUseProgram(0);
     }
@@ -71,7 +82,9 @@ public abstract class MainScene {
         int id = Main.registerIdentity(listener, null, null);
         CardinalScene.registerListener(id, listener);
 
-        spheresVAO.bufferInstanceMat(index, sphere.modelMat());
+        Mat4 mat = sphere.modelMat();
+        spheresVAO.bufferInstanceModelMat(index, mat);
+        spheresVAO.bufferInstanceNormMat(index, new Mat4(mat.inv().trans()));
         spheresVAO.bufferInstanceCharge(index, sphere.getCharge());
         spheresVAO.bufferInstanceID(index, id);
 
@@ -87,19 +100,41 @@ public abstract class MainScene {
         int id = Main.registerIdentity(listener, null, null);
         CardinalScene.registerListener(id, listener);
 
-        planesVAO.bufferInstanceMat(index, plane.modelMat());
+        Mat4 mat = plane.modelMat();
+        planesVAO.bufferInstanceModelMat(index, mat);
+        planesVAO.bufferInstanceNormMat(index, new Mat4(mat.inv().trans()));
         planesVAO.bufferInstanceCharge(index, plane.getCharge());
         planesVAO.bufferInstanceID(index, id);
 
-        UniformGlobals.ChargeCountsGlobals.setPlaneCount(spheres.size());
+        UniformGlobals.ChargeCountsGlobals.setPlaneCount(planes.size());
         UniformGlobals.PlaneChargesGlobals.set(index, plane.getForward(), plane.getCharge());
+    }
+
+    public static void addLine(ChargedLine line) {
+        lines.add(line);
+        int index = lines.size() - 1;
+
+        LineListener listener = new LineListener(index);
+        int id = Main.registerIdentity(listener, null, null);
+        CardinalScene.registerListener(id, listener);
+
+        Mat4 mat = line.modelMat();
+        linesVAO.bufferInstanceModelMat(index, mat);
+        linesVAO.bufferInstanceNormMat(index, new Mat4(mat.inv().trans()));
+        linesVAO.bufferInstanceCharge(index, line.getCharge());
+        linesVAO.bufferInstanceID(index, id);
+
+        UniformGlobals.ChargeCountsGlobals.setLineCount(lines.size());
+        UniformGlobals.LineChargesGlobals.set(index, line.getForward(), line.getCharge());
     }
 
     public static void moveSphere(Vec3 delta) {
         if (selectedIndex >= 0) {
             ChargedSphere sphere = spheres.get(selectedIndex);
             sphere.translate(delta);
-            spheresVAO.bufferInstanceMat(selectedIndex, sphere.modelMat());
+            Mat4 mat = sphere.modelMat();
+            spheresVAO.bufferInstanceModelMat(selectedIndex, mat);
+            spheresVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
             UniformGlobals.SphereChargesGlobals.set(selectedIndex, sphere.getLoc(), sphere.getCharge());
         }
     }
@@ -108,8 +143,21 @@ public abstract class MainScene {
         if (selectedIndex >= 0) {
             ChargedPlane plane = planes.get(selectedIndex);
             plane.translate(delta);
-            planesVAO.bufferInstanceMat(selectedIndex, plane.modelMat());
+            Mat4 mat = plane.modelMat();
+            planesVAO.bufferInstanceModelMat(selectedIndex, mat);
+            planesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
             UniformGlobals.PlaneChargesGlobals.set(selectedIndex, plane.getForward(), plane.getCharge());
+        }
+    }
+
+    public static void moveLine(Vec3 delta) {
+        if (selectedIndex >= 0) {
+            ChargedLine line = lines.get(selectedIndex);
+            line.translate(delta);
+            Mat4 mat = line.modelMat();
+            linesVAO.bufferInstanceModelMat(selectedIndex, mat);
+            linesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
+            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getForward(), line.getCharge());
         }
     }
 
@@ -117,8 +165,21 @@ public abstract class MainScene {
         if (selectedIndex >= 0) {
             ChargedPlane plane = planes.get(selectedIndex);
             plane.rotate(Quaternion.angleAxis(theta, axis));
-            planesVAO.bufferInstanceMat(selectedIndex, plane.modelMat());
+            Mat4 mat = plane.modelMat();
+            planesVAO.bufferInstanceModelMat(selectedIndex, mat);
+            planesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
             UniformGlobals.PlaneChargesGlobals.set(selectedIndex, plane.getForward(), plane.getCharge());
+        }
+    }
+
+    public static void rotateLine(Vec3 axis, float theta) {
+        if (selectedIndex >= 0) {
+            ChargedLine line = lines.get(selectedIndex);
+            line.rotate(Quaternion.angleAxis(theta, axis));
+            Mat4 mat = line.modelMat();
+            linesVAO.bufferInstanceModelMat(selectedIndex, mat);
+            linesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
+            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getForward(), line.getCharge());
         }
     }
 
@@ -212,6 +273,52 @@ public abstract class MainScene {
         @Override
         public void rotate(int id, Vec3 axis, float theta) {
             rotatePlane(axis, theta);
+        }
+
+    }
+
+    private static class LineListener implements IdentityListener, CardinalListener {
+
+        private int lineI;
+
+        public LineListener(int lineI) {
+            this.lineI = lineI;
+        }
+
+        @Override
+        public void gainedHover(int id) {}
+
+        @Override
+        public void lostHover(int id) {}
+
+        @Override
+        public boolean gainedSelect(int id) {
+            selectedIndex = lineI;
+            selectedObject = lines.get(lineI);
+            return true;
+        }
+
+        @Override
+        public boolean lostSelect(int id) {
+            selectedIndex = -1;
+            selectedObject = null;
+            return true;
+        }
+
+        @Override
+        public void move(int id, Vec3 delta) {
+            moveLine(delta);
+        }
+
+        @Override
+        public void round(int id) {
+            Vec3 loc = selectedObject.getLoc();
+            moveLine(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+        }
+
+        @Override
+        public void rotate(int id, Vec3 axis, float theta) {
+            rotateLine(axis, theta);
         }
 
     }

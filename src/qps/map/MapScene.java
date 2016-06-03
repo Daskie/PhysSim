@@ -32,7 +32,7 @@ public abstract class MapScene {
         program = new MapProgram();
         program.init();
 
-        planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, GL_STREAM_DRAW);
+        planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, null, GL_STREAM_DRAW);
 
         planeDirs = new Vec3[]{
             new Vec3(1.0f, 1.0f, 0.0f),

@@ -26,7 +26,8 @@ public class VAO {
     private int normsSize;
     private int vertsSize;
     private int indicesSize;
-    private int instanceMatsSize;
+    private int instanceModelMatsSize;
+    private int instanceNormMatsSize;
     private int instanceChargesSize;
     private int instanceIDsSize;
     private int instancesSize;
@@ -36,7 +37,8 @@ public class VAO {
     private int colorsOffset;
     private int uvsOffset;
     private int normsOffset;
-    private int instanceMatsOffset;
+    private int instanceModelMatsOffset;
+    private int instanceNormMatsOffset;
     private int instanceChargesOffset;
     private int instanceIDsOffset;
 
@@ -44,20 +46,21 @@ public class VAO {
 
     private ByteBuffer buffer;
 
-    public VAO(Mesh mesh, int nInstances, Mat4[] instanceMats, float[] instanceCharges, int[] instanceIDs, int usage) {
+    public VAO(Mesh mesh, int nInstances, Mat4[] instanceModelMats, Mat4[] instanceNormMats, float[] instanceCharges, int[] instanceIDs, int usage) {
         coordsSize = mesh.hasCoords() ? mesh.nVerts() * Mesh.COORDS_BYTES : 0;
         colorsSize = mesh.hasColors() ? mesh.nVerts() * Mesh.COLOR_BYTES : 0;
         uvsSize = mesh.hasUVs() ? mesh.nVerts() * Mesh.UV_BYTES : 0;
         normsSize = mesh.hasNorms() ? mesh.nVerts() * Mesh.NORM_BYTES : 0;
         vertsSize = coordsSize + colorsSize + uvsSize + normsSize;
         indicesSize = mesh.nIndices() * 4;
-        instanceMatsSize = nInstances * 64;
+        instanceModelMatsSize = nInstances * 64;
+        instanceNormMatsSize = nInstances * 64;
         instanceChargesSize = nInstances * 4;
         instanceIDsSize = nInstances * 4;
-        instancesSize = instanceMatsSize + instanceChargesSize + instanceIDsSize;
+        instancesSize = instanceModelMatsSize + instanceNormMatsSize + instanceChargesSize + instanceIDsSize;
         size = vertsSize + instancesSize;
 
-        buffer = createByteBuffer(Utils.max(coordsSize, colorsSize, uvsSize, normsSize, instanceMatsSize, instanceChargesSize, instanceIDsSize));
+        buffer = createByteBuffer(Utils.max(coordsSize, colorsSize, uvsSize, normsSize, instanceModelMatsSize, instanceNormMatsSize, instanceChargesSize, instanceIDsSize));
 
         int offset = 0;
         coordsOffset = offset; offset += coordsSize;
@@ -65,7 +68,8 @@ public class VAO {
         uvsOffset = offset; offset += uvsSize;
         normsOffset = offset; offset += normsSize;
         offset = vertsSize;
-        instanceMatsOffset = offset; offset += instanceMatsSize;
+        instanceModelMatsOffset = offset; offset += instanceModelMatsSize;
+        instanceNormMatsOffset = offset; offset += instanceNormMatsSize;
         instanceChargesOffset = offset; offset += instanceChargesSize;
         instanceIDsOffset = offset; offset += instanceIDsSize;
 
@@ -84,13 +88,21 @@ public class VAO {
         if (normsSize > 0) glBufferSubData(GL_ARRAY_BUFFER, normsOffset, mesh.normsData());
 
         if (nInstances > 0) {
-            if (instanceMats != null) {
+            if (instanceModelMats != null) {
                 buffer.clear();
                 for (int i = 0; i < nInstances; ++i) {
-                    instanceMats[i].buffer(buffer);
+                    instanceModelMats[i].buffer(buffer);
                 }
                 buffer.flip();
-                glBufferSubData(GL_ARRAY_BUFFER, instanceMatsOffset, instanceMatsSize, buffer);
+                glBufferSubData(GL_ARRAY_BUFFER, instanceModelMatsOffset, instanceModelMatsSize, buffer);
+            }
+            if (instanceNormMats != null) {
+                buffer.clear();
+                for (int i = 0; i < nInstances; ++i) {
+                    instanceNormMats[i].buffer(buffer);
+                }
+                buffer.flip();
+                glBufferSubData(GL_ARRAY_BUFFER, instanceNormMatsOffset, instanceNormMatsSize, buffer);
             }
             if (instanceCharges != null) {
                 buffer.clear();
@@ -171,7 +183,7 @@ public class VAO {
                     GL_FLOAT,
                     false,
                     64,
-                    instanceMatsOffset
+                    instanceModelMatsOffset
             );
             glVertexAttribDivisor(attribI, 1);
             ++attribI;
@@ -182,7 +194,7 @@ public class VAO {
                     GL_FLOAT,
                     false,
                     64,
-                    instanceMatsOffset + 16
+                    instanceModelMatsOffset + 16
             );
             glVertexAttribDivisor(attribI, 1);
             ++attribI;
@@ -193,7 +205,7 @@ public class VAO {
                     GL_FLOAT,
                     false,
                     64,
-                    instanceMatsOffset + 32
+                    instanceModelMatsOffset + 32
             );
             glVertexAttribDivisor(attribI, 1);
             ++attribI;
@@ -204,7 +216,52 @@ public class VAO {
                     GL_FLOAT,
                     false,
                     64,
-                    instanceMatsOffset + 48
+                    instanceModelMatsOffset + 48
+            );
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
+
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
+                    4,
+                    GL_FLOAT,
+                    false,
+                    64,
+                    instanceNormMatsOffset
+            );
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
+                    4,
+                    GL_FLOAT,
+                    false,
+                    64,
+                    instanceNormMatsOffset + 16
+            );
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
+                    4,
+                    GL_FLOAT,
+                    false,
+                    64,
+                    instanceNormMatsOffset + 32
+            );
+            glVertexAttribDivisor(attribI, 1);
+            ++attribI;
+            glEnableVertexAttribArray(attribI);
+            glVertexAttribPointer(
+                    attribI,
+                    4,
+                    GL_FLOAT,
+                    false,
+                    64,
+                    instanceNormMatsOffset + 48
             );
             glVertexAttribDivisor(attribI, 1);
             ++attribI;
@@ -304,22 +361,43 @@ public class VAO {
         glBindBuffer(GL_ARRAY_BUFFER, 0);
     }
 
-    public void bufferInstanceMat(int i, Mat4 mat) {
-        bufferInstanceMats(i, 1, new Mat4[]{ mat });
+    public void bufferInstanceModelMat(int i, Mat4 mat) {
+        bufferInstanceModelMats(i, 1, new Mat4[]{ mat });
     }
 
-    public void bufferInstanceMats(int i, int n, Mat4[] mats) {
+    public void bufferInstanceModelMats(int i, int n, Mat4[] mats) {
         buffer.clear();
 
         glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-        glMapBufferRange(GL_ARRAY_BUFFER, instanceMatsOffset + i * 64, n * 64, GL_MAP_WRITE_BIT, buffer);
+        glMapBufferRange(GL_ARRAY_BUFFER, instanceModelMatsOffset + i * 64, n * 64, GL_MAP_WRITE_BIT, buffer);
         for (int j = 0; j < n; ++j) {
             mats[j].buffer(buffer);
         }
         glUnmapBuffer(GL_ARRAY_BUFFER);
         if (!Utils.checkGLErr()) {
-            System.err.println("Failed to buffer instance mats!");
+            System.err.println("Failed to buffer instance model mats!");
+        }
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    public void bufferInstanceNormMat(int i, Mat4 mat) {
+        bufferInstanceNormMats(i, 1, new Mat4[]{ mat });
+    }
+
+    public void bufferInstanceNormMats(int i, int n, Mat4[] mats) {
+        buffer.clear();
+
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+        glMapBufferRange(GL_ARRAY_BUFFER, instanceNormMatsOffset + i * 64, n * 64, GL_MAP_WRITE_BIT, buffer);
+        for (int j = 0; j < n; ++j) {
+            mats[j].buffer(buffer);
+        }
+        glUnmapBuffer(GL_ARRAY_BUFFER);
+        if (!Utils.checkGLErr()) {
+            System.err.println("Failed to buffer instance norm mats!");
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);

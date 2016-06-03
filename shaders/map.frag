@@ -18,7 +18,12 @@ struct SphereCharge { //needs to be 140 aligned
 
 struct PlaneCharge { //needs to be 140 aligned
     vec3 norm;
-    float charge;
+    float chargeDensity;
+};
+
+struct LineCharge { //needs to be 140 aligned
+    vec3 dir;
+    float chargeDensity;
 };
 
 layout (std140) uniform ChargeCounts {
@@ -32,6 +37,10 @@ layout (std140) uniform SphereCharges {
 
 layout (std140) uniform PlaneCharges {
     PlaneCharge planeCharges_planes[MAX_CHARGES];
+};
+
+layout (std140) uniform LineCharges {
+    LineCharge lineCharges_lines[MAX_CHARGES];
 };
 
 layout (std140) uniform EThreshold {
@@ -54,8 +63,8 @@ float calcSphereE(float charge, float distance2) {
     return K * charge / distance2;
 }
 
-float calcPlaneE(float surfaceChargeDensity) {
-    return surfaceChargeDensity / 2.0f / E0;
+float calcPlaneE(float chargeDensity) {
+    return chargeDensity / 2.0f / E0;
 }
 
 void main(void) {
@@ -65,7 +74,7 @@ void main(void) {
         eField += calcSphereE(sphereCharges_spheres[i].charge, dist2(v_to_f.vertCoords, sphereCharges_spheres[i].loc));
     }
     for (int i = 0; i < chargeCounts_nPlanes; ++i) {
-        eField += calcPlaneE(planeCharges_planes[i].charge);
+        eField += calcPlaneE(planeCharges_planes[i].chargeDensity);
     }
 
     float eRel = sign(eField) * clamp((abs(eField) - eThreshold_minMagE) / (eThreshold_maxMagE - eThreshold_minMagE), 0.0f, 1.0f);

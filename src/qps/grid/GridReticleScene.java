@@ -1,6 +1,9 @@
 package qps.grid;
 
 import qps.*;
+import qps.charges.ChargedLine;
+import qps.charges.ChargedObject;
+import qps.charges.ChargedPlane;
 import qps.main.MainScene;
 import qps.sensor.SensorScene;
 
@@ -27,7 +30,7 @@ public class GridReticleScene {
         program = new GridReticleProgram();
         program.init();
 
-        cubeVAO = new VAO(MeshManager.cubeMesh, 9, null, null, null, GL_STREAM_DRAW);
+        cubeVAO = new VAO(MeshManager.cubeMesh, 9, null, null, null, null, GL_STREAM_DRAW);
         modelMats = new Mat4[9];
 
         program.setColor(RETICLE_COLOR);
@@ -52,8 +55,9 @@ public class GridReticleScene {
         Vec3 camLoc = Main.getCamera().loc();
         Vec3 target;
 
-        if (MainScene.getSelected() != null && !(MainScene.getSelected() instanceof ChargedPlane)) {
-            target = MainScene.getSelected().getLoc();
+        ChargedObject charge = MainScene.getSelected();
+        if (charge != null && !(charge instanceof ChargedPlane || charge instanceof ChargedLine)) {
+            target = charge.getLoc();
         }
         else if (SensorScene.isSelected()) {
             target = SensorScene.getSensorLoc();
@@ -85,7 +89,7 @@ public class GridReticleScene {
         modelMats[7] = new Mat4(Mat4.translate(new Vec3(target.x, 0, target.z / 2.0f)).mult(zScale));
         modelMats[8] = new Mat4(Mat4.translate(new Vec3(target.x / 2.0f, 0, target.z)).mult(xScale));
 
-        cubeVAO.bufferInstanceMats(0, 9, modelMats);
+        cubeVAO.bufferInstanceModelMats(0, 9, modelMats);
 
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.cubeMesh.nIndices(), GL_UNSIGNED_INT, 0, 9);
 

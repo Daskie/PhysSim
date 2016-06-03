@@ -4,6 +4,9 @@ import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import qps.cardinal.CardinalScene;
+import qps.charges.ChargedLine;
+import qps.charges.ChargedPlane;
+import qps.charges.ChargedSphere;
 import qps.fb.FBScene;
 import qps.field.FieldProgram;
 import qps.grid.GridScene;
@@ -215,7 +218,7 @@ public abstract class Main {
         MainScene.init();
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
-        MainScene.addPlane(new ChargedPlane(-0.01e-9f, new Vec3(0.0f, 0.0f, -4.0f), Vec3.POSZ, Vec3.NEGY));
+        MainScene.addLine(new ChargedLine(-0.01e-9f, new Vec3()));
 
         SensorScene.init();
 

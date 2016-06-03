@@ -57,10 +57,10 @@ public abstract class CardinalScene {
         program = new CardinalProgram();
         program.init();
 
-        axesVAO = new VAO(MeshManager.axesMesh, 0, null, null, null, GL_STATIC_DRAW);
-        coneVAO = new VAO(MeshManager.coneMesh, 0, null, null, null, GL_STATIC_DRAW);
-        sphereVao = new VAO(MeshManager.sphereMesh, 0, null, null, null, GL_STATIC_DRAW);
-        spinVao = new VAO(MeshManager.spinMesh, 0, null, null, null, GL_STATIC_DRAW);
+        axesVAO = new VAO(MeshManager.axesMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        coneVAO = new VAO(MeshManager.coneMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        sphereVao = new VAO(MeshManager.sphereMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        spinVao = new VAO(MeshManager.spinMesh, 0, null, null, null, null, GL_STATIC_DRAW);
 
         Vec4 color = new Vec4(0.75f, 0.75f, 0.75f, 1.0f);
         coneVAO.bufferColors(0, MeshManager.coneMesh.nVertices(), color);
