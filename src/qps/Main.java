@@ -191,6 +191,7 @@ public abstract class Main {
         UniformGlobals.LightGlobals.setShininess(LIGHT_SHININESS);
 
         UniformGlobals.ChargeCountsGlobals.setSphereCount(0);
+        UniformGlobals.ChargeCountsGlobals.setPlaneCount(0);
 
         UniformGlobals.EThresholdGlobals.setMinMagE(MIN_MAG_E);
         UniformGlobals.EThresholdGlobals.setMaxMagE(MAX_MAG_E);
@@ -214,6 +215,7 @@ public abstract class Main {
         MainScene.init();
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
+        MainScene.addPlane(new ChargedPlane(-0.01e-9f, new Vec3(0.0f, 0.0f, -4.0f), Vec3.POSZ, Vec3.NEGY));
 
         SensorScene.init();
 

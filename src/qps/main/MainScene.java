@@ -5,8 +5,7 @@ import qps.cardinal.CardinalScene;
 
 import java.util.ArrayList;
 
-import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
 import static org.lwjgl.opengl.GL20.glUseProgram;
 import static org.lwjgl.opengl.GL30.glBindVertexArray;
@@ -26,6 +25,7 @@ public abstract class MainScene {
     private static ArrayList<ChargedPlane> planes;
     private static int selectedIndex;
     private static ChargedObject selectedObject;
+    private static Mat4 scaleMat;
 
     public static boolean init() {
         program = new MainProgram();
@@ -54,8 +54,10 @@ public abstract class MainScene {
         glBindVertexArray(spheresVAO.vao());
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0, spheres.size());
 
+        glDisable(GL_CULL_FACE);
         glBindVertexArray(planesVAO.vao());
         glDrawElementsInstanced(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0, planes.size());
+        glEnable(GL_CULL_FACE);
 
         glBindVertexArray(0);
         glUseProgram(0);

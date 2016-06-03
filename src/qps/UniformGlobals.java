@@ -159,7 +159,10 @@ public abstract class UniformGlobals {
         private static boolean needsBuffered;
 
         public static void buffer() {
-            chargeCountsGroup.data.putInt(0, sphereCount);
+            chargeCountsGroup.data.clear();
+            chargeCountsGroup.data.putInt(sphereCount);
+            chargeCountsGroup.data.putInt(planeCount);
+            chargeCountsGroup.data.flip();
 
             glBindBuffer(GL_UNIFORM_BUFFER, ubo);
             glBufferSubData(GL_UNIFORM_BUFFER, chargeCountsGroup.offset, SIZE, chargeCountsGroup.data);

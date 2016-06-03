@@ -17,8 +17,20 @@ public class ChargedObject extends Entity {
         this.charge = charge;
     }
 
+    public ChargedObject(float charge, Vec3 loc, float scale) {
+        super(loc, scale);
+
+        this.charge = charge;
+    }
+
     public ChargedObject(float charge, Vec3 loc, Vec3 forward, Vec3 up) {
         super(loc, forward, up);
+
+        this.charge = charge;
+    }
+
+    public ChargedObject(float charge, Vec3 loc, Vec3 forward, Vec3 up, float scale) {
+        super(loc, forward, up, scale);
 
         this.charge = charge;
     }

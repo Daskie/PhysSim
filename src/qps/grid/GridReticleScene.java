@@ -52,7 +52,7 @@ public class GridReticleScene {
         Vec3 camLoc = Main.getCamera().loc();
         Vec3 target;
 
-        if (MainScene.getSelected() != null) {
+        if (MainScene.getSelected() != null && !(MainScene.getSelected() instanceof ChargedPlane)) {
             target = MainScene.getSelected().getLoc();
         }
         else if (SensorScene.isSelected()) {

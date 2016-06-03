@@ -8,11 +8,7 @@ public class ChargedPlane extends ChargedObject {
         super(charge);
     }
 
-    public ChargedPlane(float charge, Vec3 loc) {
-        super(charge, loc);
-    }
-
     public ChargedPlane(float charge, Vec3 loc, Vec3 forward, Vec3 up) {
-        super(charge, loc, forward, up);
+        super(charge, loc, forward, up, 1000.0f);
     }
 }
