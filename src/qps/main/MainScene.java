@@ -77,6 +77,10 @@ public abstract class MainScene {
         glUseProgram(0);
     }
 
+    public static boolean cleanup() {
+        return true;
+    }
+
     public static void addSphere(ChargedSphere sphere) {
         spheres.add(sphere);
         int index = spheres.size() - 1;
@@ -280,6 +284,38 @@ public abstract class MainScene {
 
     public static ChargedObject getSelected() {
         return selectedSphere != null ? selectedSphere : selectedPlane != null ? selectedPlane : selectedLine;
+    }
+
+    public static float calculateE(Vec3 p) {
+        float e = 0.0f;
+
+        for (ChargedSphere sphere : spheres) {
+            e += Utils.calcSphereE(sphere, p);
+        }
+        for (ChargedPlane plane : planes) {
+            e += Utils.calcPlaneE(plane, p);
+        }
+        for (ChargedLine line : lines) {
+            e += Utils.calcLineE(line, p);
+        }
+
+        return e;
+    }
+
+    public static float calculateV(Vec3 p) {
+        float v = 0.0f;
+
+        for (ChargedSphere sphere : spheres) {
+            v += Utils.calcSphereV(sphere, p);
+        }
+        for (ChargedPlane plane : planes) {
+            v += Utils.calcPlaneV(plane, p);
+        }
+        for (ChargedLine line : lines) {
+            v += Utils.calcLineV(line, p);
+        }
+
+        return v;
     }
 
     private static class SphereListener implements IdentityListener, CardinalListener {

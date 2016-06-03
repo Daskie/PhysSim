@@ -73,7 +73,6 @@ public abstract class Main {
     private static IntBuffer attachmentsBuffer;
     private static IntBuffer identityBuffer;
 
-
     private static FrameBuffer fb;
 
     public static int registerIdentity(IdentityListener identityListener, InputAdapter hoveredAdapter, InputAdapter selectedAdapter) {
@@ -267,27 +266,27 @@ public abstract class Main {
     }
 
     private static boolean initScene() {
-        CardinalScene.init();
+        if (!CardinalScene.init()) return false;
 
-        HUDScene.init();
+        if (!HUDScene.init()) return false;
 
-        MainScene.init();
+        if (!MainScene.init()) return false;
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
         //MainScene.addLine(new ChargedLine(-0.1e-9f, new Vec3()));
         deselect();
 
-        SensorScene.init();
+        if (!SensorScene.init()) return false;
 
         //FieldScene.init();
 
-        GridScene.init();
+        if (!GridScene.init()) return false;
 
-        GridReticleScene.init();
+        if (!GridReticleScene.init()) return false;
 
-        MapScene.init();
+        if (!MapScene.init()) return false;
 
-        FBScene.init();
+        if (!FBScene.init()) return false;
         fb = FrameBuffer.createMainIdentity(window.width(), window.height(), CLEAR_COLOR, NO_IDENTITY, MULTISAMPLED, SAMPLES);
         FBScene.setTex(fb.colorBuffer(0));
 
@@ -492,6 +491,16 @@ public abstract class Main {
     }
 
     private static boolean cleanup() {
+        if (!CardinalScene.cleanup()) return false;
+        if (!HUDScene.cleanup()) return false;
+        if (!MainScene.cleanup()) return false;
+        if (!SensorScene.cleanup()) return false;
+        //if (!FieldScene.cleanup()) return false;
+        if (!GridScene.cleanup()) return false;
+        if (!GridReticleScene.cleanup()) return false;
+        if (!MapScene.cleanup()) return false;
+        if (!FBScene.cleanup()) return false;
+
         window.cleanup();
 
         glfwTerminate();

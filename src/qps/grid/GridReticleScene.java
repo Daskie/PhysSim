@@ -96,4 +96,8 @@ public class GridReticleScene {
         glBindVertexArray(0);
         glUseProgram(0);
     }
+
+    public static boolean cleanup() {
+        return true;
+    }
 }

@@ -57,6 +57,10 @@ public abstract class FBScene {
         glUseProgram(0);
     }
 
+    public static boolean cleanup() {
+        return true;
+    }
+
     public static void setTex(int texID) {
         FBScene.texID = texID;
     }

@@ -85,4 +85,8 @@ public abstract class GridScene {
         glUseProgram(0);
     }
 
+    public static boolean cleanup() {
+        return true;
+    }
+
 }

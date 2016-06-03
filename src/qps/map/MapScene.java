@@ -128,4 +128,8 @@ public abstract class MapScene {
         glUseProgram(0);
     }
 
+    public static boolean cleanup() {
+        return true;
+    }
+
 }

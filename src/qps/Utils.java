@@ -1,5 +1,9 @@
 package qps;
 
+import qps.charges.ChargedLine;
+import qps.charges.ChargedPlane;
+import qps.charges.ChargedSphere;
+
 import static org.lwjgl.opengl.GL11.GL_NO_ERROR;
 import static org.lwjgl.opengl.GL11.glGetError;
 
@@ -78,6 +82,38 @@ public abstract class Utils {
         if (x >= 16) { x >>>= 4; log += 4; }
         if (x >= 4) { x >>>= 2; log += 2; }
         return log + (x >>> 1);
+    }
+
+    public static float distToLine(Vec3 lineLoc, Vec3 lineDir, Vec3 p) {
+        return (p.sub(lineLoc).cross(lineDir.norm())).mag();
+    }
+
+    public static float distToPlane(Vec4 planeVec, Vec3 p) {
+        return Math.abs(((new Vec3(planeVec)).dot(p) + planeVec.w) / (new Vec3(planeVec)).mag());
+    }
+
+    public static float calcSphereE(ChargedSphere sphere, Vec3 p) {
+        return K * sphere.getCharge() / sphere.getLoc().sub(p).mag2();
+    }
+
+    public static float calcSphereV(ChargedSphere sphere, Vec3 p) {
+        return K * sphere.getCharge() / sphere.getLoc().sub(p).mag();
+    }
+
+    public static float calcPlaneE(ChargedPlane plane, Vec3 p) {
+        return plane.getCharge() / 2.0f / E0;
+    }
+
+    public static float calcPlaneV(ChargedPlane plane, Vec3 p) {
+        return plane.getCharge() / 2.0f / E0 * distToPlane(plane.getVec(), p);
+    }
+
+    public static float calcLineE(ChargedLine line, Vec3 p) {
+        return 2.0f * K * line.getCharge() / distToLine(line.getLoc(), line.getForward(), p);
+    }
+
+    public static float calcLineV(ChargedLine line, Vec3 p) {
+        return 2.0f * K * line.getCharge() * (float)Math.log(distToLine(line.getLoc(), line.getForward(), p));
     }
 
 }

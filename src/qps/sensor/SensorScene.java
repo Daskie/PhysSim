@@ -2,6 +2,7 @@ package qps.sensor;
 
 import qps.*;
 import qps.cardinal.CardinalScene;
+import qps.main.MainScene;
 
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
 import static org.lwjgl.opengl.GL11.GL_UNSIGNED_INT;
@@ -24,6 +25,8 @@ public abstract class SensorScene {
     private static Mat4 sensorNormMat;
     private static boolean selected;
 
+    private static Meter meter;
+
     public static boolean init() {
         program = new SensorProgram();
         program.init();
@@ -38,6 +41,8 @@ public abstract class SensorScene {
         sensorMat = modelMat;
         sensorNormMat = new Mat4(sensorMat.inv().trans());
 
+        meter = new Meter();
+
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize main scene!");
             return false;
@@ -47,7 +52,8 @@ public abstract class SensorScene {
     }
 
     public static void update(int t, int dt) {
-
+        meter.setE(MainScene.calculateE(sensor.getLoc()));
+        meter.setV(MainScene.calculateV(sensor.getLoc()));
     }
 
     public static void draw() {
@@ -61,6 +67,12 @@ public abstract class SensorScene {
 
         glBindVertexArray(0);
         glUseProgram(0);
+    }
+
+    public static boolean cleanup() {
+        meter.cleanup();
+
+        return true;
     }
 
     public static void move(Vec3 delta) {

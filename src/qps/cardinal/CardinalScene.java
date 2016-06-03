@@ -200,6 +200,10 @@ public abstract class CardinalScene {
         glUseProgram(0);
     }
 
+    public static boolean cleanup() {
+        return true;
+    }
+
     public static void registerListener(int id, CardinalListener listener) {
         cardinalListeners.put(id, listener);
     }
