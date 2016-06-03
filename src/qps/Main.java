@@ -29,6 +29,12 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 public abstract class Main {
 
+    public static final float UNIT_CHARGE = 1.0e-9f;
+    public static final float LINEAR_CHARGE = UNIT_CHARGE / 10.0f;
+    public static final float SURFACE_CHARGE = LINEAR_CHARGE / 10.0f;
+    public static final float MIN_MAG_E = 0.0f;
+    public static final float MAX_MAG_E = 1.0f;
+
     public static final int NO_IDENTITY = -1;
     public static final int NO_POTENTIAL = -2;
 
@@ -49,8 +55,6 @@ public abstract class Main {
     public static final float LIGHT_AMBIENCE = 0.33f;
     public static final float LIGHT_SPECULAR_INTENSITY = 0.5f;
     public static final float LIGHT_SHININESS = 32.0f;
-    public static final float MIN_MAG_E = 0.0f;
-    public static final float MAX_MAG_E = 1.0f;
 
     private static boolean running;
     private static Window window;

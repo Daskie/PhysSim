@@ -245,10 +245,10 @@ public abstract class UniformGlobals {
         }
 
         public static void set(int i, Vec3 loc, float charge, Vec3 dir) {
-            loc.buffer(lineChargesGroup.data, i * 16);
-            lineChargesGroup.data.putFloat(i * 16 + 12, charge);
-            dir.buffer(lineChargesGroup.data, i * 16 + 16);
-            lineChargesGroup.data.putFloat(i * 16 + 28, 0.0f);
+            loc.buffer(lineChargesGroup.data, i * 32);
+            lineChargesGroup.data.putFloat(i * 32 + 12, charge);
+            dir.buffer(lineChargesGroup.data, i * 32 + 16);
+            lineChargesGroup.data.putFloat(i * 32 + 28, 0.0f);
 
             needsBuffered = true;
         }
