@@ -29,10 +29,10 @@ public class Window {
     private boolean cursorPresent;
     private boolean[] mouseButtonStates;
 
-    public Window(int width, int height) {
+    public Window(int width, int height, String title) {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 
-        id = glfwCreateWindow(width, height, "Hello World!", 0, 0);
+        id = glfwCreateWindow(width, height, title, 0, 0);
         if (id == 0) {
             throw new RuntimeException("Failed to create GLFW window!");
         }
@@ -40,6 +40,7 @@ public class Window {
         GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
         glfwSetWindowPos(id, (vidmode.width() - width) / 2, (vidmode.height() - height) / 2);
+        glfwSetWindowSizeLimits(id, 800, 600, GLFW_DONT_CARE, GLFW_DONT_CARE);
 
         glfwMakeContextCurrent(id);
         //glfwSwapInterval(1); //enable v-sync

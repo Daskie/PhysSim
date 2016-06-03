@@ -292,4 +292,12 @@ public class FrameBuffer {
         return attachmentFormat;
     }
 
+    public void destroy() {
+        glDeleteFramebuffers(fboID);
+
+        if (!Utils.checkGLErr()) {
+            System.out.println("Failed to destroy framebuffer!");
+        }
+    }
+
 }

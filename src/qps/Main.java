@@ -15,6 +15,7 @@ import qps.scenes.map.MapScene;
 import qps.scenes.sensor.SensorScene;
 import qps.utils.*;
 import qps.window_listeners.WindowCloseListener;
+import qps.window_listeners.WindowSizeListener;
 
 import java.nio.IntBuffer;
 import java.util.ArrayList;
@@ -172,7 +173,7 @@ public abstract class Main {
             return false;
         }
 
-        window = new Window(1280, 720);
+        window = new Window(1280, 720, "PhisSim - Austin Quick - PHYS 133 - Spring 2016");
         window.setCurrent();
 
         GL.createCapabilities();
@@ -281,6 +282,16 @@ public abstract class Main {
             @Override
             public void wantsToClose(WindowManager handler) {
                 running = false;
+            }
+        });
+
+        window.windowHandler().addWindowSizeListener(new WindowSizeListener() {
+            @Override
+            public void resized(int width, int height, WindowManager handler) {
+                fb.destroy();
+                fb = FrameBuffer.createMainIdentity(width, height, CLEAR_COLOR, NO_IDENTITY, MULTISAMPLED, SAMPLES);
+                FBScene.setTex(fb.colorBuffer(0));
+                glViewport(0, 0, width, height);
             }
         });
 
