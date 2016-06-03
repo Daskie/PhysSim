@@ -34,6 +34,9 @@ public abstract class Main {
     public static final float SURFACE_CHARGE = LINEAR_CHARGE / 10.0f;
     public static final float MIN_MAG_E = 0.0f;
     public static final float MAX_MAG_E = 1.0f;
+    public static final float MIN_MAG_V = 0.0f;
+    public static final float MAX_MAG_V = 1.0f;
+    public static final float V_STEP = 1.0f;
 
     public static final int NO_IDENTITY = -1;
     public static final int NO_POTENTIAL = -2;
@@ -244,8 +247,11 @@ public abstract class Main {
         UniformGlobals.ChargeCountsGlobals.setSphereCount(0);
         UniformGlobals.ChargeCountsGlobals.setPlaneCount(0);
 
-        UniformGlobals.EThresholdGlobals.setMinMagE(MIN_MAG_E);
-        UniformGlobals.EThresholdGlobals.setMaxMagE(MAX_MAG_E);
+        UniformGlobals.ThresholdGlobals.setMinMagE(MIN_MAG_E);
+        UniformGlobals.ThresholdGlobals.setMaxMagE(MAX_MAG_E);
+        UniformGlobals.ThresholdGlobals.setMinMagV(MIN_MAG_V);
+        UniformGlobals.ThresholdGlobals.setMaxMagV(MAX_MAG_V);
+        UniformGlobals.ThresholdGlobals.setVStep(V_STEP);
 
         UniformGlobals.IDGlobals.setHoveredID(NO_IDENTITY);
         UniformGlobals.IDGlobals.setSelectedID(NO_IDENTITY);

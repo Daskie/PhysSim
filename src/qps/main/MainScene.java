@@ -136,7 +136,7 @@ public abstract class MainScene {
         planesVAO.bufferInstanceID(index, id);
 
         UniformGlobals.ChargeCountsGlobals.setPlaneCount(planes.size());
-        UniformGlobals.PlaneChargesGlobals.set(index, plane.getForward(), plane.getCharge());
+        UniformGlobals.PlaneChargesGlobals.set(index, plane.getForward(), plane.getCharge(), plane.getVec());
     }
 
     public static void removePlane() {
@@ -236,7 +236,7 @@ public abstract class MainScene {
         int i = planes.indexOf(selectedPlane);
         planesVAO.bufferInstanceModelMat(i, mat);
         planesVAO.bufferInstanceNormMat(i, new Mat4(mat.inv().trans()));
-        UniformGlobals.PlaneChargesGlobals.set(i, selectedPlane.getForward(), selectedPlane.getCharge());
+        UniformGlobals.PlaneChargesGlobals.set(i, selectedPlane.getForward(), selectedPlane.getCharge(), selectedPlane.getVec());
     }
 
     public static void moveLine(Vec3 delta) {
@@ -262,7 +262,7 @@ public abstract class MainScene {
         int i = planes.indexOf(selectedPlane);
         planesVAO.bufferInstanceModelMat(i, mat);
         planesVAO.bufferInstanceNormMat(i, new Mat4(mat.inv().trans()));
-        UniformGlobals.PlaneChargesGlobals.set(i, selectedPlane.getForward(), selectedPlane.getCharge());
+        UniformGlobals.PlaneChargesGlobals.set(i, selectedPlane.getForward(), selectedPlane.getCharge(), selectedPlane.getVec());
     }
 
     public static void rotateLine(Vec3 axis, float theta) {

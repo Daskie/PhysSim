@@ -26,7 +26,7 @@ public class MapProgram extends ShaderProgram {
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "SphereCharges"), UniformGlobals.SphereChargesGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "PlaneCharges"), UniformGlobals.PlaneChargesGlobals.BINDING);
         glUniformBlockBinding(id, glGetUniformBlockIndex(id, "LineCharges"), UniformGlobals.LineChargesGlobals.BINDING);
-        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "EThreshold"), UniformGlobals.EThresholdGlobals.BINDING);
+        glUniformBlockBinding(id, glGetUniformBlockIndex(id, "Threshold"), UniformGlobals.ThresholdGlobals.BINDING);
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize map program!");
