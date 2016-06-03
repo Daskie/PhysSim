@@ -1,15 +1,12 @@
 package qps;
 
-import qps.*;
+import qps.utils.*;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;
-import static org.lwjgl.BufferUtils.createFloatBuffer;
 import static org.lwjgl.opengl.GL11.glGetInteger;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.glUniform1ui;
 
 /**
  * @since 5/20/2016

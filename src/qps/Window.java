@@ -6,8 +6,8 @@ import qps.window_listeners.*;
 
 import java.nio.ByteBuffer;
 
+import static org.lwjgl.BufferUtils.createByteBuffer;
 import static org.lwjgl.glfw.GLFW.*;
-import static org.lwjgl.BufferUtils.*;
 
 /**
  * @since 5/16/2016

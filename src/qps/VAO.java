@@ -1,20 +1,19 @@
 package qps;
 
+import qps.utils.Mat4;
+import qps.utils.Utils;
+import qps.utils.Vec3;
+import qps.utils.Vec4;
+
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;
-import static org.lwjgl.opengl.GL11.GL_FLOAT;
-import static org.lwjgl.opengl.GL11.GL_INT;
-import static org.lwjgl.opengl.GL11.GL_UNSIGNED_BYTE;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL31.GL_COPY_READ_BUFFER;
-import static org.lwjgl.opengl.GL31.GL_COPY_WRITE_BUFFER;
-import static org.lwjgl.opengl.GL31.glCopyBufferSubData;
+import static org.lwjgl.opengl.GL31.*;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 /**

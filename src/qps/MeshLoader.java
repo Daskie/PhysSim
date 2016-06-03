@@ -4,14 +4,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;
-import static org.lwjgl.BufferUtils.createFloatBuffer;
-import static org.lwjgl.BufferUtils.createIntBuffer;
 
 /**
  * @since 5/20/2016
@@ -69,6 +65,77 @@ public abstract class MeshLoader {
         indices.flip();
 
         return new Mesh("SimpleSquare", nVerts, coords, colors, uvs, norms, nIndices, indices);
+    }
+
+    public static Mesh doubleSquare() {
+        int nVerts = 8;
+        ByteBuffer coords = createByteBuffer(nVerts * Mesh.COORDS_BYTES);
+        ByteBuffer colors = createByteBuffer(nVerts * Mesh.COLOR_BYTES);
+        ByteBuffer uvs = createByteBuffer(nVerts * Mesh.UV_BYTES);
+        ByteBuffer norms = createByteBuffer(nVerts * Mesh.NORM_BYTES);
+
+        coords.putFloat(-1.0f); coords.putFloat(-1.0f); coords.putFloat(0.0f);
+        coords.putFloat(1.0f); coords.putFloat(-1.0f); coords.putFloat(0.0f);
+        coords.putFloat(1.0f); coords.putFloat(1.0f); coords.putFloat(0.0f);
+        coords.putFloat(-1.0f); coords.putFloat(1.0f); coords.putFloat(0.0f);
+
+        coords.putFloat(-1.0f); coords.putFloat(1.0f); coords.putFloat(0.0f);
+        coords.putFloat(1.0f); coords.putFloat(1.0f); coords.putFloat(0.0f);
+        coords.putFloat(1.0f); coords.putFloat(-1.0f); coords.putFloat(0.0f);
+        coords.putFloat(-1.0f); coords.putFloat(-1.0f); coords.putFloat(0.0f);
+
+        coords.flip();
+
+        byte w = (byte)255;
+        byte b = (byte)0;
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+        colors.put(w); colors.put(w); colors.put(w); colors.put(w);
+
+        colors.flip();
+
+        uvs.putFloat(0.0f); uvs.putFloat(0.0f);
+        uvs.putFloat(1.0f); uvs.putFloat(0.0f);
+        uvs.putFloat(1.0f); uvs.putFloat(1.0f);
+        uvs.putFloat(0.0f); uvs.putFloat(1.0f);
+
+        uvs.putFloat(0.0f); uvs.putFloat(1.0f);
+        uvs.putFloat(1.0f); uvs.putFloat(1.0f);
+        uvs.putFloat(1.0f); uvs.putFloat(0.0f);
+        uvs.putFloat(0.0f); uvs.putFloat(0.0f);
+
+        uvs.flip();
+
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(1.0f);
+
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(-1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(-1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(-1.0f);
+        norms.putFloat(0.0f); norms.putFloat(0.0f); norms.putFloat(-1.0f);
+
+        norms.flip();
+
+        int nIndices = 12;
+        ByteBuffer indices = createByteBuffer(nIndices * 4);
+
+        indices.putInt(0); indices.putInt(1); indices.putInt(2);
+        indices.putInt(2); indices.putInt(3); indices.putInt(0);
+
+        indices.putInt(4); indices.putInt(5); indices.putInt(6);
+        indices.putInt(6); indices.putInt(7); indices.putInt(4);
+
+        indices.flip();
+
+        return new Mesh("DoubleSquare", nVerts, coords, colors, uvs, norms, nIndices, indices);
     }
 
     public static Mesh fromFile(String filePath) throws IOException {

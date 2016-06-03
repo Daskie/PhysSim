@@ -1,6 +1,10 @@
 package qps;
 
-import qps.main.MainScene;
+import qps.scenes.main.MainScene;
+import qps.utils.Mat4;
+import qps.utils.Utils;
+import qps.utils.Vec3;
+import qps.utils.Vec4;
 
 import java.nio.ByteBuffer;
 
@@ -208,6 +212,7 @@ public abstract class UniformGlobals {
 
             needsBuffered = true;
         }
+
     }
 
     public static class PlaneChargesGlobals {

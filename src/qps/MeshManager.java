@@ -17,9 +17,11 @@ public abstract class MeshManager {
     public static Mesh spinMesh;
     public static Mesh crossMesh;
     public static Mesh tetraMesh;
+    public static Mesh doubleSquareMesh;
 
     public static boolean initMeshes() {
         squareMesh = MeshLoader.square();
+        doubleSquareMesh = MeshLoader.doubleSquare();
 
         try {
             cubeMesh = MeshLoader.fromFile("meshes/cube.qmesh");

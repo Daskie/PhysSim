@@ -1,5 +1,8 @@
 package qps;
 
+import qps.utils.Utils;
+import qps.utils.Vec4;
+
 import java.nio.ByteBuffer;
 
 import static org.lwjgl.BufferUtils.createByteBuffer;

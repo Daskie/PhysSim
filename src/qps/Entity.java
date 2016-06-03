@@ -1,5 +1,10 @@
 package qps;
 
+import qps.utils.Mat3;
+import qps.utils.Mat4;
+import qps.utils.Quaternion;
+import qps.utils.Vec3;
+
 /**
  * @since 5/21/2016
  */

@@ -1,7 +1,6 @@
 package qps;
 
 import org.lwjgl.glfw.*;
-import qps.window_listeners.FramebufferSizeListener;
 import qps.window_listeners.*;
 
 import java.util.LinkedList;

@@ -1,5 +1,7 @@
 package qps;
 
+import qps.utils.Vec3;
+
 /**
  * @since 6/1/2016
  */

@@ -1,13 +1,12 @@
 package qps;
 
-import qps.sensor.SensorScene;
+import qps.scenes.sensor.SensorScene;
+import qps.utils.Vec3;
 
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.NumberFormat;
 
 /**
  * @since 6/3/2016

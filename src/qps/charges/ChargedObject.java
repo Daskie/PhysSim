@@ -1,7 +1,7 @@
 package qps.charges;
 
 import qps.Entity;
-import qps.Vec3;
+import qps.utils.Vec3;
 
 /**
  * @since 5/28/2016

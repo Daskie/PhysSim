@@ -3,17 +3,17 @@ package qps;
 import org.lwjgl.Version;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
-import qps.cardinal.CardinalScene;
+import qps.scenes.cardinal.CardinalScene;
 import qps.charges.ChargedSphere;
-import qps.fb.FBScene;
-import qps.field.FieldProgram;
-import qps.grid.GridScene;
-import qps.grid.GridReticleScene;
-import qps.hud.HUDScene;
+import qps.scenes.fb.FBScene;
+import qps.scenes.grid.GridReticleScene;
+import qps.scenes.grid.GridScene;
+import qps.scenes.hud.HUDScene;
 import qps.input_listeners.*;
-import qps.main.MainScene;
-import qps.map.MapScene;
-import qps.sensor.SensorScene;
+import qps.scenes.main.MainScene;
+import qps.scenes.map.MapScene;
+import qps.scenes.sensor.SensorScene;
+import qps.utils.*;
 import qps.window_listeners.WindowCloseListener;
 
 import java.nio.IntBuffer;
@@ -25,7 +25,6 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_MULTISAMPLE;
 import static org.lwjgl.opengl.GL20.glDrawBuffers;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 
 public abstract class Main {
 
@@ -61,7 +60,6 @@ public abstract class Main {
 
     private static boolean running;
     private static Window window;
-    private static FieldProgram fieldProgram;
     private static Camera camera = new Camera(new Vec3(), 10.0f, CAM_RANGE, CAM_RANGE);
     private static ArrayList<IdentityListener> identityListeners = new ArrayList<IdentityListener>();
     private static ArrayList<InputAdapter> identityHoveredAdapters = new ArrayList<InputAdapter>();
@@ -145,9 +143,6 @@ public abstract class Main {
         if (!MeshManager.initMeshes()) {
             return false;
         }
-        if (!initShaders()) {
-            return false;
-        }
         if (!initUniformGlobals()) {
             return false;
         }
@@ -201,16 +196,6 @@ public abstract class Main {
 
         if (!Utils.checkGLErr()) {
             System.err.println("OpenGL initialization error!");
-            return false;
-        }
-
-        return true;
-    }
-
-    private static boolean initShaders() {
-        fieldProgram = new FieldProgram();
-        if (!fieldProgram.init()) {
-            System.err.println("Failed to initialize field shader program!");
             return false;
         }
 
@@ -278,8 +263,6 @@ public abstract class Main {
 
         if (!SensorScene.init()) return false;
 
-        //FieldScene.init();
-
         if (!GridScene.init()) return false;
 
         if (!GridReticleScene.init()) return false;
@@ -325,7 +308,7 @@ public abstract class Main {
                 if (hovoredID != NO_IDENTITY && identityHoveredAdapters.get(hovoredID) != null) {
                     identityHoveredAdapters.get(hovoredID).mousePressed(button, shift, ctrl, alt, repeat, manager);
                 }
-                if (selectedID != NO_IDENTITY && identitySelectedAdapters.get(selectedID) != null) {
+                if (selectedID != NO_IDENTITY && selectedID == hovoredID && identitySelectedAdapters.get(selectedID) != null) {
                     identitySelectedAdapters.get(selectedID).mousePressed(button, shift, ctrl, alt, repeat, manager);
                 }
             }
@@ -356,7 +339,7 @@ public abstract class Main {
                 if (hovoredID != NO_IDENTITY && identityHoveredAdapters.get(hovoredID) != null) {
                     identityHoveredAdapters.get(hovoredID).mouseReleased(button, shift, ctrl, alt, manager);
                 }
-                if (selectedID != NO_IDENTITY && identitySelectedAdapters.get(selectedID) != null) {
+                if (selectedID != NO_IDENTITY && selectedID == hovoredID && identitySelectedAdapters.get(selectedID) != null) {
                     identitySelectedAdapters.get(selectedID).mouseReleased(button, shift, ctrl, alt, manager);
                 }
             }
@@ -401,8 +384,6 @@ public abstract class Main {
 
         SensorScene.update(t, dt);
 
-        //FieldScene.update(t, dt);
-
         GridScene.update(t, dt);
 
         GridReticleScene.update(t, dt);
@@ -431,8 +412,6 @@ public abstract class Main {
         SensorScene.draw();
 
         glDrawBuffers(GL_COLOR_ATTACHMENT0);
-
-        //FieldScene.draw();
 
         GridScene.draw();
 
@@ -495,7 +474,6 @@ public abstract class Main {
         if (!HUDScene.cleanup()) return false;
         if (!MainScene.cleanup()) return false;
         if (!SensorScene.cleanup()) return false;
-        //if (!FieldScene.cleanup()) return false;
         if (!GridScene.cleanup()) return false;
         if (!GridReticleScene.cleanup()) return false;
         if (!MapScene.cleanup()) return false;
