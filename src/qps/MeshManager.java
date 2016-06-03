@@ -15,6 +15,8 @@ public abstract class MeshManager {
     public static Mesh axesMesh;
     public static Mesh cylinderMesh;
     public static Mesh spinMesh;
+    public static Mesh crossMesh;
+    public static Mesh tetraMesh;
 
     public static boolean initMeshes() {
         squareMesh = MeshLoader.square();
@@ -27,6 +29,8 @@ public abstract class MeshManager {
             axesMesh = MeshLoader.fromFile("meshes/cardinal16.qmesh");
             cylinderMesh = MeshLoader.fromFile("meshes/cylinder16.qmesh");
             spinMesh = MeshLoader.fromFile("meshes/spin16.qmesh");
+            crossMesh = MeshLoader.fromFile("meshes/cross.qmesh");
+            tetraMesh = MeshLoader.fromFile("meshes/tetra.qmesh");
         } catch (IOException e) {
             System.err.println("Failed to initialize meshes!");
             e.printStackTrace();

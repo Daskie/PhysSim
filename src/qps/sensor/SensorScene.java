@@ -17,8 +17,9 @@ import static org.lwjgl.opengl.GL31.glDrawElementsInstanced;
 public abstract class SensorScene {
 
     private static SensorProgram program;
-    private static VAO sphereVAO;
+    private static VAO sensorVAO;
     private static Entity sensor;
+    private static Mat4 modelMat;
     private static Mat4 sensorMat;
     private static Mat4 sensorNormMat;
     private static boolean selected;
@@ -26,15 +27,15 @@ public abstract class SensorScene {
     public static boolean init() {
         program = new SensorProgram();
         program.init();
-        sphereVAO = new VAO(MeshManager.sphereMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        sensorVAO = new VAO(MeshManager.tetraMesh, 0, null, null, null, null, GL_STATIC_DRAW);
 
-        //sphereVAO.bufferColors(0, MeshManager.sphereMesh.nVertices(), new Vec4());
         int id = Main.registerIdentity(new SensorIdentityListener(), null, null);
         CardinalScene.registerListener(id, new SensorListener());
         program.setID(id);
 
         sensor = new Entity();
-        sensorMat = new Mat4();
+        modelMat = new Mat4(Mat3.scale(0.5f));
+        sensorMat = modelMat;
         sensorNormMat = new Mat4(sensorMat.inv().trans());
 
         if (!Utils.checkGLErr()) {
@@ -51,12 +52,12 @@ public abstract class SensorScene {
 
     public static void draw() {
         glUseProgram(program.id());
-        glBindVertexArray(sphereVAO.vao());
+        glBindVertexArray(sensorVAO.vao());
 
         UniformGlobals.ModelGlobals.setModelMat(sensorMat);
         UniformGlobals.ModelGlobals.setNormMat(sensorNormMat);
         UniformGlobals.ModelGlobals.buffer();
-        glDrawElements(GL_TRIANGLES, MeshManager.sphereMesh.nIndices(), GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, MeshManager.tetraMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -64,13 +65,13 @@ public abstract class SensorScene {
 
     public static void move(Vec3 delta) {
         sensor.translate(delta);
-        sensorMat = sensor.modelMat();
+        sensorMat = new Mat4(sensor.modelMat().mult(modelMat));
         sensorNormMat = new Mat4(sensorMat.inv().trans());
     }
 
     public static void rotate(Vec3 axis, float theta) {
         sensor.rotate(Quaternion.angleAxis(theta, axis));
-        sensorMat = sensor.modelMat();
+        sensorMat = new Mat4(sensor.modelMat().mult(modelMat));
         sensorNormMat = new Mat4(sensorMat.inv().trans());
     }
 

@@ -8,6 +8,7 @@ import qps.charges.ChargedPlane;
 import qps.charges.ChargedSphere;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.GL_STREAM_DRAW;
@@ -29,9 +30,10 @@ public abstract class MainScene {
     private static ArrayList<ChargedSphere> spheres;
     private static ArrayList<ChargedPlane> planes;
     private static ArrayList<ChargedLine> lines;
-    private static int selectedIndex;
-    private static ChargedObject selectedObject;
-    private static Mat4 scaleMat;
+    private static ChargedSphere selectedSphere;
+    private static ChargedPlane selectedPlane;
+    private static ChargedLine selectedLine;
+    private static HashMap<ChargedObject, Integer> objectIDs;
 
     public static boolean init() {
         program = new MainProgram();
@@ -42,7 +44,8 @@ public abstract class MainScene {
         spheres = new ArrayList<ChargedSphere>();
         planes = new ArrayList<ChargedPlane>();
         lines = new ArrayList<ChargedLine>();
-        selectedIndex = -1;
+
+        objectIDs = new HashMap<ChargedObject, Integer>();
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize main scene!");
@@ -78,9 +81,11 @@ public abstract class MainScene {
         spheres.add(sphere);
         int index = spheres.size() - 1;
 
-        SphereListener listener = new SphereListener(index);
+        SphereListener listener = new SphereListener(sphere);
         int id = Main.registerIdentity(listener, null, null);
         CardinalScene.registerListener(id, listener);
+        objectIDs.put(sphere, id);
+        Main.select(id);
 
         Mat4 mat = sphere.modelMat();
         spheresVAO.bufferInstanceModelMat(index, mat);
@@ -92,13 +97,37 @@ public abstract class MainScene {
         UniformGlobals.SphereChargesGlobals.set(index, sphere.getLoc(), sphere.getCharge());
     }
 
+    public static void removeSphere() {
+        if (selectedSphere == null) {
+            return;
+        }
+
+        int index = spheres.indexOf(selectedSphere);
+
+        int id = objectIDs.get(selectedSphere);
+        Main.unregisterIdentity(id);
+        CardinalScene.unregisterListener(id);
+        objectIDs.remove(selectedSphere);
+
+        spheresVAO.removeInstance(index);
+
+        UniformGlobals.ChargeCountsGlobals.setSphereCount(spheres.size() - 1);
+        UniformGlobals.SphereChargesGlobals.remove(index);
+
+        spheres.remove(selectedSphere);
+        selectedSphere = null;
+    }
+
     public static void addPlane(ChargedPlane plane) {
         planes.add(plane);
         int index = planes.size() - 1;
 
-        PlaneListener listener = new PlaneListener(index);
+        PlaneListener listener = new PlaneListener(plane);
         int id = Main.registerIdentity(listener, null, null);
         CardinalScene.registerListener(id, listener);
+        objectIDs.put(plane, id);
+        Main.select(id);
+
 
         Mat4 mat = plane.modelMat();
         planesVAO.bufferInstanceModelMat(index, mat);
@@ -110,13 +139,36 @@ public abstract class MainScene {
         UniformGlobals.PlaneChargesGlobals.set(index, plane.getForward(), plane.getCharge());
     }
 
+    public static void removePlane() {
+        if (selectedPlane == null) {
+            return;
+        }
+
+        int index = planes.indexOf(selectedPlane);
+
+        int id = objectIDs.get(selectedPlane);
+        Main.unregisterIdentity(id);
+        CardinalScene.unregisterListener(id);
+        objectIDs.remove(selectedPlane);
+
+        planesVAO.removeInstance(index);
+
+        UniformGlobals.ChargeCountsGlobals.setPlaneCount(planes.size() - 1);
+        UniformGlobals.PlaneChargesGlobals.remove(index);
+
+        planes.remove(selectedPlane);
+        selectedPlane = null;
+    }
+
     public static void addLine(ChargedLine line) {
         lines.add(line);
         int index = lines.size() - 1;
 
-        LineListener listener = new LineListener(index);
+        LineListener listener = new LineListener(line);
         int id = Main.registerIdentity(listener, null, null);
         CardinalScene.registerListener(id, listener);
+        objectIDs.put(line, id);
+        Main.select(id);
 
         Mat4 mat = line.modelMat();
         linesVAO.bufferInstanceModelMat(index, mat);
@@ -128,71 +180,114 @@ public abstract class MainScene {
         UniformGlobals.LineChargesGlobals.set(index, line.getLoc(), line.getCharge(), line.getForward());
     }
 
-    public static void moveSphere(Vec3 delta) {
-        if (selectedIndex >= 0) {
-            ChargedSphere sphere = spheres.get(selectedIndex);
-            sphere.translate(delta);
-            Mat4 mat = sphere.modelMat();
-            spheresVAO.bufferInstanceModelMat(selectedIndex, mat);
-            spheresVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
-            UniformGlobals.SphereChargesGlobals.set(selectedIndex, sphere.getLoc(), sphere.getCharge());
+    public static void removeLine() {
+        if (selectedLine == null) {
+            return;
         }
+
+        int index = lines.indexOf(selectedLine);
+
+        int id = objectIDs.get(selectedLine);
+        Main.unregisterIdentity(id);
+        CardinalScene.unregisterListener(id);
+        objectIDs.remove(selectedLine);
+
+        linesVAO.removeInstance(index);
+
+        UniformGlobals.ChargeCountsGlobals.setLineCount(lines.size() - 1);
+        UniformGlobals.LineChargesGlobals.remove(index);
+
+        lines.remove(selectedLine);
+        selectedLine = null;
+    }
+
+    public static void remove() {
+        if (selectedSphere != null) {
+            removeSphere();
+        }
+        if (selectedPlane != null) {
+            removePlane();
+        }
+        if (selectedLine != null) {
+            removeLine();
+        }
+    }
+
+    public static void moveSphere(Vec3 delta) {
+        if (selectedSphere == null) {
+            return;
+        }
+
+        selectedSphere.translate(delta);
+        Mat4 mat = selectedSphere.modelMat();
+        int i = spheres.indexOf(selectedSphere);
+        spheresVAO.bufferInstanceModelMat(i, mat);
+        spheresVAO.bufferInstanceNormMat(i, new Mat4(mat.inv().trans()));
+        UniformGlobals.SphereChargesGlobals.set(i, selectedSphere.getLoc(), selectedSphere.getCharge());
     }
 
     public static void movePlane(Vec3 delta) {
-        if (selectedIndex >= 0) {
-            ChargedPlane plane = planes.get(selectedIndex);
-            plane.translate(delta);
-            Mat4 mat = plane.modelMat();
-            planesVAO.bufferInstanceModelMat(selectedIndex, mat);
-            planesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
-            UniformGlobals.PlaneChargesGlobals.set(selectedIndex, plane.getForward(), plane.getCharge());
+        if (selectedPlane == null) {
+            return;
         }
+
+        selectedPlane.translate(delta);
+        Mat4 mat = selectedPlane.modelMat();
+        int i = planes.indexOf(selectedPlane);
+        planesVAO.bufferInstanceModelMat(i, mat);
+        planesVAO.bufferInstanceNormMat(i, new Mat4(mat.inv().trans()));
+        UniformGlobals.PlaneChargesGlobals.set(i, selectedPlane.getForward(), selectedPlane.getCharge());
     }
 
     public static void moveLine(Vec3 delta) {
-        if (selectedIndex >= 0) {
-            ChargedLine line = lines.get(selectedIndex);
-            line.translate(delta);
-            Mat4 mat = line.modelMat();
-            linesVAO.bufferInstanceModelMat(selectedIndex, mat);
-            linesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
-            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getLoc(), line.getCharge(), line.getForward());
+        if (selectedLine == null) {
+            return;
         }
+
+        selectedLine.translate(delta);
+        Mat4 mat = selectedLine.modelMat();
+        int i = lines.indexOf(selectedLine);
+        linesVAO.bufferInstanceModelMat(i, mat);
+        linesVAO.bufferInstanceNormMat(i, new Mat4(mat.inv().trans()));
+        UniformGlobals.LineChargesGlobals.set(i, selectedLine.getLoc(), selectedLine.getCharge(), selectedLine.getForward());
     }
 
     public static void rotatePlane(Vec3 axis, float theta) {
-        if (selectedIndex >= 0) {
-            ChargedPlane plane = planes.get(selectedIndex);
-            plane.rotate(Quaternion.angleAxis(theta, axis));
-            Mat4 mat = plane.modelMat();
-            planesVAO.bufferInstanceModelMat(selectedIndex, mat);
-            planesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
-            UniformGlobals.PlaneChargesGlobals.set(selectedIndex, plane.getForward(), plane.getCharge());
+        if (selectedPlane == null) {
+            return;
         }
+
+        selectedPlane.rotate(Quaternion.angleAxis(theta, axis));
+        Mat4 mat = selectedPlane.modelMat();
+        int i = planes.indexOf(selectedPlane);
+        planesVAO.bufferInstanceModelMat(i, mat);
+        planesVAO.bufferInstanceNormMat(i, new Mat4(mat.inv().trans()));
+        UniformGlobals.PlaneChargesGlobals.set(i, selectedPlane.getForward(), selectedPlane.getCharge());
     }
 
     public static void rotateLine(Vec3 axis, float theta) {
-        if (selectedIndex >= 0) {
-            ChargedLine line = lines.get(selectedIndex);
-            line.rotate(Quaternion.angleAxis(theta, axis));
-            Mat4 mat = line.modelMat();
-            linesVAO.bufferInstanceModelMat(selectedIndex, mat);
-            linesVAO.bufferInstanceNormMat(selectedIndex, new Mat4(mat.inv().trans()));
-            UniformGlobals.LineChargesGlobals.set(selectedIndex, line.getLoc(), line.getCharge(), line.getForward());
+        if (selectedLine == null) {
+            return;
         }
+
+        selectedLine.rotate(Quaternion.angleAxis(theta, axis));
+        Mat4 mat = selectedLine.modelMat();
+        int i = lines.indexOf(selectedLine);
+        linesVAO.bufferInstanceModelMat(i, mat);
+        linesVAO.bufferInstanceNormMat(i, new Mat4(mat.inv().trans()));
+        UniformGlobals.LineChargesGlobals.set(i, selectedLine.getLoc(), selectedLine.getCharge(), selectedLine.getForward());
     }
 
     public static ChargedObject getSelected() {
-        return selectedObject;
+        return selectedSphere != null ? selectedSphere : selectedPlane != null ? selectedPlane : selectedLine;
     }
 
     private static class SphereListener implements IdentityListener, CardinalListener {
 
-        private int sphereI;
+        private ChargedSphere sphere;
 
-        public SphereListener(int sphereI) {
-            this.sphereI = sphereI;
+        public SphereListener(ChargedSphere sphere) {
+            this.sphere = sphere;
         }
 
         @Override
@@ -203,15 +298,16 @@ public abstract class MainScene {
 
         @Override
         public boolean gainedSelect(int id) {
-            selectedIndex = sphereI;
-            selectedObject = spheres.get(sphereI);
+            selectedSphere = sphere;
+            selectedPlane = null;
+            selectedLine = null;
+
             return true;
         }
 
         @Override
         public boolean lostSelect(int id) {
-            selectedIndex = -1;
-            selectedObject = null;
+            selectedSphere = null;
             return true;
         }
 
@@ -222,7 +318,7 @@ public abstract class MainScene {
 
         @Override
         public void round(int id) {
-            Vec3 loc = selectedObject.getLoc();
+            Vec3 loc = selectedSphere.getLoc();
             moveSphere(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
         }
 
@@ -233,10 +329,10 @@ public abstract class MainScene {
 
     private static class PlaneListener implements IdentityListener, CardinalListener {
 
-        private int planeI;
+        private ChargedPlane plane;
 
-        public PlaneListener(int planeI) {
-            this.planeI = planeI;
+        public PlaneListener(ChargedPlane plane) {
+            this.plane = plane;
         }
 
         @Override
@@ -247,15 +343,16 @@ public abstract class MainScene {
 
         @Override
         public boolean gainedSelect(int id) {
-            selectedIndex = planeI;
-            selectedObject = planes.get(planeI);
+            selectedPlane = plane;
+            selectedSphere = null;
+            selectedLine = null;
+
             return true;
         }
 
         @Override
         public boolean lostSelect(int id) {
-            selectedIndex = -1;
-            selectedObject = null;
+            selectedPlane = null;
             return true;
         }
 
@@ -266,7 +363,7 @@ public abstract class MainScene {
 
         @Override
         public void round(int id) {
-            Vec3 loc = selectedObject.getLoc();
+            Vec3 loc = selectedPlane.getLoc();
             movePlane(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
         }
 
@@ -279,10 +376,10 @@ public abstract class MainScene {
 
     private static class LineListener implements IdentityListener, CardinalListener {
 
-        private int lineI;
+        private ChargedLine line;
 
-        public LineListener(int lineI) {
-            this.lineI = lineI;
+        public LineListener(ChargedLine line) {
+            this.line = line;
         }
 
         @Override
@@ -293,15 +390,16 @@ public abstract class MainScene {
 
         @Override
         public boolean gainedSelect(int id) {
-            selectedIndex = lineI;
-            selectedObject = lines.get(lineI);
+            selectedLine = line;
+            selectedSphere = null;
+            selectedPlane = null;
+
             return true;
         }
 
         @Override
         public boolean lostSelect(int id) {
-            selectedIndex = -1;
-            selectedObject = null;
+            selectedLine = null;
             return true;
         }
 
@@ -312,7 +410,7 @@ public abstract class MainScene {
 
         @Override
         public void round(int id) {
-            Vec3 loc = selectedObject.getLoc();
+            Vec3 loc = selectedLine.getLoc();
             moveLine(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
         }
 

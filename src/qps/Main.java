@@ -80,12 +80,57 @@ public abstract class Main {
         return identityListeners.size() - 1;
     }
 
+    public static void unregisterIdentity(int id) {
+        identityListeners.set(id, null); // I know, this is awful, but i'm out of time
+        identityHoveredAdapters.set(id, null);
+        identitySelectedAdapters.set(id, null);
+        if (id == hovoredID) hovoredID = NO_IDENTITY;
+        if (id == selectedID) selectedID = NO_IDENTITY;
+        if (id == potentialID) potentialID = NO_POTENTIAL;
+    }
+
     public static Camera getCamera() {
         return camera;
     }
 
     public static int getSelected() {
         return selectedID;
+    }
+
+    public static boolean select(int id) {
+        if (id < 0 || id >= identityListeners.size()) {
+            return false;
+        }
+
+        if (!deselect()) {
+            return false;
+        }
+
+        if (identityListeners.get(id) != null) {
+            if (identityListeners.get(id).gainedSelect(id)) {
+                selectedID = id;
+                UniformGlobals.IDGlobals.setSelectedID(selectedID);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
+    public static boolean deselect() {
+        if (selectedID != NO_IDENTITY) {
+            if (identityListeners.get(selectedID) != null) {
+                if (identityListeners.get(selectedID).lostSelect(selectedID)) {
+                    selectedID = NO_IDENTITY;
+                    UniformGlobals.IDGlobals.setSelectedID(selectedID);
+                    return true;
+                }
+                return false;
+            }
+            selectedID = NO_IDENTITY;
+            UniformGlobals.IDGlobals.setSelectedID(selectedID);
+        }
+        return true;
     }
 
     private static boolean init() {
@@ -224,6 +269,7 @@ public abstract class Main {
         MainScene.addSphere(new ChargedSphere(1.0e-9f, new Vec3(1.0f, 0.0f, 0.0f)));
         MainScene.addSphere(new ChargedSphere(-1.0e-9f, new Vec3(-1.0f, 0.0f, 0.0f)));
         //MainScene.addLine(new ChargedLine(-0.1e-9f, new Vec3()));
+        deselect();
 
         SensorScene.init();
 
@@ -299,7 +345,6 @@ public abstract class Main {
                             }
                         }
                         UniformGlobals.IDGlobals.setSelectedID(selectedID);
-                        UniformGlobals.IDGlobals.buffer();
                         potentialID = NO_POTENTIAL;
                     }
                 }

@@ -200,6 +200,14 @@ public abstract class UniformGlobals {
 
             needsBuffered = true;
         }
+
+        public static void remove(int i) {
+            for (int j = i * 16; j < SIZE - 16; ++j) {
+                sphereChargesGroup.data.put(j, sphereChargesGroup.data.get(j + 16));
+            }
+
+            needsBuffered = true;
+        }
     }
 
     public static class PlaneChargesGlobals {
@@ -221,6 +229,14 @@ public abstract class UniformGlobals {
         public static void set(int i, Vec3 norm, float charge) {
             norm.buffer(planeChargesGroup.data, i * 16);
             planeChargesGroup.data.putFloat(i * 16 + 12, charge);
+
+            needsBuffered = true;
+        }
+
+        public static void remove(int i) {
+            for (int j = i * 16; j < SIZE - 16; ++j) {
+                planeChargesGroup.data.put(j, planeChargesGroup.data.get(j + 16));
+            }
 
             needsBuffered = true;
         }
@@ -249,6 +265,14 @@ public abstract class UniformGlobals {
             lineChargesGroup.data.putFloat(i * 32 + 12, charge);
             dir.buffer(lineChargesGroup.data, i * 32 + 16);
             lineChargesGroup.data.putFloat(i * 32 + 28, 0.0f);
+
+            needsBuffered = true;
+        }
+
+        public static void remove(int i) {
+            for (int j = i * 32; j < SIZE - 32; ++j) {
+                lineChargesGroup.data.put(j, lineChargesGroup.data.get(j + 32));
+            }
 
             needsBuffered = true;
         }

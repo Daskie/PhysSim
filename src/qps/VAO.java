@@ -12,6 +12,9 @@ import static org.lwjgl.opengl.GL15.glBindBuffer;
 import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
 import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
 import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL31.GL_COPY_READ_BUFFER;
+import static org.lwjgl.opengl.GL31.GL_COPY_WRITE_BUFFER;
+import static org.lwjgl.opengl.GL31.glCopyBufferSubData;
 import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
 
 /**
@@ -19,6 +22,8 @@ import static org.lwjgl.opengl.GL33.glVertexAttribDivisor;
  */
 
 public class VAO {
+
+    private int nInstances;
 
     private int coordsSize;
     private int colorsSize;
@@ -47,6 +52,7 @@ public class VAO {
     private ByteBuffer buffer;
 
     public VAO(Mesh mesh, int nInstances, Mat4[] instanceModelMats, Mat4[] instanceNormMats, float[] instanceCharges, int[] instanceIDs, int usage) {
+        this.nInstances = nInstances;
         coordsSize = mesh.hasCoords() ? mesh.nVerts() * Mesh.COORDS_BYTES : 0;
         colorsSize = mesh.hasColors() ? mesh.nVerts() * Mesh.COLOR_BYTES : 0;
         uvsSize = mesh.hasUVs() ? mesh.nVerts() * Mesh.UV_BYTES : 0;
@@ -443,6 +449,27 @@ public class VAO {
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
+    }
+
+    public void removeInstance(int i) {
+        if (i >= nInstances) {
+            return;
+        }
+
+        glBindBuffer(GL_COPY_READ_BUFFER, vbo);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, vbo);
+
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, instanceModelMatsOffset + (i + 1) * 64, instanceModelMatsOffset + i * 64, 64);
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, instanceNormMatsOffset + (i + 1) * 64, instanceNormMatsOffset + i * 64, 64);
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, instanceChargesOffset + (i + 1) * 4, instanceChargesOffset + i * 4, 4);
+        glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, instanceIDsOffset + (i + 1) * 4, instanceIDsOffset + i * 4, 4);
+
+        glBindBuffer(GL_COPY_READ_BUFFER, 0);
+        glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+
+        if (!Utils.checkGLErr()) {
+            System.err.println("Failed to remove instance!");
+        }
     }
 
     public int vao() {

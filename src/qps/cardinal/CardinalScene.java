@@ -204,6 +204,10 @@ public abstract class CardinalScene {
         cardinalListeners.put(id, listener);
     }
 
+    public static void unregisterListener(int id) {
+        cardinalListeners.remove(id);
+    }
+
     private static class MoveListener extends InputAdapter implements IdentityListener {
 
         private int currentI = -1;
