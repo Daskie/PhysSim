@@ -31,13 +31,14 @@ public abstract class SensorScene {
         program = new SensorProgram();
         program.init();
         sensorVAO = new VAO(MeshManager.tetraMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        sensorVAO.bufferColors(0, MeshManager.tetraMesh.nVertices(), new Vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
         int id = Main.registerIdentity(new SensorIdentityListener(), null, null);
         CardinalScene.registerListener(id, new SensorListener());
         program.setID(id);
 
         sensor = new Entity();
-        modelMat = new Mat4(Mat3.scale(0.5f));
+        modelMat = new Mat4(Mat3.scale(0.25f));
         sensorMat = modelMat;
         sensorNormMat = new Mat4(sensorMat.inv().trans());
 

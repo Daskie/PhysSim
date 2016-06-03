@@ -6,6 +6,7 @@ import qps.charges.ChargedLine;
 import qps.charges.ChargedObject;
 import qps.charges.ChargedPlane;
 import qps.charges.ChargedSphere;
+import qps.input_listeners.InputAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -86,7 +87,7 @@ public abstract class MainScene {
         int index = spheres.size() - 1;
 
         SphereListener listener = new SphereListener(sphere);
-        int id = Main.registerIdentity(listener, null, null);
+        int id = Main.registerIdentity(listener, null, new InputListener());
         CardinalScene.registerListener(id, listener);
         objectIDs.put(sphere, id);
         Main.select(id);
@@ -127,7 +128,7 @@ public abstract class MainScene {
         int index = planes.size() - 1;
 
         PlaneListener listener = new PlaneListener(plane);
-        int id = Main.registerIdentity(listener, null, null);
+        int id = Main.registerIdentity(listener, null, new InputListener());
         CardinalScene.registerListener(id, listener);
         objectIDs.put(plane, id);
         Main.select(id);
@@ -169,7 +170,7 @@ public abstract class MainScene {
         int index = lines.size() - 1;
 
         LineListener listener = new LineListener(line);
-        int id = Main.registerIdentity(listener, null, null);
+        int id = Main.registerIdentity(listener, null, new InputListener());
         CardinalScene.registerListener(id, listener);
         objectIDs.put(line, id);
         Main.select(id);
@@ -455,6 +456,18 @@ public abstract class MainScene {
             rotateLine(axis, theta);
         }
 
+    }
+
+    private static class InputListener extends InputAdapter {
+        @Override
+        public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            if (shift) {
+                ChargedObject object = selectedSphere != null ? selectedSphere : selectedLine != null ? selectedLine : selectedPlane;
+                if (object != null) {
+                    Main.getCamera().lookAt(object.getLoc());
+                }
+            }
+        }
     }
 
 }

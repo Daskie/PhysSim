@@ -108,9 +108,9 @@ public abstract class MapScene {
         Vec3 camForward = Main.getCamera().forward();
 
         boolean[] renderPlane = new boolean[]{
-            Math.acos(Math.abs(camForward.dot(new Vec3(sensorMat.mult(new Vec4(Vec3.POSZ)))))) <= CRITICAL_ANGLE,
-            Math.acos(Math.abs(camForward.dot(new Vec3(sensorMat.mult(new Vec4(Vec3.POSX)))))) <= CRITICAL_ANGLE,
-            Math.acos(Math.abs(camForward.dot(new Vec3(sensorMat.mult(new Vec4(Vec3.POSY)))))) <= CRITICAL_ANGLE
+            Math.acos(Math.abs(camForward.dot((new Vec3(sensorMat.mult(new Vec4(Vec3.POSZ)))).norm()))) <= CRITICAL_ANGLE,
+            Math.acos(Math.abs(camForward.dot((new Vec3(sensorMat.mult(new Vec4(Vec3.POSX)))).norm()))) <= CRITICAL_ANGLE,
+            Math.acos(Math.abs(camForward.dot((new Vec3(sensorMat.mult(new Vec4(Vec3.POSY)))).norm()))) <= CRITICAL_ANGLE
         };
 
         glDisable(GL_CULL_FACE);

@@ -29,6 +29,7 @@ public abstract class HUDScene {
     private static VAO sphereVAO;
     private static VAO lineVAO;
     private static VAO planeVAO;
+    private static VAO deleteVAO;
 
     private static int pSphereID;
     private static int nSphereID;
@@ -36,6 +37,7 @@ public abstract class HUDScene {
     private static int nLineID;
     private static int pPlaneID;
     private static int nPlaneID;
+    private static int deleteID;
 
     private static Vec2 pSpherePos;
     private static Vec2 nSpherePos;
@@ -43,6 +45,7 @@ public abstract class HUDScene {
     private static Vec2 nLinePos;
     private static Vec2 pPlanePos;
     private static Vec2 nPlanePos;
+    private static Vec2 deletePos;
 
     private static Mat4 sphereModelMat;
     private static Mat4 sphereNormMat;
@@ -50,22 +53,26 @@ public abstract class HUDScene {
     private static Mat4 lineNormMat;
     private static Mat4 planeModelMat;
     private static Mat4 planeNormMat;
+    private static Mat4 deleteModelMat;
+    private static Mat4 deleteNormMat;
 
     private static Vec3 pColor;
     private static Vec3 nColor;
+    private static Vec3 deleteColor;
 
     public static boolean init() {
         program = new HUDProgram();
         program.init();
 
-        sphereVAO = new VAO(MeshManager.sphereMesh, 0, null, null, null, null, GL_STATIC_DRAW);
-        lineVAO = new VAO(MeshManager.cylinderMesh, 0, null, null, null, null, GL_STATIC_DRAW);
-        planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, null, GL_STATIC_DRAW);
-
         program.setCamLoc(new Vec3(0.0f, 0.0f, 10.0f));
         program.setLightDir(new Vec3(-1.0f, -1.0f, -1.0f));
         program.setLightColor(new Vec3(1.0f, 1.0f, 1.0f));
         program.setLightStrength(0.75f);
+
+        sphereVAO = new VAO(MeshManager.sphereMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        lineVAO = new VAO(MeshManager.cylinderMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        planeVAO = new VAO(MeshManager.squareMesh, 0, null, null, null, null, GL_STATIC_DRAW);
+        deleteVAO = new VAO(MeshManager.crossMesh, 0, null, null, null, null, GL_STATIC_DRAW);
 
         pSphereID = Main.registerIdentity(null, new SphereListener(true), null);
         nSphereID = Main.registerIdentity(null, new SphereListener(false), null);
@@ -73,10 +80,12 @@ public abstract class HUDScene {
         nLineID = Main.registerIdentity(null, new LineListener(false), null);
         pPlaneID = Main.registerIdentity(null, new PlaneListener(true), null);
         nPlaneID = Main.registerIdentity(null, new PlaneListener(false), null);
+        deleteID = Main.registerIdentity(null, new DeleteListener(), null);
 
-        Vec2 anchor = new Vec2(-0.9f, -0.9f);
+        Vec2 anchor = new Vec2(-0.95f, -0.9f);
         Vec2 spacing = new Vec2(0.1f, 0.0f);
         int i = 0;
+        deletePos = anchor.add(spacing.mult(i++));
         pSpherePos = anchor.add(spacing.mult(i++));
         nSpherePos = anchor.add(spacing.mult(i++));
         pLinePos = anchor.add(spacing.mult(i++));
@@ -90,9 +99,12 @@ public abstract class HUDScene {
         lineNormMat = new Mat4(lineModelMat.inv().trans());
         planeModelMat = new Mat4(Mat3.rotate((float)Math.PI / 3.0f, Vec3.NEGX).mult(Mat3.scale(0.8f)));
         planeNormMat = new Mat4(planeModelMat.inv().trans());
+        deleteModelMat = new Mat4(Mat3.rotate((float)Math.PI / 6.0f, Vec3.NEGX).mult(Mat3.rotate((float)Math.PI / 4.0f, Vec3.POSZ).mult(Mat3.scale(0.5f))));
+        deleteNormMat = new Mat4(deleteModelMat.inv().trans());
 
         pColor = new Vec3(1.0f, 0.0f, 0.0f);
         nColor = new Vec3(0.0f, 0.0f, 1.0f);
+        deleteColor = new Vec3(0.2f, 0.2f, 0.2f);
 
         if (!Utils.checkGLErr()) {
             System.err.println("Failed to initialize cardinal scene!");
@@ -148,8 +160,21 @@ public abstract class HUDScene {
         program.setLightColor(nColor);
         glDrawElements(GL_TRIANGLES, MeshManager.squareMesh.nIndices(), GL_UNSIGNED_INT, 0);
 
+        glBindVertexArray(deleteVAO.vao());
+        UniformGlobals.ModelGlobals.setModelMat(deleteModelMat);
+        UniformGlobals.ModelGlobals.setNormMat(deleteNormMat);
+        UniformGlobals.ModelGlobals.buffer();
+        program.setID(deleteID);
+        program.setScreenPos(deletePos);
+        program.setLightColor(deleteColor);
+        glDrawElements(GL_TRIANGLES, MeshManager.crossMesh.nIndices(), GL_UNSIGNED_INT, 0);
+
         glBindVertexArray(0);
         glUseProgram(0);
+    }
+
+    public static boolean cleanup() {
+        return true;
     }
 
     private static class SphereListener extends InputAdapter {
@@ -206,6 +231,18 @@ public abstract class HUDScene {
         @Override
         public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
             MainScene.addPlane(new ChargedPlane(charge ? Main.SURFACE_CHARGE : -Main.SURFACE_CHARGE, new Vec3()));
+        }
+    }
+
+    private static class DeleteListener extends InputAdapter {
+        @Override
+        public void mousePressed(int button, boolean shift, boolean ctrl, boolean alt, boolean repeat, InputManager manager) {
+
+        }
+
+        @Override
+        public void mouseReleased(int button, boolean shift, boolean ctrl, boolean alt, InputManager manager) {
+            MainScene.remove();
         }
     }
 }

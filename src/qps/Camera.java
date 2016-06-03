@@ -72,4 +72,11 @@ public class Camera {
         return camDistance;
     }
 
+    public void lookAt(Vec3 p) {
+        translate(p.sub(tetherLoc));
+        Vec3 sCoords = Utils.cartesianToSpherical(loc().sub(p));
+        theta = sCoords.y;
+        phi = (float)Math.PI / 2.0f - sCoords.z;
+    }
+
 }

@@ -51,6 +51,15 @@ public abstract class Utils {
         );
     }
 
+    public static Vec3 cartesianToSpherical(Vec3  v) {
+        float rad = (float)Math.sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
+        return new Vec3(
+                rad,
+                (float)Math.atan2(v.y, v.x),
+                (float)Math.acos(v.z / rad)
+        );
+    }
+
     public static <T extends Comparable<T>> T min(T... ts) {
         T min = ts[0];
 
