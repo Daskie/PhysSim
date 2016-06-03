@@ -119,7 +119,16 @@ public abstract class CardinalScene {
         RoundListener roundListener = new RoundListener();
         roundID = Main.registerIdentity(null, roundListener, null);
 
-        mat = new Mat4(Mat4.translate(new Vec3(0.0f, 0.0f, 0.4f)).mult(new Mat4(Mat3.scale(0.15f))));
+        /*mat = new Mat4(Mat4.translate(new Vec3(0.0f, 0.0f, 0.4f)).mult(new Mat4(Mat3.scale(0.15f))));
+        spinMats = new Mat4[]{
+                new Mat4((new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.POSY)).mult(mat))),
+                new Mat4(new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.NEGY)).mult(mat)),
+                new Mat4(new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.NEGX)).mult(mat)),
+                new Mat4(new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.POSX)).mult(mat)),
+                mat,
+                new Mat4(new Mat4(Mat3.rotate((float) Math.PI, Vec3.POSX)).mult(mat))
+        };*/
+        mat = new Mat4(Mat3.rotate((float)Math.PI / 3.0f, Vec3.POSZ).mult(Mat3.scale(0.6f)));
         spinMats = new Mat4[]{
                 new Mat4((new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.POSY)).mult(mat))),
                 new Mat4(new Mat4(Mat3.rotate((float) Math.PI / 2.0f, Vec3.NEGY)).mult(mat)),
