@@ -391,6 +391,7 @@ public abstract class MainScene {
         public void round(int id) {
             Vec3 loc = selectedSphere.getLoc();
             moveSphere(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+            selectedSphere.resetRotation();
         }
 
         @Override
@@ -436,6 +437,7 @@ public abstract class MainScene {
         public void round(int id) {
             Vec3 loc = selectedPlane.getLoc();
             movePlane(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+            selectedPlane.resetRotation();
         }
 
         @Override
@@ -483,6 +485,7 @@ public abstract class MainScene {
         public void round(int id) {
             Vec3 loc = selectedLine.getLoc();
             moveLine(new Vec3(Math.round(loc.x) - loc.x, Math.round(loc.y) - loc.y, Math.round(loc.z) - loc.z));
+            selectedLine.resetRotation();
         }
 
         @Override
