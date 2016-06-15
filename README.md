@@ -8,3 +8,5 @@ This was created as a project for the physics class PHYS 133-50 of Spring 2016 a
 
 Project Report:
 https://docs.google.com/document/d/1PYnERf62TFtaPqi0zvoRcg6mRlYaXlDGl9m8MQLOzM4
+
+Created by Austin D. Quick
